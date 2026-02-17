@@ -1,0 +1,47 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# --- Virtual environments ---
+.venv/
+venv/
+ENV/
+env/
+
+# --- Packaging / build artifacts ---
+build/
+dist/
+*.egg-info/
+
+# --- Tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Env / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Telethon session files (credentials/state) ---
+telegram_session*
+*.session
+*.session-journal
+
+# --- Logs / runtime artifacts (if created inside repo) ---
+logs/
+*.log
+**/.tmp/
+
+# Common export artifacts (usually outside repo, but ignore if inside)
+**/export.json
+**/state.json
+**/media-index.json
+**/summary.json
+**/media/
+
+# --- OS ---
+Thumbs.db
+.DS_Store
