@@ -25,6 +25,12 @@ dist/
 .env.*
 !.env.example
 
+# --- Cursor / IDE ---
+# Локальная конфигурация (может содержать ключи/токены) — НЕ коммитим
+.cursor/codex-config.json
+.cursor/codex-config.*.json
+!.cursor/codex-config.example.json
+
 # --- Telethon session files (credentials/state) ---
 telegram_session*
 *.session
