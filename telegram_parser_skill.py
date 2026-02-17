@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import logging
 import os
 import sys
 from pathlib import Path
@@ -14,10 +15,42 @@ from dotenv import load_dotenv
 
 # local import
 sys.path.append(os.path.dirname(__file__))
+from logging_setup import setup_app_logging  # noqa: E402
 from telegram_parser import TelegramParser  # noqa: E402
 
 
 DEFAULT_OUTPUT = "D:\\clawbot\\ClawBot\\outbox\\telegram-parser\\"
+
+
+def _configure_utf8_stdio() -> None:
+    """Включить UTF-8 для stdout/stderr (важно для Windows-консоли).
+
+    Returns:
+        None.
+    """
+
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+    try:
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+
+def _print_utf8(text: str) -> None:
+    """Печать UTF-8 без зависимости от кодовой страницы консоли."""
+
+    sys.stdout.buffer.write(text.encode("utf-8", errors="replace"))
+    sys.stdout.buffer.write(b"\n")
+
+
+def _print_err_utf8(text: str) -> None:
+    """Печать в stderr UTF-8 без ошибок кодировки."""
+
+    sys.stderr.buffer.write(text.encode("utf-8", errors="replace"))
+    sys.stderr.buffer.write(b"\n")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -38,26 +71,43 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 async def run(args: argparse.Namespace) -> int:
+    log = logging.getLogger("tg_parser.cli")
+
     api_id = os.getenv("TELEGRAM_API_ID")
     api_hash = os.getenv("TELEGRAM_API_HASH")
 
     if not api_id or not api_hash:
-        print("Error: TELEGRAM_API_ID and TELEGRAM_API_HASH are required in .env")
+        log.error("Отсутствуют TELEGRAM_API_ID/TELEGRAM_API_HASH в .env")
+        _print_err_utf8("Error: TELEGRAM_API_ID and TELEGRAM_API_HASH are required in .env")
         return 1
 
-    parser = TelegramParser(api_id=api_id, api_hash=api_hash, session_file=args.session_file)
+    parser = TelegramParser(
+        api_id=api_id,
+        api_hash=api_hash,
+        session_file=args.session_file,
+        auth_state_dir=Path(__file__).parent / "logs",
+    )
 
     try:
         if args.command == "channels":
+            log.info("Команда channels (session_file=%s)", args.session_file)
             channels = await parser.get_available_channels()
-            print(json.dumps(channels, ensure_ascii=False, indent=2))
+            _print_utf8(json.dumps(channels, ensure_ascii=False, indent=2))
             return 0
 
         if args.command == "parse":
             if not args.channel:
-                print("Error: --channel is required for parse")
+                log.error("Команда parse без --channel")
+                _print_err_utf8("Error: --channel is required for parse")
                 return 1
 
+            log.info(
+                "Команда parse (channel=%s, mode=%s, dry_run=%s, output_dir=%s)",
+                args.channel,
+                args.mode,
+                args.dry_run,
+                args.output_dir,
+            )
             result = await parser.parse_channel(
                 channel_identifier=args.channel,
                 output_dir=args.output_dir,
@@ -71,24 +121,31 @@ async def run(args: argparse.Namespace) -> int:
                 cleanup_temp=not args.no_cleanup_temp,
             )
 
-            print(json.dumps(result, ensure_ascii=False, indent=2))
+            _print_utf8(json.dumps(result, ensure_ascii=False, indent=2))
             return 0
 
         return 1
+    except Exception:
+        log.exception("Необработанная ошибка CLI")
+        raise
     finally:
         await parser.disconnect()
 
 
 def main() -> int:
+    _configure_utf8_stdio()
     load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+    setup_app_logging(Path(__file__).parent / "logs")
     args = build_parser().parse_args()
     try:
         return asyncio.run(run(args))
     except KeyboardInterrupt:
-        print("Interrupted")
+        logging.getLogger("tg_parser.cli").warning("Остановка по Ctrl+C")
+        _print_err_utf8("Interrupted")
         return 130
     except Exception as e:
-        print(f"Error: {e}")
+        logging.getLogger("tg_parser.cli").exception("Ошибка выполнения: %s", e)
+        _print_err_utf8(f"Error: {e}")
         return 1
 
 

@@ -14,9 +14,11 @@ import os
 import random
 import re
 import shutil
+import logging
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -83,37 +85,97 @@ MODE_PRESETS = {
 
 
 class JsonLogger:
-    def __init__(self, logs_dir: Path) -> None:
-        self.run_log = logs_dir / "run.log"
-        self.error_log = logs_dir / "errors.log"
+    """JSONL-логгер с ротацией файлов.
+
+    Пишет по одной JSON-строке на событие в:
+    - `logs/run.log`
+    - `logs/errors.log`
+    """
+
+    def __init__(self, logs_dir: Path, *, max_bytes: int = 2 * 1024 * 1024, backup_count: int = 10) -> None:
         logs_dir.mkdir(parents=True, exist_ok=True)
 
-    def _write(self, target: Path, level: str, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
-        record = {
-            "ts": utc_now_iso(),
-            "level": level,
-            "event": event,
-            "data": payload or {},
-        }
-        with target.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        # Используем отдельные логгеры, чтобы не мешать глобальной конфигурации.
+        key = str(logs_dir).replace("\\", "/")
+        self._run_logger = logging.getLogger(f"tg_parser.json.run:{key}")
+        self._err_logger = logging.getLogger(f"tg_parser.json.err:{key}")
+
+        self._run_logger.setLevel(logging.INFO)
+        self._err_logger.setLevel(logging.ERROR)
+        self._run_logger.propagate = False
+        self._err_logger.propagate = False
+
+        fmt = logging.Formatter("%(message)s")
+
+        if not self._run_logger.handlers:
+            run_h = RotatingFileHandler(
+                logs_dir / "run.log",
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding="utf-8",
+            )
+            run_h.setFormatter(fmt)
+            self._run_logger.addHandler(run_h)
+
+        if not self._err_logger.handlers:
+            err_h = RotatingFileHandler(
+                logs_dir / "errors.log",
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding="utf-8",
+            )
+            err_h.setFormatter(fmt)
+            self._err_logger.addHandler(err_h)
+
+    def _record(self, level: str, event: str, payload: Optional[Dict[str, Any]] = None) -> str:
+        return json.dumps(
+            {
+                "ts": utc_now_iso(),
+                "level": level,
+                "event": event,
+                "data": payload or {},
+            },
+            ensure_ascii=False,
+        )
 
     def info(self, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
-        self._write(self.run_log, "INFO", event, payload)
+        self._run_logger.info(self._record("INFO", event, payload))
 
     def error(self, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
-        self._write(self.error_log, "ERROR", event, payload)
+        self._err_logger.error(self._record("ERROR", event, payload))
 
 
 class TelegramParser:
-    def __init__(self, api_id: str, api_hash: str, session_file: str = "telegram_session"):
+    def __init__(
+        self,
+        api_id: str,
+        api_hash: str,
+        session_file: str = "telegram_session",
+        auth_state_dir: Optional[Path] = None,
+    ):
         self.api_id = api_id
         self.api_hash = api_hash
         self.session_file = session_file
+        self.auth_state_dir = auth_state_dir
         self.client: Optional[TelegramClient] = None
+        self._log = logging.getLogger("tg_parser.core")
+
+    def _auth_state_path(self) -> Optional[Path]:
+        if not self.auth_state_dir:
+            return None
+        self.auth_state_dir.mkdir(parents=True, exist_ok=True)
+        return self.auth_state_dir / "telegram_auth_state.json"
 
     async def connect(self) -> None:
         self.client = TelegramClient(self.session_file, int(self.api_id), self.api_hash)
+        try:
+            sess = getattr(self.client, "session", None)
+            sess_name = sess.__class__.__name__ if sess else "None"
+            sess_file = getattr(sess, "filename", None) if sess else None
+            self._log.info("Сессия Telethon: %s (%s)", sess_name, sess_file or "без файла")
+        except Exception:
+            # Диагностика не должна ломать работу.
+            pass
         await self.client.connect()
 
         if await self.client.is_user_authorized():
@@ -123,15 +185,50 @@ class TelegramParser:
         if not phone:
             raise RuntimeError("TELEGRAM_PHONE is required in .env for first authorization")
 
-        await self.client.send_code_request(phone)
-        code = input("Enter Telegram code: ").strip()
+        code = (os.getenv("TELEGRAM_CODE") or os.getenv("TELEGRAM_LOGIN_CODE") or "").strip()
+        state_path = self._auth_state_path()
+        phone_code_hash: Optional[str] = None
+        if state_path:
+            state = self._load_json(state_path, {})
+            phone_code_hash = state.get("phone_code_hash") if isinstance(state, dict) else None
+
+        if not code:
+            sent = await self.client.send_code_request(phone)
+            if state_path:
+                self._save_json(
+                    state_path,
+                    {
+                        "created_at": utc_now_iso(),
+                        "phone": phone,
+                        "phone_code_hash": getattr(sent, "phone_code_hash", None),
+                    },
+                )
+            # В среде без интерактива просим повторный запуск с кодом.
+            raise RuntimeError(
+                "Код отправлен в Telegram. Укажите TELEGRAM_CODE и повторите команду "
+                "(хеш кода сохранён в logs/telegram_auth_state.json)."
+            )
+
         try:
-            await self.client.sign_in(phone=phone, code=code)
+            if phone_code_hash:
+                self._log.info("Вход: использую сохранённый phone_code_hash из auth state")
+                await self.client.sign_in(phone=phone, code=code, phone_code_hash=phone_code_hash)
+            else:
+                self._log.info("Вход: phone_code_hash не найден, запрашиваю код заново")
+                sent = await self.client.send_code_request(phone)
+                await self.client.sign_in(phone=phone, code=code, phone_code_hash=getattr(sent, "phone_code_hash", None))
         except SessionPasswordNeededError:
             pwd = os.getenv("TELEGRAM_2FA_PASSWORD")
             if not pwd:
                 pwd = input("Enter 2FA password: ").strip()
             await self.client.sign_in(password=pwd)
+        finally:
+            # После успешного входа очищаем auth state, чтобы не переиспользовать хеш.
+            if state_path and state_path.exists() and await self.client.is_user_authorized():
+                try:
+                    state_path.unlink(missing_ok=True)
+                except Exception:
+                    pass
 
     async def disconnect(self) -> None:
         if self.client:
@@ -175,7 +272,8 @@ class TelegramParser:
     async def _resolve_entity(self, channel_identifier: str):
         assert self.client
         try:
-            if channel_identifier.isdigit():
+            # Поддержка ID (включая отрицательные -100... для каналов/чатов)
+            if re.fullmatch(r"-?\d+", channel_identifier or ""):
                 return await self.client.get_entity(int(channel_identifier))
             return await self.client.get_entity(channel_identifier)
         except Exception:
@@ -371,8 +469,11 @@ class TelegramParser:
                 msg_date_iso = iso_from_telethon_date(getattr(msg, "date", None))
                 msg_date = msg.date.astimezone(timezone.utc) if getattr(msg, "date", None) else None
 
+                # Оптимизация: история листается от новых к старым.
+                # Если дошли до сообщений старше date_from — можно завершать выборку.
                 if from_dt and msg_date and msg_date < from_dt:
-                    continue
+                    stop = True
+                    break
                 if to_dt and msg_date and msg_date > to_dt:
                     continue
 
@@ -488,6 +589,9 @@ class TelegramParser:
                         "forwards": getattr(msg, "forwards", None),
                     }
                 )
+
+            if stop:
+                break
 
             offset_id = history.messages[-1].id
             await sleep_batch_jitter()
