@@ -1,108 +1,48 @@
 # TG_Parser
 
-Парсер Telegram-каналов в JSON + медиа (фото/видео/документы) с безопасным режимом и апдейтом.
+Парсер Telegram-каналов: экспорт сообщений в JSON и загрузка медиа (фото, видео, документы) с поддержкой инкрементального обновления и работы по ссылкам на посты.
 
-## Что реализовано
-- Экспорт текста + медиа
-- Структура хранения: `канал -> media/photos|videos|documents`
-- Режим апдейта: добавление новых сообщений по `message_id` в **тот же последний каталог**
-- `state.json` + `media-index.json` (SHA-256 дедупликация)
-- `logs/run.log` и `logs/errors.log`
-- `summary.json`
-- `dry-run` (оценка объёма: `known_size_mb`, `unknown_size_count`)
-- Режимы скорости: `safe` (default) и `normal`
-- Обработка `FloodWait` + retry/backoff
-- Опция `--zip` (без шифрования)
+## Возможности
 
-## Установка
+- Экспорт текста и медиа в структурированный JSON
+- Хранение медиа по типам: `media/photos`, `media/videos`, `media/documents`
+- Режим обновления: добавление новых сообщений в существующий каталог по `message_id`
+- Поддержка ссылок: парсинг по `https://t.me/channel/123` или получение id канала командой `resolve`
+- Дедупликация медиа по SHA-256 (`media-index.json`), состояние в `state.json`
+- Режимы скорости: `safe` (по умолчанию) и `normal`, обработка FloodWait и повторные попытки
+- Dry-run (оценка объёма без записи), опция упаковки в ZIP
+- Логирование с ротацией: `logs/app.log`, `logs/errors.log`, JSONL в каталоге экспорта
+
+## Быстрый старт
+
 ```powershell
-cd D:\work\TG_Parser
+cd D:\Work\TG_Parser
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
-# заполните .env
-```
-
-## CLI
-
-### Список каналов
-```powershell
+# заполните .env (см. docs/setup.md)
 python .\telegram_parser_skill.py channels
+python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonStruct/36"
 ```
 
-### Парсинг (базовый)
-```powershell
-python .\telegram_parser_skill.py parse --channel @my_channel
-```
+## Документация
 
-## Алиасы (интеграция)
-В проект добавлены алиасы-обёртки:
-- `telegram_channels.ps1`
-- `telegram_parse.ps1`
+| Раздел | Описание |
+|--------|----------|
+| [**Первоначальная настройка**](docs/setup.md) | Окружение, `.env`, первый вход, 2FA |
+| [**CLI и формы запуска**](docs/cli.md) | Команды `channels`, `resolve`, `parse`, все опции и примеры |
+| [**Форматы выходных файлов**](docs/output-formats.md) | `export.json`, `state.json`, `media-index.json`, `summary.json`, структура каталога |
+| [**Логирование**](docs/logging.md) | Формат логов, ротация, расположение файлов |
+| [**Описание функций**](docs/functions.md) | Основные функции и классы модулей парсера |
 
-Быстрая установка в PowerShell-профиль:
-```powershell
-.\setup_aliases.ps1
-. $PROFILE
-```
+## Безопасность
 
-После этого доступны команды:
-- `telegram_channels`
-- `telegram_parse --channel @my_channel --mode safe`
-- короткие: `tgch`, `tgparse`
+- Учётные данные хранятся только в `.env` (файл в `.gitignore`)
+- Секреты не выводятся в логи
+- Время в JSON и логах — UTC в формате ISO (`YYYY-MM-DDTHH:mm:ssZ`)
 
-### Парсинг с датами
-```powershell
-python .\telegram_parser_skill.py parse --channel @my_channel --date-from 2025-01-01 --date-to 2025-12-31
-```
+## Интеграция
 
-### Dry-run
-```powershell
-python .\telegram_parser_skill.py parse --channel @my_channel --dry-run
-```
-
-### Ограничение размера медиа + zip
-```powershell
-python .\telegram_parser_skill.py parse --channel @my_channel --max-media-size 50 --zip
-```
-
-## Опции
-- `--mode safe|normal` (default: `safe`)
-- `--date-from YYYY-MM-DD`
-- `--date-to YYYY-MM-DD`
-- `--keyword-filter word1 word2 ...`
-- `--max-media-size <MB>`
-- `--dry-run`
-- `--zip`
-- `--output-dir` (default: `D:\clawbot\ClawBot\outbox\telegram-parser\`)
-- `--no-cleanup-temp`
-
-## Структура результата
-```text
-D:\clawbot\ClawBot\outbox\telegram-parser\
-└── channel_username__YYYY-MM-DD_HH-mm\
-    ├── export.json
-    ├── state.json
-    ├── media-index.json
-    ├── summary.json
-    ├── logs\
-    │   ├── run.log
-    │   └── errors.log
-    └── media\
-        ├── photos\
-        ├── videos\
-        └── documents\
-```
-
-## Важно по безопасности
-- Критичные данные хранятся только в `.env`
-- Секреты не пишутся в логи
-- Время в JSON/логах: ISO UTC (`YYYY-MM-DDTHH:mm:ssZ`)
-
-## Чат-команды OpenClaw
-Маппинг можно сделать так:
-- `/telegram_channels` -> `python telegram_parser_skill.py channels`
-- `/telegram_parse ...` -> `python telegram_parser_skill.py parse ...`
-
-(привязку чат-команд к локальному скрипту можно добавить отдельным шагом в конфиге агента/skills)
+- **OpenClaw / скиллы**: команды можно сопоставить с `telegram_parser_skill.py` (см. [CLI](docs/cli.md))
+- **PowerShell-алиасы**: `.\setup_aliases.ps1` и перезагрузка профиля — см. [Настройка](docs/setup.md)

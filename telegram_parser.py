@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from telethon import TelegramClient
 from telethon.errors import FloodWaitError, SessionPasswordNeededError
+from telethon.errors.rpcerrorlist import FileReferenceExpiredError
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaPoll
 
@@ -59,6 +60,47 @@ def limit_filename_base(base: str, max_len: int = 120) -> str:
         return base
     suffix = short_hash(base)
     return f"{base[: max_len - 7]}_{suffix}"
+
+
+# Ссылки на посты/каналы: https://t.me/channelname или https://t.me/channelname/123
+_TELEGRAM_LINK_RE = re.compile(
+    r"^(?:https?://)?(?:t\.me|telegram\.me|telegram\.dog)/([a-zA-Z0-9_]+)(?:/(\d+))?/?$",
+    re.IGNORECASE,
+)
+
+
+def parse_telegram_link(link: str) -> Optional[Tuple[str, Optional[int]]]:
+    """Извлечь из ссылки t.me/... username канала и опционально номер поста.
+
+    Args:
+        link: Ссылка вида https://t.me/AlgorithmPythonStruct/36 или t.me/channelname.
+
+    Returns:
+        Кортеж (username_канала, post_id или None) или None, если не ссылка.
+    """
+    s = (link or "").strip()
+    m = _TELEGRAM_LINK_RE.match(s)
+    if not m:
+        return None
+    username = m.group(1)
+    post_id = int(m.group(2)) if m.group(2) else None
+    return (username, post_id)
+
+
+def channel_identifier_from_input(identifier: str) -> Tuple[str, Optional[int]]:
+    """Нормализовать ввод: ссылка → (username для резолва, post_id); иначе (как есть, None).
+
+    Args:
+        identifier: Ссылка t.me/..., @username, или числовой id.
+
+    Returns:
+        (строка для get_entity, post_id или None).
+    """
+    parsed = parse_telegram_link(identifier)
+    if parsed:
+        username, post_id = parsed
+        return (username if username.startswith("@") else f"@{username}", post_id)
+    return (identifier.strip(), None)
 
 
 def iso_from_telethon_date(dt: Optional[datetime]) -> Optional[str]:
@@ -251,11 +293,38 @@ class TelegramParser:
                 )
         return result
 
+    async def get_channel_info(self, link_or_identifier: str) -> Dict[str, Any]:
+        """Получить id, username и title канала по ссылке t.me/..., @username или id.
+
+        Args:
+            link_or_identifier: Ссылка (https://t.me/channel/123), @username или числовой id.
+
+        Returns:
+            Словарь: id, username, title; если в ссылке был номер поста — post_id.
+        """
+        await self.connect()
+        assert self.client
+        entity = await self._resolve_entity(link_or_identifier)
+        _, post_id = channel_identifier_from_input(link_or_identifier)
+        channel_id = int(getattr(entity, "id", 0))
+        username = getattr(entity, "username", None)
+        title = getattr(entity, "title", None) or getattr(entity, "first_name", "")
+        out: Dict[str, Any] = {
+            "id": channel_id,
+            "username": username,
+            "title": title,
+        }
+        if post_id is not None:
+            out["post_id"] = post_id
+        return out
+
     async def _with_retries(self, coro_factory, logger: JsonLogger, mode_cfg: ModeConfig):
         retries = 0
         while True:
             try:
                 return await coro_factory()
+            except FileReferenceExpiredError:
+                raise
             except FloodWaitError as e:
                 wait_for = int(e.seconds) + mode_cfg.flood_extra_delay + random.randint(0, 2)
                 logger.error("flood_wait", {"seconds": int(e.seconds), "sleep": wait_for})
@@ -270,16 +339,16 @@ class TelegramParser:
                 await asyncio.sleep(backoff)
 
     async def _resolve_entity(self, channel_identifier: str):
+        """Резолв канала/чата по ссылке t.me/..., @username или числовому id."""
         assert self.client
+        normalized, _ = channel_identifier_from_input(channel_identifier)
         try:
-            # Поддержка ID (включая отрицательные -100... для каналов/чатов)
-            if re.fullmatch(r"-?\d+", channel_identifier or ""):
-                return await self.client.get_entity(int(channel_identifier))
-            return await self.client.get_entity(channel_identifier)
+            if re.fullmatch(r"-?\d+", normalized or ""):
+                return await self.client.get_entity(int(normalized))
+            return await self.client.get_entity(normalized)
         except Exception:
-            # last chance with @username
-            if not channel_identifier.startswith("@"):
-                return await self.client.get_entity(f"@{channel_identifier}")
+            if not normalized.startswith("@"):
+                return await self.client.get_entity(f"@{normalized}")
             raise
 
     def _find_or_create_export_dir(self, base_output: Path, channel_slug: str) -> Path:
@@ -517,11 +586,35 @@ class TelegramParser:
                             final_name = f"{base}{ext or '.bin'}"
 
                         temp_path = temp_dir / f"tmp_{msg_id}_{random.randint(1000, 9999)}"
+                        media_to_dl = msg.media
 
-                        async def dl_media():
-                            return await self.client.download_media(msg.media, file=str(temp_path))
+                        async def dl_media(media=media_to_dl):
+                            return await self.client.download_media(media, file=str(temp_path))
 
-                        downloaded_path_raw = await self._with_retries(dl_media, logs, mode_cfg)
+                        try:
+                            downloaded_path_raw = await self._with_retries(dl_media, logs, mode_cfg)
+                        except FileReferenceExpiredError:
+                            logs.error("file_reference_expired", {"message_id": msg_id})
+                            fresh = await self.client.get_messages(entity, ids=msg_id)
+                            if fresh and getattr(fresh[0], "media", None):
+
+                                async def dl_fresh():
+                                    return await self.client.download_media(fresh[0].media, file=str(temp_path))
+
+                                try:
+                                    downloaded_path_raw = await self._with_retries(dl_fresh, logs, mode_cfg)
+                                except Exception:
+                                    logs.error("file_reference_retry_failed", {"message_id": msg_id})
+                                    downloaded_path_raw = None
+                                    media_files.append(
+                                        {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
+                                    )
+                            else:
+                                downloaded_path_raw = None
+                                media_files.append(
+                                    {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
+                                )
+
                         if downloaded_path_raw:
                             downloaded_path = Path(downloaded_path_raw)
                             if downloaded_path.exists():
@@ -589,6 +682,20 @@ class TelegramParser:
                         "forwards": getattr(msg, "forwards", None),
                     }
                 )
+
+            if not dry_run and new_messages:
+                all_messages = export_data.get("messages", []) + new_messages
+                all_messages.sort(key=lambda m: int(m.get("id", 0)))
+                export_data["messages"] = all_messages
+                export_data["export_date"] = utc_now_iso()
+                export_data["total_messages"] = len(all_messages)
+                state["last_message_id"] = max(int(m.get("id", 0)) for m in all_messages)
+                state["last_update_at"] = utc_now_iso()
+                state["messages_total"] = len(all_messages)
+                state["media_total"] = sum(len(m.get("media_files", [])) for m in all_messages)
+                self._save_json(export_json_path, export_data)
+                self._save_json(state_path, state)
+                self._save_json(media_index_path, {"sha256_to_path": hash_index})
 
             if stop:
                 break

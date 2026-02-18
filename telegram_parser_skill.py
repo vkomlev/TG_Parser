@@ -55,8 +55,16 @@ def _print_err_utf8(text: str) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Telegram channel parser to JSON + media")
-    p.add_argument("command", choices=["channels", "parse"], help="Command")
-    p.add_argument("--channel", type=str, help="Channel username, id, or link")
+    p.add_argument(
+        "command",
+        choices=["channels", "parse", "resolve"],
+        help="Command: channels — список каналов, parse — парсинг, resolve — id по ссылке",
+    )
+    p.add_argument(
+        "--channel",
+        type=str,
+        help="Канал: ссылка (t.me/channel/123), @username или числовой id",
+    )
     p.add_argument("--mode", choices=["safe", "normal"], default="safe", help="Rate mode")
     p.add_argument("--date-from", type=str, help="Start date YYYY-MM-DD")
     p.add_argument("--date-to", type=str, help="End date YYYY-MM-DD")
@@ -93,6 +101,16 @@ async def run(args: argparse.Namespace) -> int:
             log.info("Команда channels (session_file=%s)", args.session_file)
             channels = await parser.get_available_channels()
             _print_utf8(json.dumps(channels, ensure_ascii=False, indent=2))
+            return 0
+
+        if args.command == "resolve":
+            if not args.channel:
+                log.error("Команда resolve без --channel")
+                _print_err_utf8("Error: --channel is required for resolve (link, @username or id)")
+                return 1
+            log.info("Команда resolve (channel=%s)", args.channel)
+            info = await parser.get_channel_info(args.channel)
+            _print_utf8(json.dumps(info, ensure_ascii=False, indent=2))
             return 0
 
         if args.command == "parse":
