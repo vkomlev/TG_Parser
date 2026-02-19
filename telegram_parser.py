@@ -118,11 +118,13 @@ class ModeConfig:
     flood_extra_delay: int
     max_retries: int
     media_concurrency: int
+    media_download_timeout_sec: int
 
 
 MODE_PRESETS = {
-    "safe": ModeConfig(0.8, 1.5, 5, 5, 1),
-    "normal": ModeConfig(0.3, 0.8, 3, 3, 2),
+    # VPN/нестабильные сети: даём до 30 минут на один файл перед retry.
+    "safe": ModeConfig(0.8, 1.5, 5, 5, 1, 1800),
+    "normal": ModeConfig(0.3, 0.8, 3, 3, 2, 900),
 }
 
 
@@ -329,6 +331,25 @@ class TelegramParser:
                 wait_for = int(e.seconds) + mode_cfg.flood_extra_delay + random.randint(0, 2)
                 logger.error("flood_wait", {"seconds": int(e.seconds), "sleep": wait_for})
                 await asyncio.sleep(wait_for)
+            except asyncio.TimeoutError as e:
+                retries += 1
+                if retries > mode_cfg.max_retries:
+                    logger.error(
+                        "retry_exhausted",
+                        {"error": "download_timeout", "timeout_sec": mode_cfg.media_download_timeout_sec},
+                    )
+                    raise
+                backoff = 2 ** retries
+                logger.error(
+                    "retry",
+                    {
+                        "attempt": retries,
+                        "sleep": backoff,
+                        "error": "download_timeout",
+                        "timeout_sec": mode_cfg.media_download_timeout_sec,
+                    },
+                )
+                await asyncio.sleep(backoff)
             except Exception as e:
                 retries += 1
                 if retries > mode_cfg.max_retries:
@@ -589,7 +610,10 @@ class TelegramParser:
                         media_to_dl = msg.media
 
                         async def dl_media(media=media_to_dl):
-                            return await self.client.download_media(media, file=str(temp_path))
+                            return await asyncio.wait_for(
+                                self.client.download_media(media, file=str(temp_path)),
+                                timeout=mode_cfg.media_download_timeout_sec,
+                            )
 
                         try:
                             downloaded_path_raw = await self._with_retries(dl_media, logs, mode_cfg)
@@ -599,7 +623,10 @@ class TelegramParser:
                             if fresh and getattr(fresh[0], "media", None):
 
                                 async def dl_fresh():
-                                    return await self.client.download_media(fresh[0].media, file=str(temp_path))
+                                    return await asyncio.wait_for(
+                                        self.client.download_media(fresh[0].media, file=str(temp_path)),
+                                        timeout=mode_cfg.media_download_timeout_sec,
+                                    )
 
                                 try:
                                     downloaded_path_raw = await self._with_retries(dl_fresh, logs, mode_cfg)

@@ -1,106 +1,80 @@
+---
+name: telegram-channel-parser
+description: Парсинг Telegram-каналов в JSON с загрузкой медиа, инкрементальным обновлением и поддержкой запуска по ссылке на пост/канал (t.me/.../123), @username или id. Используй, когда нужно: (1) получить список доступных каналов, (2) определить канал по ссылке, (3) выгрузить сообщения и медиа в структурированный экспорт, (4) выполнить dry-run оценку объёма.
+---
+
 # Telegram Channel Parser Skill
 
-## Description
-A skill to parse Telegram channels and export their content as structured JSON data with media files, similar to Telegram Desktop's export functionality.
+## Быстрые команды
 
-## Requirements
-- Python 3.8+
-- Telethon library
-- Telegram API credentials (api_id, api_hash)
-- User authorization to access channels (supports 2FA)
-- Environment variables stored securely in .env file
+Точка входа: `telegram_parser_skill.py`
 
-## Features
-- List accessible channels/chats
-- Parse channel messages with metadata
-- Export to structured JSON format with file paths
-- Download and save media files to organized directory structure
-- Support for various content types (text, photos, videos, documents)
-- Pagination handling for large channels
-- Support for both public and private channels
-- Update mode - adds new messages to existing exports
-- Keyword filtering option
-- Forwarded message information
-- Media file size limiting
-- Organized file storage (by channel and media type)
-
-## Commands
-- `/telegram_parse <channel_link_or_username>` - Parse a specific channel
-- `/telegram_channels` - List available channels
-- `/telegram_help` - Show help information
-
-## Options
-- `--limit <number>` - Limit number of messages to parse
-- `--start-date <YYYY-MM-DD>` - Parse messages starting from date
-- `--end-date <YYYY-MM-DD>` - Parse messages until date
-- `--media-only` - Export only media messages
-- `--text-only` - Export only text messages
-- `--keyword-filter <word1> <word2> ...` - Only include messages containing these keywords (optional, parses all by default)
-- `--max-media-size <number>` - Maximum media file size in MB (optional, no limit by default)
-- `--output-dir <path>` - Output directory for exports (default: ./telegram_exports)
-
-## JSON Structure
-```json
-{
-  "channel_info": {
-    "id": "...",
-    "username": "...",
-    "title": "...",
-    "participants_count": "...",
-    "description": "...",
-    "date_created": "..."
-  },
-  "messages": [
-    {
-      "id": "...",
-      "date": "...",
-      "sender_id": "...",
-      "sender_username": "...",
-      "sender_first_name": "...",
-      "sender_last_name": "...",
-      "text": "...",
-      "media_files": [
-        {
-          "type": "photo|video|document",
-          "path": "relative/path/to/media/file",
-          "filename": "filename.ext",
-          "size": 123456
-        }
-      ],
-      "forwarded": {
-        "from_name": "...",
-        "date": "...",
-        "channel_post_id": "...",
-        "post_author": "..."
-      },
-      "reply_to_msg_id": "...",
-      "views": "...",
-      "forwards": "..."
-    }
-  ],
-  "export_date": "...",
-  "total_messages": "..."
-}
+```powershell
+python .\telegram_parser_skill.py channels
+python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPythonStruct/36"
+python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonStruct/36"
 ```
 
-## Directory Structure
-```
-output_dir/
-└── channel_title/
-    ├── channel_title.json
-    └── media/
-        ├── photos/
-        ├── videos/
-        └── documents/
+## Что поддерживается
+
+- Форматы `--channel`:
+  - ссылка на пост/канал: `https://t.me/channel/123`, `t.me/channel`
+  - username: `@channelname`, `channelname`
+  - id: `2614091536`, `-100...`
+- Инкрементальный режим (дозагрузка новых сообщений в последний каталог канала)
+- Дедупликация медиа по SHA-256 (`media-index.json`)
+- Логи приложения и логи конкретного прогона (JSONL)
+- Обработка FloodWait и retry
+- Dry-run, фильтр по датам, фильтр по ключевым словам, лимит размера медиа, ZIP
+
+## Основные опции parse
+
+- `--channel` (обязательно)
+- `--mode safe|normal` (по умолчанию `safe`)
+- `--date-from YYYY-MM-DD`
+- `--date-to YYYY-MM-DD`
+- `--keyword-filter ...`
+- `--max-media-size <MB>`
+- `--dry-run`
+- `--zip`
+- `--output-dir <path>`
+- `--session-file <name>`
+- `--no-cleanup-temp`
+
+## Результат выгрузки
+
+Каталог экспорта:
+
+```text
+{output_dir}/{channel_slug}__YYYY-MM-DD_HH-mm/
 ```
 
-## Configuration
-Requires TELEGRAM_API_ID and TELEGRAM_API_HASH environment variables stored securely in .env file.
-Supports two-factor authentication during initial login.
+Ключевые файлы:
 
-## Dependencies
-- telethon
-- json
-- datetime
-- pathlib
-- typing
+- `export.json` — канал + массив сообщений
+- `state.json` — состояние инкрементального обновления
+- `media-index.json` — индекс дедупликации SHA-256
+- `summary.json` — итог последнего запуска
+- `logs/run.log`, `logs/errors.log` — JSONL-логи прогона
+- `media/photos|videos|documents` — скачанные файлы
+
+## Интеграция с OpenClaw
+
+Маппинг команд:
+
+- `/telegram_channels` → `python D:\work\TG_Parser\telegram_parser_skill.py channels`
+- `/telegram_parse ...` → `python D:\work\TG_Parser\telegram_parser_skill.py parse ...`
+
+Если нужен явный резолв ссылки в чате, добавь алиас `/telegram_resolve ...` на команду:
+
+```powershell
+python D:\work\TG_Parser\telegram_parser_skill.py resolve --channel ...
+```
+
+## Где смотреть детали
+
+- `docs/setup.md` — первичная настройка и 2FA
+- `docs/cli.md` — команды и опции
+- `docs/output-formats.md` — схема выходных файлов
+- `docs/logging.md` — логирование и ротация
+- `docs/functions.md` — функции/классы для разработки
