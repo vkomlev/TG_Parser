@@ -1,0 +1,223 @@
+﻿diff --git a/README.md b/README.md
+index 89c78e6..197fee1 100644
+--- a/README.md
++++ b/README.md
+@@ -36,6 +36,10 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
+ | [**╨Ы╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡**](docs/logging.md) | ╨д╨╛╤А╨╝╨░╤В ╨╗╨╛╨│╨╛╨▓, ╤А╨╛╤В╨░╤Ж╨╕╤П, ╤А╨░╤Б╨┐╨╛╨╗╨╛╨╢╨╡╨╜╨╕╨╡ ╤Д╨░╨╣╨╗╨╛╨▓ |
+ | [**╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╤Д╤Г╨╜╨║╤Ж╨╕╨╣**](docs/functions.md) | ╨Ю╤Б╨╜╨╛╨▓╨╜╤Л╨╡ ╤Д╤Г╨╜╨║╤Ж╨╕╨╕ ╨╕ ╨║╨╗╨░╤Б╤Б╤Л ╨╝╨╛╨┤╤Г╨╗╨╡╨╣ ╨┐╨░╤А╤Б╨╡╤А╨░ |
+ 
++## ╨Ъ╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░
++
++- `0` тАФ ╤Г╤Б╨┐╨╡╤Е; `1` тАФ ╤Д╨░╤В╨░╨╗╤М╨╜╨░╤П ╨╛╤И╨╕╨▒╨║╨░; `2` тАФ ╤З╨░╤Б╤В╨╕╤З╨╜╤Л╨╣ ╤Г╤Б╨┐╨╡╤Е (parse ╨╖╨░╨▓╨╡╤А╤И╤С╨╜, ╤З╨░╤Б╤В╤М ╨╝╨╡╨┤╨╕╨░ ╨╜╨╡ ╨╖╨░╨│╤А╤Г╨╢╨╡╨╜╨░); `130` тАФ ╨┐╤А╨╡╤А╤Л╨▓╨░╨╜╨╕╨╡ (Ctrl+C). ╨Я╨╛╨┤╤А╨╛╨▒╨╜╨╛ тАФ ╨▓ [CLI](docs/cli.md#╨║╨╛╨┤╤Л-╨▓╤Л╤Е╨╛╨┤╨░).
++
+ ## ╨С╨╡╨╖╨╛╨┐╨░╤Б╨╜╨╛╤Б╤В╤М
+ 
+ - ╨г╤З╤С╤В╨╜╤Л╨╡ ╨┤╨░╨╜╨╜╤Л╨╡ ╤Е╤А╨░╨╜╤П╤В╤Б╤П ╤В╨╛╨╗╤М╨║╨╛ ╨▓ `.env` (╤Д╨░╨╣╨╗ ╨▓ `.gitignore`)
+diff --git a/docs/README.md b/docs/README.md
+index 6a6181d..ea77ecc 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -9,5 +9,7 @@
+ | [output-formats.md](output-formats.md) | ╨д╨╛╤А╨╝╨░╤В╤Л ╨▓╤Л╤Е╨╛╨┤╨╜╤Л╤Е ╤Д╨░╨╣╨╗╨╛╨▓: export.json, state.json, media-index.json, summary.json, ╤Б╤В╤А╤Г╨║╤В╤Г╤А╨░ ╨║╨░╤В╨░╨╗╨╛╨│╨░ |
+ | [logging.md](logging.md) | ╨Ы╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: ╤Д╨╛╤А╨╝╨░╤В╤Л ╨╗╨╛╨│╨╛╨▓, ╤А╨╛╤В╨░╤Ж╨╕╤П, ╤А╨░╤Б╨┐╨╛╨╗╨╛╨╢╨╡╨╜╨╕╨╡ (app.log, run.log, errors.log) |
+ | [functions.md](functions.md) | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╨╛╤Б╨╜╨╛╨▓╨╜╤Л╤Е ╤Д╤Г╨╜╨║╤Ж╨╕╨╣ ╨╕ ╨║╨╗╨░╤Б╤Б╨╛╨▓ ╨╝╨╛╨┤╤Г╨╗╨╡╨╣ ╨┐╨░╤А╤Б╨╡╤А╨░ |
++| [AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md](AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╨░╤А╤Е╨╕╤В╨╡╨║╤В╤Г╤А╤Л: ╤А╨░╤Б╤И╨╕╤А╤П╨╡╨╝╨╛╤Б╤В╤М, DRY, ╤Б╤В╤А╨░╤В╨╡╨│╨╕╤П ╨╝╨░╤Б╤И╤В╨░╨▒╨╕╤А╨╛╨▓╨░╨╜╨╕╤П |
++| [AUDIT-IMPLEMENTATION-2026-02-21.md](AUDIT-IMPLEMENTATION-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╤А╨╡╨░╨╗╨╕╨╖╨░╤Ж╨╕╨╕ TG_Parser ╨╕ ╨┐╨╛╤И╨░╨│╨╛╨▓╤Л╨╣ ╨┐╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П (Phase 1тАУ4) |
+ 
+ ╨У╨╗╨░╨▓╨╜╨░╤П ╤В╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░ тАФ [README.md](../README.md) ╨▓ ╨║╨╛╤А╨╜╨╡ ╨┐╤А╨╛╨╡╨║╤В╨░.
+diff --git a/docs/cli.md b/docs/cli.md
+index 1e367f0..6a9b2a9 100644
+--- a/docs/cli.md
++++ b/docs/cli.md
+@@ -127,9 +127,16 @@ python .\telegram_parser_skill.py parse --channel @my_channel --max-media-size 5
+ 
+ ## ╨Ъ╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░
+ 
+-- `0` тАФ ╤Г╤Б╨┐╨╡╤Е
+-- `1` тАФ ╨╛╤И╨╕╨▒╨║╨░ (╨╜╨╡╤В .env, ╨╜╨╡╨▓╨╡╤А╨╜╤Л╨╡ ╨░╤А╨│╤Г╨╝╨╡╨╜╤В╤Л, ╨╛╤И╨╕╨▒╨║╨░ API ╨╕ ╤В.╨┐.)
+-- `130` тАФ ╨┐╤А╨╡╤А╤Л╨▓╨░╨╜╨╕╨╡ ╨┐╨╛ Ctrl+C
++╨Х╨┤╨╕╨╜╨░╤П ╨╝╨░╤В╤А╨╕╤Ж╨░ ╨┤╨╗╤П ╤Б╨║╤А╨╕╨┐╤В╨╛╨▓ ╨╕ ╨╛╤А╨║╨╡╤Б╤В╤А╨░╤Ж╨╕╨╕ (╨║╨╛╨╜╤Б╤В╨░╨╜╤В╤Л ╨▓ `exit_codes.py`):
++
++| ╨Ъ╨╛╨┤ | ╨Ъ╨╛╨╜╤Б╤В╨░╨╜╤В╨░ | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ |
++|-----|-----------|----------|
++| 0 | EXIT_SUCCESS | ╨г╤Б╨┐╨╡╤И╨╜╨╛╨╡ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╨╡ ╨║╨╛╨╝╨░╨╜╨┤╤Л |
++| 1 | EXIT_FAILURE | ╨д╨░╤В╨░╨╗╤М╨╜╨░╤П ╨╛╤И╨╕╨▒╨║╨░: ╨║╨╛╨╜╤Д╨╕╨│, ╨░╨▓╤В╨╛╤А╨╕╨╖╨░╤Ж╨╕╤П, ╨╜╨╡╨▓╨╡╤А╨╜╤Л╨╡ ╨░╤А╨│╤Г╨╝╨╡╨╜╤В╤Л, ╨╜╨╡╨╛╨▒╤А╨░╨▒╨╛╤В╨░╨╜╨╜╨╛╨╡ ╨╕╤Б╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ |
++| 2 | EXIT_PARTIAL | ╨з╨░╤Б╤В╨╕╤З╨╜╤Л╨╣ ╤Г╤Б╨┐╨╡╤Е: ╨║╨╛╨╝╨░╨╜╨┤╨░ `parse` ╨╖╨░╨▓╨╡╤А╤И╨╕╨╗╨░╤Б╤М, ╨╜╨╛ ╤З╨░╤Б╤В╤М ╨╝╨╡╨┤╨╕╨░ ╨╜╨╡ ╨╖╨░╨│╤А╤Г╨╢╨╡╨╜╨░ (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А file_reference_expired) |
++| 130 | EXIT_INTERRUPTED | ╨Я╤А╨╡╤А╤Л╨▓╨░╨╜╨╕╨╡ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╨╡╨╝ (Ctrl+C) |
++
++╨Я╤А╨╕ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╨╜╨╕╨╕ ╨▓ ╤Б╨║╤А╨╕╨┐╤В╨░╤Е ╨┐╤А╨╛╨▓╨╡╤А╤П╨╣╤В╨╡ ╨║╨╛╨┤ ╨▓╤Л╤Е╨╛╨┤╨░; ╨┐╤А╨╕ `EXIT_PARTIAL` ╨┤╨░╨╜╨╜╤Л╨╡ ╨╕ summary ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╤Л, ╨╜╨╛ ╨▓ `summary.media_errors_count` ╤Г╨║╨░╨╖╨░╨╜╨╛ ╨║╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╨┐╤А╨╛╨┐╤Г╤Й╨╡╨╜╨╜╤Л╤Е ╨╝╨╡╨┤╨╕╨░.
+ 
+ ## ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╤П ╤Б OpenClaw
+ 
+diff --git a/docs/output-formats.md b/docs/output-formats.md
+index 43f8a7f..5b88939 100644
+--- a/docs/output-formats.md
++++ b/docs/output-formats.md
+@@ -70,9 +70,9 @@
+ | `filename` | ╤Б╤В╤А╨╛╨║╨░ \| null | ╨Ш╨╝╤П ╤Д╨░╨╣╨╗╨░ ╨╕╨╗╨╕ null |
+ | `size` | ╤З╨╕╤Б╨╗╨╛ | ╨а╨░╨╖╨╝╨╡╤А ╨▓ ╨▒╨░╨╣╤В╨░╤Е (╨╝╨╛╨╢╨╡╤В ╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╨╛╨▓╨░╤В╤М ╨┐╤А╨╕ ╨┤╨╡╨┤╤Г╨┐╨╗╨╡) |
+ | `sha256` | ╤Б╤В╤А╨╛╨║╨░ | SHA-256 ╤Д╨░╨╣╨╗╨░ (╨┤╨╗╤П ╨┤╨╡╨┤╤Г╨┐╨╗╨╕╨║╨░╤Ж╨╕╨╕; ╨╝╨╛╨╢╨╡╤В ╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╨╛╨▓╨░╤В╤М) |
+-| `error` | ╤Б╤В╤А╨╛╨║╨░ | ╨Я╤А╨╕ ╨┐╤А╨╛╨┐╤Г╤Б╨║╨╡ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕: `"file_reference_expired"` (╨╛╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛) |
++| `error` | ╤Б╤В╤А╨╛╨║╨░ | ╨Я╤А╨╕ ╨┐╤А╨╛╨┐╤Г╤Б╨║╨╡ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕: `"file_reference_expired"`, `"download_timeout"` (╨╕╤Б╤З╨╡╤А╨┐╨░╨╜ retry ╨┐╨╛ ╤В╨░╨╣╨╝╨░╤Г╤В╤Г), `"retry_exhausted"` (╨┤╤А╤Г╨│╨░╤П ╨╛╤И╨╕╨▒╨║╨░ ╨┐╨╛╤Б╨╗╨╡ retry) |
+ 
+-╨Я╤А╨╕ ╨┤╨╡╨┤╤Г╨┐╨╗╨╕╨║╨░╤Ж╨╕╨╕ ╨▓ ╤Н╨╗╨╡╨╝╨╡╨╜╤В╨╡ ╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М ╤В╨╛╨╗╤М╨║╨╛ `type`, `path`, `filename`, `sha256` (╨▒╨╡╨╖ `size`). ╨Х╤Б╨╗╨╕ ╨╖╨░╨│╤А╤Г╨╖╨║╨░ ╨╜╨╡ ╤Г╨┤╨░╨╗╨░╤Б╤М (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А, ╨┐╤А╨╛╤В╤Г╤Е file reference), ╨▓ ╤Н╨╗╨╡╨╝╨╡╨╜╤В╨╡ ╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М `"error": "file_reference_expired"` ╨╕ `path: null`.
++╨Я╤А╨╕ ╨┤╨╡╨┤╤Г╨┐╨╗╨╕╨║╨░╤Ж╨╕╨╕ ╨▓ ╤Н╨╗╨╡╨╝╨╡╨╜╤В╨╡ ╨╝╨╛╨╢╨╡╤В ╨▒╤Л╤В╤М ╤В╨╛╨╗╤М╨║╨╛ `type`, `path`, `filename`, `sha256` (╨▒╨╡╨╖ `size`). ╨Х╤Б╨╗╨╕ ╨╖╨░╨│╤А╤Г╨╖╨║╨░ ╨╜╨╡ ╤Г╨┤╨░╨╗╨░╤Б╤М, ╨▓ ╤Н╨╗╨╡╨╝╨╡╨╜╤В╨╡ ╤Г╨║╨░╨╖╤Л╨▓╨░╨╡╤В╤Б╤П `error` ╨╕ `path: null`; ╨┐╤А╨╕ ╤Н╤В╨╛╨╝ ╨┐╨░╤А╤Б╨╕╨╜╨│ ╨┐╤А╨╛╨┤╨╛╨╗╨╢╨░╨╡╤В╤Б╤П ╨╕ ╨▓ ╨╕╤В╨╛╨│╨╡ ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В╤Б╤П ╨║╨╛╨┤ ╨▓╤Л╤Е╨╛╨┤╨░ 2 (partial failure).
+ 
+ ### forwarded (╨╡╤Б╨╗╨╕ ╨╡╤Б╤В╤М)
+ 
+@@ -177,6 +177,8 @@
+ | `media_saved` | ╤З╨╕╤Б╨╗╨╛ | ╨б╨║╨░╤З╨░╨╜╨╛ ╤Д╨░╨╣╨╗╨╛╨▓ ╨╝╨╡╨┤╨╕╨░ |
+ | `media_skipped_by_size` | ╤З╨╕╤Б╨╗╨╛ | ╨Я╤А╨╛╨┐╤Г╤Й╨╡╨╜╨╛ ╨╕╨╖-╨╖╨░ `--max-media-size` |
+ | `media_dedup_hits` | ╤З╨╕╤Б╨╗╨╛ | ╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╨╜╨╛ ╤Г╨╢╨╡ ╤Б╨╛╤Е╤А╨░╨╜╤С╨╜╨╜╤Л╤Е ╨┐╨╛ SHA-256 |
++| `media_errors_count` | ╤З╨╕╤Б╨╗╨╛ | ╨Ъ╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╨╝╨╡╨┤╨╕╨░, ╨╜╨╡ ╨╖╨░╨│╤А╤Г╨╢╨╡╨╜╨╜╤Л╤Е ╨╕╨╖-╨╖╨░ ╨╛╤И╨╕╨▒╨║╨╕ (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А file_reference_expired) |
++| `partial_failure` | ╨╗╨╛╨│╨╕╤З╨╡╤Б╨║╨╕╨╣ | true, ╨╡╤Б╨╗╨╕ ╨▒╤Л╨╗ ╤Е╨╛╤В╤П ╨▒╤Л ╨╛╨┤╨╕╨╜ ╤Б╨▒╨╛╨╣ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╝╨╡╨┤╨╕╨░ ╨┐╤А╨╕ ╤Г╤Б╨┐╨╡╤И╨╜╨╛╨╝ ╨╖╨░╨▓╨╡╤А╤И╨╡╨╜╨╕╨╕ ╨┐╤А╨╛╨│╨╛╨╜╨░ (CLI ╨┐╤А╨╕ ╤Н╤В╨╛╨╝ ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В ╨║╨╛╨┤ 2) |
+ | `known_size_mb` | ╤З╨╕╤Б╨╗╨╛ | ╨б╤Г╨╝╨╝╨░╤А╨╜╤Л╨╣ ╨╕╨╖╨▓╨╡╤Б╤В╨╜╤Л╨╣ ╤А╨░╨╖╨╝╨╡╤А ╨╝╨╡╨┤╨╕╨░ (╨Ь╨С) |
+ | `unknown_size_count` | ╤З╨╕╤Б╨╗╨╛ | ╨Ъ╨╛╨╗╨╕╤З╨╡╤Б╤В╨▓╨╛ ╨╝╨╡╨┤╨╕╨░ ╤Б ╨╜╨╡╨╕╨╖╨▓╨╡╤Б╤В╨╜╤Л╨╝ ╤А╨░╨╖╨╝╨╡╤А╨╛╨╝ |
+ | `flood_wait_events` | ╤З╨╕╤Б╨╗╨╛ | ╨б╤А╨░╨▒╨░╤В╤Л╨▓╨░╨╜╨╕╨╣ FloodWait |
+diff --git a/telegram_parser.py b/telegram_parser.py
+index de19dfe..59d6709 100644
+--- a/telegram_parser.py
++++ b/telegram_parser.py
+@@ -512,6 +512,7 @@ class TelegramParser:
+         media_saved_count = 0
+         media_skipped_size = 0
+         media_dedup_hits = 0
++        media_errors_count = 0
+         flood_wait_events = 0
+         total_scanned = 0
+ 
+@@ -633,15 +634,32 @@ class TelegramParser:
+                                 except Exception:
+                                     logs.error("file_reference_retry_failed", {"message_id": msg_id})
+                                     downloaded_path_raw = None
++                                    media_errors_count += 1
+                                     media_files.append(
+                                         {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
+                                     )
+                             else:
+                                 downloaded_path_raw = None
++                                media_errors_count += 1
+                                 media_files.append(
+                                     {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
+                                 )
+ 
++                        except asyncio.TimeoutError:
++                            logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"})
++                            downloaded_path_raw = None
++                            media_errors_count += 1
++                            media_files.append(
++                                {"type": mtype, "path": None, "filename": None, "error": "download_timeout"}
++                            )
++                        except Exception:
++                            logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"})
++                            downloaded_path_raw = None
++                            media_errors_count += 1
++                            media_files.append(
++                                {"type": mtype, "path": None, "filename": None, "error": "retry_exhausted"}
++                            )
++
+                         if downloaded_path_raw:
+                             downloaded_path = Path(downloaded_path_raw)
+                             if downloaded_path.exists():
+@@ -747,6 +765,7 @@ class TelegramParser:
+             self._save_json(state_path, state)
+             self._save_json(media_index_path, {"sha256_to_path": hash_index})
+ 
++        partial_failure = not dry_run and media_errors_count > 0
+         summary = {
+             "run_at": utc_now_iso(),
+             "channel_id": channel_id,
+@@ -760,6 +779,8 @@ class TelegramParser:
+             "media_saved": media_saved_count,
+             "media_skipped_by_size": media_skipped_size,
+             "media_dedup_hits": media_dedup_hits,
++            "media_errors_count": media_errors_count,
++            "partial_failure": partial_failure,
+             "known_size_mb": round(known_size_bytes / (1024 * 1024), 3),
+             "unknown_size_count": unknown_size_count,
+             "flood_wait_events": flood_wait_events,
+@@ -782,6 +803,7 @@ class TelegramParser:
+ 
+         return {
+             "summary": summary,
++            "partial_failure": partial_failure,
+             "export_dir": str(export_dir),
+             "export_json": str(export_json_path),
+             "state_json": str(state_path),
+diff --git a/telegram_parser_skill.py b/telegram_parser_skill.py
+index b977104..a89601a 100644
+--- a/telegram_parser_skill.py
++++ b/telegram_parser_skill.py
+@@ -15,6 +15,7 @@ from dotenv import load_dotenv
+ 
+ # local import
+ sys.path.append(os.path.dirname(__file__))
++from exit_codes import EXIT_FAILURE, EXIT_INTERRUPTED, EXIT_PARTIAL, EXIT_SUCCESS  # noqa: E402
+ from logging_setup import setup_app_logging  # noqa: E402
+ from telegram_parser import TelegramParser  # noqa: E402
+ 
+@@ -87,7 +88,7 @@ async def run(args: argparse.Namespace) -> int:
+     if not api_id or not api_hash:
+         log.error("╨Ю╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╤О╤В TELEGRAM_API_ID/TELEGRAM_API_HASH ╨▓ .env")
+         _print_err_utf8("Error: TELEGRAM_API_ID and TELEGRAM_API_HASH are required in .env")
+-        return 1
++        return EXIT_FAILURE
+ 
+     parser = TelegramParser(
+         api_id=api_id,
+@@ -101,23 +102,23 @@ async def run(args: argparse.Namespace) -> int:
+             log.info("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ channels (session_file=%s)", args.session_file)
+             channels = await parser.get_available_channels()
+             _print_utf8(json.dumps(channels, ensure_ascii=False, indent=2))
+-            return 0
++            return EXIT_SUCCESS
+ 
+         if args.command == "resolve":
+             if not args.channel:
+                 log.error("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ resolve ╨▒╨╡╨╖ --channel")
+                 _print_err_utf8("Error: --channel is required for resolve (link, @username or id)")
+-                return 1
++                return EXIT_FAILURE
+             log.info("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ resolve (channel=%s)", args.channel)
+             info = await parser.get_channel_info(args.channel)
+             _print_utf8(json.dumps(info, ensure_ascii=False, indent=2))
+-            return 0
++            return EXIT_SUCCESS
+ 
+         if args.command == "parse":
+             if not args.channel:
+                 log.error("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ parse ╨▒╨╡╨╖ --channel")
+                 _print_err_utf8("Error: --channel is required for parse")
+-                return 1
++                return EXIT_FAILURE
+ 
+             log.info(
+                 "╨Ъ╨╛╨╝╨░╨╜╨┤╨░ parse (channel=%s, mode=%s, dry_run=%s, output_dir=%s)",
+@@ -140,9 +141,11 @@ async def run(args: argparse.Namespace) -> int:
+             )
+ 
+             _print_utf8(json.dumps(result, ensure_ascii=False, indent=2))
+-            return 0
++            if result.get("partial_failure"):
++                return EXIT_PARTIAL
++            return EXIT_SUCCESS
+ 
+-        return 1
++        return EXIT_FAILURE
+     except Exception:
+         log.exception("╨Э╨╡╨╛╨▒╤А╨░╨▒╨╛╤В╨░╨╜╨╜╨░╤П ╨╛╤И╨╕╨▒╨║╨░ CLI")
+         raise
+@@ -160,11 +163,11 @@ def main() -> int:
+     except KeyboardInterrupt:
+         logging.getLogger("tg_parser.cli").warning("╨Ю╤Б╤В╨░╨╜╨╛╨▓╨║╨░ ╨┐╨╛ Ctrl+C")
+         _print_err_utf8("Interrupted")
+-        return 130
++        return EXIT_INTERRUPTED
+     except Exception as e:
+         logging.getLogger("tg_parser.cli").exception("╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П: %s", e)
+         _print_err_utf8(f"Error: {e}")
+-        return 1
++        return EXIT_FAILURE
+ 
+ 
+ if __name__ == "__main__":

@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 
 # local import
 sys.path.append(os.path.dirname(__file__))
+from exit_codes import EXIT_FAILURE, EXIT_INTERRUPTED, EXIT_PARTIAL, EXIT_SUCCESS  # noqa: E402
 from logging_setup import setup_app_logging  # noqa: E402
 from telegram_parser import TelegramParser  # noqa: E402
 
@@ -87,7 +88,7 @@ async def run(args: argparse.Namespace) -> int:
     if not api_id or not api_hash:
         log.error("Отсутствуют TELEGRAM_API_ID/TELEGRAM_API_HASH в .env")
         _print_err_utf8("Error: TELEGRAM_API_ID and TELEGRAM_API_HASH are required in .env")
-        return 1
+        return EXIT_FAILURE
 
     parser = TelegramParser(
         api_id=api_id,
@@ -101,23 +102,23 @@ async def run(args: argparse.Namespace) -> int:
             log.info("Команда channels (session_file=%s)", args.session_file)
             channels = await parser.get_available_channels()
             _print_utf8(json.dumps(channels, ensure_ascii=False, indent=2))
-            return 0
+            return EXIT_SUCCESS
 
         if args.command == "resolve":
             if not args.channel:
                 log.error("Команда resolve без --channel")
                 _print_err_utf8("Error: --channel is required for resolve (link, @username or id)")
-                return 1
+                return EXIT_FAILURE
             log.info("Команда resolve (channel=%s)", args.channel)
             info = await parser.get_channel_info(args.channel)
             _print_utf8(json.dumps(info, ensure_ascii=False, indent=2))
-            return 0
+            return EXIT_SUCCESS
 
         if args.command == "parse":
             if not args.channel:
                 log.error("Команда parse без --channel")
                 _print_err_utf8("Error: --channel is required for parse")
-                return 1
+                return EXIT_FAILURE
 
             log.info(
                 "Команда parse (channel=%s, mode=%s, dry_run=%s, output_dir=%s)",
@@ -140,9 +141,11 @@ async def run(args: argparse.Namespace) -> int:
             )
 
             _print_utf8(json.dumps(result, ensure_ascii=False, indent=2))
-            return 0
+            if result.get("partial_failure"):
+                return EXIT_PARTIAL
+            return EXIT_SUCCESS
 
-        return 1
+        return EXIT_FAILURE
     except Exception:
         log.exception("Необработанная ошибка CLI")
         raise
@@ -160,11 +163,11 @@ def main() -> int:
     except KeyboardInterrupt:
         logging.getLogger("tg_parser.cli").warning("Остановка по Ctrl+C")
         _print_err_utf8("Interrupted")
-        return 130
+        return EXIT_INTERRUPTED
     except Exception as e:
         logging.getLogger("tg_parser.cli").exception("Ошибка выполнения: %s", e)
         _print_err_utf8(f"Error: {e}")
-        return 1
+        return EXIT_FAILURE
 
 
 if __name__ == "__main__":

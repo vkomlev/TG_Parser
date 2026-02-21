@@ -211,15 +211,15 @@ class TelegramParser:
         return self.auth_state_dir / "telegram_auth_state.json"
 
     async def connect(self) -> None:
-        self.client = TelegramClient(self.session_file, int(self.api_id), self.api_hash)
-        try:
-            sess = getattr(self.client, "session", None)
-            sess_name = sess.__class__.__name__ if sess else "None"
-            sess_file = getattr(sess, "filename", None) if sess else None
-            self._log.info("Сессия Telethon: %s (%s)", sess_name, sess_file or "без файла")
-        except Exception:
-            # Диагностика не должна ломать работу.
-            pass
+        if self.client is None:
+            self.client = TelegramClient(self.session_file, int(self.api_id), self.api_hash)
+            try:
+                sess = getattr(self.client, "session", None)
+                sess_name = sess.__class__.__name__ if sess else "None"
+                sess_file = getattr(sess, "filename", None) if sess else None
+                self._log.info("Сессия Telethon: %s (%s)", sess_name, sess_file or "без файла")
+            except Exception:
+                pass
         await self.client.connect()
 
         if await self.client.is_user_authorized():
@@ -512,6 +512,7 @@ class TelegramParser:
         media_saved_count = 0
         media_skipped_size = 0
         media_dedup_hits = 0
+        media_errors_count = 0
         flood_wait_events = 0
         total_scanned = 0
 
@@ -620,11 +621,17 @@ class TelegramParser:
                         except FileReferenceExpiredError:
                             logs.error("file_reference_expired", {"message_id": msg_id})
                             fresh = await self.client.get_messages(entity, ids=msg_id)
-                            if fresh and getattr(fresh[0], "media", None):
+                            # Telethon may return either a single Message or a list-like container.
+                            if isinstance(fresh, (list, tuple)):
+                                fresh_msg = fresh[0] if fresh else None
+                            else:
+                                fresh_msg = fresh
+
+                            if fresh_msg and getattr(fresh_msg, "media", None):
 
                                 async def dl_fresh():
                                     return await asyncio.wait_for(
-                                        self.client.download_media(fresh[0].media, file=str(temp_path)),
+                                        self.client.download_media(fresh_msg.media, file=str(temp_path)),
                                         timeout=mode_cfg.media_download_timeout_sec,
                                     )
 
@@ -633,14 +640,31 @@ class TelegramParser:
                                 except Exception:
                                     logs.error("file_reference_retry_failed", {"message_id": msg_id})
                                     downloaded_path_raw = None
+                                    media_errors_count += 1
                                     media_files.append(
                                         {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
                                     )
                             else:
                                 downloaded_path_raw = None
+                                media_errors_count += 1
                                 media_files.append(
                                     {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
                                 )
+
+                        except asyncio.TimeoutError:
+                            logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"})
+                            downloaded_path_raw = None
+                            media_errors_count += 1
+                            media_files.append(
+                                {"type": mtype, "path": None, "filename": None, "error": "download_timeout"}
+                            )
+                        except Exception:
+                            logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"})
+                            downloaded_path_raw = None
+                            media_errors_count += 1
+                            media_files.append(
+                                {"type": mtype, "path": None, "filename": None, "error": "retry_exhausted"}
+                            )
 
                         if downloaded_path_raw:
                             downloaded_path = Path(downloaded_path_raw)
@@ -747,6 +771,7 @@ class TelegramParser:
             self._save_json(state_path, state)
             self._save_json(media_index_path, {"sha256_to_path": hash_index})
 
+        partial_failure = not dry_run and media_errors_count > 0
         summary = {
             "run_at": utc_now_iso(),
             "channel_id": channel_id,
@@ -760,6 +785,8 @@ class TelegramParser:
             "media_saved": media_saved_count,
             "media_skipped_by_size": media_skipped_size,
             "media_dedup_hits": media_dedup_hits,
+            "media_errors_count": media_errors_count,
+            "partial_failure": partial_failure,
             "known_size_mb": round(known_size_bytes / (1024 * 1024), 3),
             "unknown_size_count": unknown_size_count,
             "flood_wait_events": flood_wait_events,
@@ -782,6 +809,7 @@ class TelegramParser:
 
         return {
             "summary": summary,
+            "partial_failure": partial_failure,
             "export_dir": str(export_dir),
             "export_json": str(export_json_path),
             "state_json": str(state_path),
