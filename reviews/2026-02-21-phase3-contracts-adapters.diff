@@ -1,0 +1,203 @@
+﻿diff --git a/adapters.py b/adapters.py
+new file mode 100644
+index 0000000..3e77510
+--- /dev/null
++++ b/adapters.py
+@@ -0,0 +1,99 @@
++"""
++Phase 3: ╨┐╤А╨╛╤В╨╛╨║╨╛╨╗╤Л SourceAdapter ╨╕ DestinationAdapter, ╤Д╨░╤Б╨░╨┤╤Л ╨╜╨░╨┤ ╤В╨╡╨║╤Г╤Й╨╕╨╝ ╨┐╨░╤А╤Б╨╡╤А╨╛╨╝ ╨╕ ╤Н╨║╤Б╨┐╨╛╤А╤В╨╛╨╝.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
++
++from contracts import (
++    ContentItem,
++    content_item_to_tg_message,
++    tg_message_to_content_item,
++)
++from telegram_parser import TelegramParser, utc_now_iso
++
++
++@runtime_checkable
++class SourceAdapter(Protocol):
++    """╨Ш╤Б╤В╨╛╤З╨╜╨╕╨║ ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╨╣: ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В ╨╜╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╤Л╨╡ ContentItem."""
++
++    async def fetch_messages(
++        self,
++        channel_identifier: str,
++        output_dir: str,
++        **kwargs: Any,
++    ) -> List[ContentItem]:
++        """╨Ч╨░╨│╤А╤Г╨╖╨╕╤В╤М ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П ╨╕ ╨▓╨╡╤А╨╜╤Г╤В╤М ╤Б╨┐╨╕╤Б╨╛╨║ ╨╜╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╤Л╤Е ╤Н╨╗╨╡╨╝╨╡╨╜╤В╨╛╨▓."""
++        ...
++
++
++class TelegramSourceAdapter:
++    """╨д╨░╤Б╨░╨┤ ╨╜╨░╨┤ TelegramParser: ╨▓╤Л╨╖╤Л╨▓╨░╨╡╤В parse_channel ╨╕ ╨╝╨░╨┐╨┐╨╕╤В ╤А╨╡╨╖╤Г╨╗╤М╤В╨░╤В ╨▓ ContentItem."""
++
++    def __init__(self, parser: TelegramParser):
++        self._parser = parser
++
++    async def fetch_messages(
++        self,
++        channel_identifier: str,
++        output_dir: str,
++        **kwargs: Any,
++    ) -> List[ContentItem]:
++        result = await self._parser.parse_channel(
++            channel_identifier=channel_identifier,
++            output_dir=output_dir,
++            **{k: v for k, v in kwargs.items() if k in ("mode", "date_from", "date_to", "keyword_filter", "max_media_size_mb", "dry_run", "zip_output", "cleanup_temp", "run_id")},
++        )
++        export_dir = Path(result.get("export_dir", ""))
++        export_json = export_dir / "export.json"
++        if not export_json.exists():
++            return []
++        data = json.loads(export_json.read_text(encoding="utf-8"))
++        messages = data.get("messages") or []
++        channel_id = result.get("summary", {}).get("channel_id") or ""
++        username = result.get("summary", {}).get("channel_username") or ""
++        source_id = f"telegram:{username or channel_id}"
++        return [tg_message_to_content_item(m, source_id) for m in messages]
++
++
++@runtime_checkable
++class DestinationAdapter(Protocol):
++    """╨Я╤А╨╕╤С╨╝╨╜╨╕╨║: ╨┐╤Г╨▒╨╗╨╕╨║╤Г╨╡╤В ╨╜╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╤Л╨╡ ╤Н╨╗╨╡╨╝╨╡╨╜╤В╤Л (╨╗╨╛╨║╨░╨╗╤М╨╜╤Л╨╣ ╤Н╨║╤Б╨┐╨╛╤А╤В, VK, WP ╨╕ ╤В.╨┤.)."""
++
++    def publish_batch(self, items: List[ContentItem], export_dir: Path, **kwargs: Any) -> None:
++        """╨Ч╨░╨┐╨╕╤Б╨░╤В╤М ╨┐╨░╨║╨╡╤В ╤Н╨╗╨╡╨╝╨╡╨╜╤В╨╛╨▓ ╨▓ ╨╜╨░╨╖╨╜╨░╤З╨╡╨╜╨╕╨╡."""
++        ...
++
++
++class LocalExportDestinationAdapter:
++    """╨Ы╨╛╨║╨░╨╗╤М╨╜╤Л╨╣ ╤Н╨║╤Б╨┐╨╛╤А╤В: ╨╖╨░╨┐╨╕╤Б╤М ╨▓ export.json ╨╕ ╤Г╤З╤С╤В ╨╝╨╡╨┤╨╕╨░ (╨┐╤Г╤В╨╕ ╤Г╨╢╨╡ ╨▓ ContentItem)."""
++
++    def publish_batch(
++        self,
++        items: List[ContentItem],
++        export_dir: Path,
++        *,
++        append: bool = True,
++        channel_info: Optional[Dict[str, Any]] = None,
++        **kwargs: Any,
++    ) -> None:
++        export_json = export_dir / "export.json"
++        if append and export_json.exists():
++            data = json.loads(export_json.read_text(encoding="utf-8"))
++            existing = data.get("messages") or []
++        else:
++            data = {"messages": [], "export_date": None, "total_messages": 0}
++            if channel_info:
++                data["channel_info"] = channel_info
++            existing = []
++        new_messages = [content_item_to_tg_message(item) for item in items]
++        all_messages = existing + new_messages
++        all_messages.sort(key=lambda m: int(m.get("id", 0)))
++        data["messages"] = all_messages
++        data["total_messages"] = len(all_messages)
++        data["export_date"] = utc_now_iso()
++        export_dir.mkdir(parents=True, exist_ok=True)
++        export_json.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+diff --git a/contracts.py b/contracts.py
+new file mode 100644
+index 0000000..f0ba05e
+--- /dev/null
++++ b/contracts.py
+@@ -0,0 +1,92 @@
++"""
++╨Ъ╨╛╨╜╤В╤А╨░╨║╤В╤Л ╨┤╨░╨╜╨╜╤Л╤Е Phase 3: ╨╜╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╨╡ ╨╕ ╨╝╨╡╨┤╨╕╨░.
++
++╨Я╨╛╨╖╨▓╨╛╨╗╤П╨╡╤В ╨┐╨╛╨┤╨║╨╗╤О╤З╨░╤В╤М ╤А╨░╨╖╨╜╤Л╨╡ ╨╕╤Б╤В╨╛╤З╨╜╨╕╨║╨╕ (SourceAdapter) ╨╕ ╨┐╤А╨╕╤С╨╝╨╜╨╕╨║╨╕ (DestinationAdapter)
++╤З╨╡╤А╨╡╨╖ ╨╡╨┤╨╕╨╜╤Л╨╣ ╤Д╨╛╤А╨╝╨░╤В ContentItem.
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass, field
++from typing import Any, Dict, List, Optional
++
++
++@dataclass
++class MediaItem:
++    """╨Э╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╤Н╨╗╨╡╨╝╨╡╨╜╤В ╨╝╨╡╨┤╨╕╨░."""
++
++    type: str  # "photo" | "video" | "document"
++    path: Optional[str] = None
++    filename: Optional[str] = None
++    size: Optional[int] = None
++    sha256: Optional[str] = None
++    error: Optional[str] = None  # file_reference_expired | download_timeout | retry_exhausted
++
++
++@dataclass
++class ContentItem:
++    """╨Э╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╨╛╨╡ ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╨╡ ╨┤╨╗╤П ╨╛╨▒╨╝╨╡╨╜╨░ ╨╝╨╡╨╢╨┤╤Г Source ╨╕ Destination."""
++
++    source_id: str  # ╨╕╨┤╨╡╨╜╤В╨╕╤Д╨╕╨║╨░╤В╨╛╤А ╨╕╤Б╤В╨╛╤З╨╜╨╕╨║╨░, ╨╜╨░╨┐╤А. "telegram:-100123" ╨╕╨╗╨╕ username
++    external_id: str  # id ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П ╨▓ ╨╕╤Б╤В╨╛╤З╨╜╨╕╨║╨╡
++    published_at: str  # ISO UTC
++    text: str
++    media: List[MediaItem] = field(default_factory=list)
++    metadata: Dict[str, Any] = field(default_factory=dict)  # views, forwards, forwarded, reply_to_msg_id ╨╕ ╤В.╨┤.
++
++
++def tg_message_to_content_item(msg: Dict[str, Any], source_id: str) -> ContentItem:
++    """╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╨░╤В╤М ╤В╨╡╨║╤Г╤Й╨╕╨╣ ╤Б╨╗╨╛╨▓╨░╤А╤М ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П TG (export.json) ╨▓ ╨╜╨╛╤А╨╝╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╜╤Л╨╣ ContentItem."""
++    media: List[MediaItem] = []
++    for m in msg.get("media_files") or []:
++        media.append(
++            MediaItem(
++                type=m.get("type", "document"),
++                path=m.get("path"),
++                filename=m.get("filename"),
++                size=m.get("size"),
++                sha256=m.get("sha256"),
++                error=m.get("error"),
++            )
++        )
++    metadata: Dict[str, Any] = {}
++    for key in ("forwarded", "reply_to_msg_id", "views", "forwards"):
++        if key in msg and msg[key] is not None:
++            metadata[key] = msg[key]
++    return ContentItem(
++        source_id=source_id,
++        external_id=str(msg.get("id", "")),
++        published_at=msg.get("date") or "",
++        text=msg.get("text") or "",
++        media=media,
++        metadata=metadata,
++    )
++
++
++def content_item_to_tg_message(item: ContentItem) -> Dict[str, Any]:
++    """╨Я╤А╨╡╨╛╨▒╤А╨░╨╖╨╛╨▓╨░╤В╤М ContentItem ╨╛╨▒╤А╨░╤В╨╜╨╛ ╨▓ ╤Д╨╛╤А╨╝╨░╤В ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П TG (╨┤╨╗╤П export.json)."""
++    media_files: List[Dict[str, Any]] = []
++    for m in item.media:
++        d: Dict[str, Any] = {"type": m.type, "path": m.path, "filename": m.filename}
++        if m.size is not None:
++            d["size"] = m.size
++        if m.sha256 is not None:
++            d["sha256"] = m.sha256
++        if m.error is not None:
++            d["error"] = m.error
++        media_files.append(d)
++    out: Dict[str, Any] = {
++        "id": int(item.external_id) if item.external_id.isdigit() else item.external_id,
++        "date": item.published_at,
++        "text": item.text,
++        "media_files": media_files,
++    }
++    if "forwarded" in item.metadata:
++        out["forwarded"] = item.metadata["forwarded"]
++    if "reply_to_msg_id" in item.metadata:
++        out["reply_to_msg_id"] = item.metadata["reply_to_msg_id"]
++    if "views" in item.metadata:
++        out["views"] = item.metadata["views"]
++    if "forwards" in item.metadata:
++        out["forwards"] = item.metadata["forwards"]
++    return out

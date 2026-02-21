@@ -850,6 +850,7 @@ class TelegramParser:
             "media_index_json": str(media_index_path),
             "summary_json": str(summary_path),
             "archive": str(archive_path) if archive_path else None,
+            "new_messages": new_messages,
         }
 
     @staticmethod

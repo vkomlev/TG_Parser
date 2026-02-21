@@ -1,0 +1,58 @@
+﻿diff --git a/adapters.py b/adapters.py
+index 3e77510..f0b80c4 100644
+--- a/adapters.py
++++ b/adapters.py
+@@ -47,15 +47,18 @@ class TelegramSourceAdapter:
+             output_dir=output_dir,
+             **{k: v for k, v in kwargs.items() if k in ("mode", "date_from", "date_to", "keyword_filter", "max_media_size_mb", "dry_run", "zip_output", "cleanup_temp", "run_id")},
+         )
++        channel_id = result.get("summary", {}).get("channel_id") or ""
++        username = result.get("summary", {}).get("channel_username") or ""
++        source_id = f"telegram:{username or channel_id}"
++        new_messages = result.get("new_messages")
++        if new_messages:
++            return [tg_message_to_content_item(m, source_id) for m in new_messages]
+         export_dir = Path(result.get("export_dir", ""))
+         export_json = export_dir / "export.json"
+         if not export_json.exists():
+             return []
+         data = json.loads(export_json.read_text(encoding="utf-8"))
+         messages = data.get("messages") or []
+-        channel_id = result.get("summary", {}).get("channel_id") or ""
+-        username = result.get("summary", {}).get("channel_username") or ""
+-        source_id = f"telegram:{username or channel_id}"
+         return [tg_message_to_content_item(m, source_id) for m in messages]
+ 
+ 
+@@ -91,7 +94,18 @@ class LocalExportDestinationAdapter:
+             existing = []
+         new_messages = [content_item_to_tg_message(item) for item in items]
+         all_messages = existing + new_messages
+-        all_messages.sort(key=lambda m: int(m.get("id", 0)))
++
++        def _msg_sort_key(m: Dict[str, Any]) -> tuple:
++            id_ = m.get("id")
++            if id_ is None:
++                return (0, 0)
++            if isinstance(id_, (int, float)):
++                return (0, id_)
++            if isinstance(id_, str) and id_.isdigit():
++                return (0, int(id_))
++            return (1, str(id_))
++
++        all_messages.sort(key=_msg_sort_key)
+         data["messages"] = all_messages
+         data["total_messages"] = len(all_messages)
+         data["export_date"] = utc_now_iso()
+diff --git a/telegram_parser.py b/telegram_parser.py
+index 2483d59..f20ce84 100644
+--- a/telegram_parser.py
++++ b/telegram_parser.py
+@@ -850,6 +850,7 @@ class TelegramParser:
+             "media_index_json": str(media_index_path),
+             "summary_json": str(summary_path),
+             "archive": str(archive_path) if archive_path else None,
++            "new_messages": new_messages,
+         }
+ 
+     @staticmethod
