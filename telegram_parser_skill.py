@@ -9,12 +9,14 @@ import json
 import logging
 import os
 import sys
+import uuid
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 # local import
 sys.path.append(os.path.dirname(__file__))
+from errors import AUTH_ERROR, CONFIG_ERROR  # noqa: E402
 from exit_codes import EXIT_FAILURE, EXIT_INTERRUPTED, EXIT_PARTIAL, EXIT_SUCCESS  # noqa: E402
 from logging_setup import setup_app_logging  # noqa: E402
 from telegram_parser import TelegramParser  # noqa: E402
@@ -79,14 +81,17 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-async def run(args: argparse.Namespace) -> int:
+async def run(args: argparse.Namespace, run_id: str | None = None) -> int:
     log = logging.getLogger("tg_parser.cli")
 
     api_id = os.getenv("TELEGRAM_API_ID")
     api_hash = os.getenv("TELEGRAM_API_HASH")
 
     if not api_id or not api_hash:
-        log.error("Отсутствуют TELEGRAM_API_ID/TELEGRAM_API_HASH в .env")
+        log.error(
+            "Отсутствуют TELEGRAM_API_ID/TELEGRAM_API_HASH в .env",
+            extra={"error_code": CONFIG_ERROR},
+        )
         _print_err_utf8("Error: TELEGRAM_API_ID and TELEGRAM_API_HASH are required in .env")
         return EXIT_FAILURE
 
@@ -106,7 +111,10 @@ async def run(args: argparse.Namespace) -> int:
 
         if args.command == "resolve":
             if not args.channel:
-                log.error("Команда resolve без --channel")
+                log.error(
+                    "Команда resolve без --channel",
+                    extra={"error_code": CONFIG_ERROR},
+                )
                 _print_err_utf8("Error: --channel is required for resolve (link, @username or id)")
                 return EXIT_FAILURE
             log.info("Команда resolve (channel=%s)", args.channel)
@@ -116,7 +124,10 @@ async def run(args: argparse.Namespace) -> int:
 
         if args.command == "parse":
             if not args.channel:
-                log.error("Команда parse без --channel")
+                log.error(
+                    "Команда parse без --channel",
+                    extra={"error_code": CONFIG_ERROR},
+                )
                 _print_err_utf8("Error: --channel is required for parse")
                 return EXIT_FAILURE
 
@@ -138,6 +149,7 @@ async def run(args: argparse.Namespace) -> int:
                 dry_run=args.dry_run,
                 zip_output=args.zip,
                 cleanup_temp=not args.no_cleanup_temp,
+                run_id=run_id,
             )
 
             _print_utf8(json.dumps(result, ensure_ascii=False, indent=2))
@@ -146,6 +158,11 @@ async def run(args: argparse.Namespace) -> int:
             return EXIT_SUCCESS
 
         return EXIT_FAILURE
+    except RuntimeError as e:
+        msg = str(e)
+        if "TELEGRAM" in msg or "Код отправлен" in msg or "authorization" in msg.lower():
+            log.exception("Ошибка авторизации: %s", e, extra={"error_code": AUTH_ERROR})
+        raise
     except Exception:
         log.exception("Необработанная ошибка CLI")
         raise
@@ -156,16 +173,18 @@ async def run(args: argparse.Namespace) -> int:
 def main() -> int:
     _configure_utf8_stdio()
     load_dotenv(dotenv_path=Path(__file__).parent / ".env")
-    setup_app_logging(Path(__file__).parent / "logs")
+    run_id = str(uuid.uuid4())[:8]
+    setup_app_logging(Path(__file__).parent / "logs", run_id=run_id)
     args = build_parser().parse_args()
     try:
-        return asyncio.run(run(args))
+        return asyncio.run(run(args, run_id=run_id))
     except KeyboardInterrupt:
         logging.getLogger("tg_parser.cli").warning("Остановка по Ctrl+C")
         _print_err_utf8("Interrupted")
         return EXIT_INTERRUPTED
     except Exception as e:
-        logging.getLogger("tg_parser.cli").exception("Ошибка выполнения: %s", e)
+        log = logging.getLogger("tg_parser.cli")
+        log.exception("Ошибка выполнения: %s", e, extra={"error_code": getattr(e, "error_code", None)})
         _print_err_utf8(f"Error: {e}")
         return EXIT_FAILURE
 

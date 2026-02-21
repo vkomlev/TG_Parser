@@ -94,17 +94,17 @@ CLI-обёртка: парсинг аргументов, загрузка `.env`
   Создаёт парсер аргументов с командами `channels`, `resolve`, `parse` и всеми опциями (см. [CLI](cli.md)).
 
 - **`main() -> int`**  
-  Точка входа: настройка UTF-8 для stdout/stderr, загрузка `.env`, `setup_app_logging(logs_dir)`, разбор аргументов и запуск `asyncio.run(run(args))`. Обрабатывает `KeyboardInterrupt` и общие исключения, возвращает код выхода 0/1/130.
+  Точка входа: настройка UTF-8 для stdout/stderr, загрузка `.env`, генерация `run_id` (короткий UUID), `setup_app_logging(logs_dir, run_id=run_id)`, разбор аргументов и запуск `asyncio.run(run(args, run_id=run_id))`. Обрабатывает `KeyboardInterrupt` и общие исключения, возвращает код выхода 0/1/2/130.
 
-- **`async run(args) -> int`**  
-  Выполняет команду: `channels` → `get_available_channels()`, `resolve` → `get_channel_info()`, `parse` → `parse_channel()`. Результат выводится в stdout в виде JSON (UTF-8).
+- **`async run(args, run_id=None) -> int`**  
+  Выполняет команду: `channels` → `get_available_channels()`, `resolve` → `get_channel_info()`, `parse` → `parse_channel(..., run_id=run_id)`. Результат выводится в stdout в виде JSON (UTF-8).
 
 ---
 
 ## Модуль `logging_setup`
 
-**`setup_app_logging(logs_dir: Path, level=logging.INFO) -> None`**  
-Настраивает глобальное логирование в каталог `logs_dir`: создаёт `app.log` и `errors.log` с ротацией (2 МБ, 10 файлов), формат с временем в UTC. Вызов идемпотентен: повторные вызовы не добавляют дублирующих обработчиков.
+**`setup_app_logging(logs_dir: Path, level=logging.INFO, run_id=None) -> None`**  
+Настраивает глобальное логирование в каталог `logs_dir`: создаёт `app.log` и `errors.log` с ротацией (2 МБ, 10 файлов), формат с временем в UTC и полями `run_id`, `error_code` (см. [Логирование](logging.md)). При передаче `run_id` он добавляется во все записи лога. Вызов идемпотентен: повторные вызовы не добавляют дублирующих обработчиков.
 
 ---
 

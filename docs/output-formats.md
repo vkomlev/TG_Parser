@@ -166,6 +166,7 @@
 | Поле | Тип | Описание |
 |------|-----|----------|
 | `run_at` | строка | Время запуска (ISO UTC) |
+| `run_id` | строка \| null | Correlation id запуска (первые 8 символов UUID; null при вызове без run_id) |
 | `channel_id` | число | Id канала |
 | `channel_username` | строка \| null | Username канала |
 | `mode` | строка | Режим: `safe` или `normal` |
@@ -189,6 +190,7 @@
 ```json
 {
   "run_at": "2026-02-17T18:57:17Z",
+  "run_id": "a1b2c3d4",
   "channel_id": 2614091536,
   "channel_username": "AlgorithmPythonStruct",
   "mode": "safe",

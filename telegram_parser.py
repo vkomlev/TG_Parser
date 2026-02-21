@@ -28,6 +28,8 @@ from telethon.errors.rpcerrorlist import FileReferenceExpiredError
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaPoll
 
+from errors import EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT
+
 
 WINDOWS_BAD_CHARS = r'<>:"/\\|?*'
 
@@ -136,7 +138,15 @@ class JsonLogger:
     - `logs/errors.log`
     """
 
-    def __init__(self, logs_dir: Path, *, max_bytes: int = 2 * 1024 * 1024, backup_count: int = 10) -> None:
+    def __init__(
+        self,
+        logs_dir: Path,
+        *,
+        run_id: Optional[str] = None,
+        max_bytes: int = 2 * 1024 * 1024,
+        backup_count: int = 10,
+    ) -> None:
+        self._run_id = run_id
         logs_dir.mkdir(parents=True, exist_ok=True)
 
         # Используем отдельные логгеры, чтобы не мешать глобальной конфигурации.
@@ -171,22 +181,38 @@ class JsonLogger:
             err_h.setFormatter(fmt)
             self._err_logger.addHandler(err_h)
 
-    def _record(self, level: str, event: str, payload: Optional[Dict[str, Any]] = None) -> str:
+    def _record(
+        self,
+        level: str,
+        event: str,
+        payload: Optional[Dict[str, Any]] = None,
+        error_code: Optional[str] = None,
+    ) -> str:
+        data = dict(payload or {})
+        if self._run_id is not None:
+            data["run_id"] = self._run_id
+        if error_code is not None:
+            data["error_code"] = error_code
         return json.dumps(
-            {
-                "ts": utc_now_iso(),
-                "level": level,
-                "event": event,
-                "data": payload or {},
-            },
+            {"ts": utc_now_iso(), "level": level, "event": event, "data": data},
             ensure_ascii=False,
         )
 
-    def info(self, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
-        self._run_logger.info(self._record("INFO", event, payload))
+    def info(
+        self,
+        event: str,
+        payload: Optional[Dict[str, Any]] = None,
+        error_code: Optional[str] = None,
+    ) -> None:
+        self._run_logger.info(self._record("INFO", event, payload, error_code))
 
-    def error(self, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
-        self._err_logger.error(self._record("ERROR", event, payload))
+    def error(
+        self,
+        event: str,
+        payload: Optional[Dict[str, Any]] = None,
+        error_code: Optional[str] = None,
+    ) -> None:
+        self._err_logger.error(self._record("ERROR", event, payload, error_code))
 
 
 class TelegramParser:
@@ -329,7 +355,7 @@ class TelegramParser:
                 raise
             except FloodWaitError as e:
                 wait_for = int(e.seconds) + mode_cfg.flood_extra_delay + random.randint(0, 2)
-                logger.error("flood_wait", {"seconds": int(e.seconds), "sleep": wait_for})
+                logger.error("flood_wait", {"seconds": int(e.seconds), "sleep": wait_for}, error_code=RATE_LIMIT)
                 await asyncio.sleep(wait_for)
             except asyncio.TimeoutError as e:
                 retries += 1
@@ -337,6 +363,7 @@ class TelegramParser:
                     logger.error(
                         "retry_exhausted",
                         {"error": "download_timeout", "timeout_sec": mode_cfg.media_download_timeout_sec},
+                        error_code=EXTERNAL_API_ERROR,
                     )
                     raise
                 backoff = 2 ** retries
@@ -348,15 +375,16 @@ class TelegramParser:
                         "error": "download_timeout",
                         "timeout_sec": mode_cfg.media_download_timeout_sec,
                     },
+                    error_code=EXTERNAL_API_ERROR,
                 )
                 await asyncio.sleep(backoff)
             except Exception as e:
                 retries += 1
                 if retries > mode_cfg.max_retries:
-                    logger.error("retry_exhausted", {"error": str(e)})
+                    logger.error("retry_exhausted", {"error": str(e)}, error_code=EXTERNAL_API_ERROR)
                     raise
                 backoff = 2 ** retries
-                logger.error("retry", {"attempt": retries, "sleep": backoff, "error": str(e)})
+                logger.error("retry", {"attempt": retries, "sleep": backoff, "error": str(e)}, error_code=EXTERNAL_API_ERROR)
                 await asyncio.sleep(backoff)
 
     async def _resolve_entity(self, channel_identifier: str):
@@ -442,6 +470,7 @@ class TelegramParser:
         dry_run: bool = False,
         zip_output: bool = False,
         cleanup_temp: bool = True,
+        run_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         await self.connect()
         assert self.client
@@ -464,7 +493,7 @@ class TelegramParser:
         for d in [photos_dir, videos_dir, docs_dir, temp_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
-        logs = JsonLogger(export_dir / "logs")
+        logs = JsonLogger(export_dir / "logs", run_id=run_id)
         logs.info("run_started", {"channel_identifier": channel_identifier, "mode": mode, "dry_run": dry_run})
 
         export_json_path = export_dir / "export.json"
@@ -619,7 +648,7 @@ class TelegramParser:
                         try:
                             downloaded_path_raw = await self._with_retries(dl_media, logs, mode_cfg)
                         except FileReferenceExpiredError:
-                            logs.error("file_reference_expired", {"message_id": msg_id})
+                            logs.error("file_reference_expired", {"message_id": msg_id}, error_code=EXTERNAL_API_ERROR)
                             fresh = await self.client.get_messages(entity, ids=msg_id)
                             # Telethon may return either a single Message or a list-like container.
                             if isinstance(fresh, (list, tuple)):
@@ -638,7 +667,7 @@ class TelegramParser:
                                 try:
                                     downloaded_path_raw = await self._with_retries(dl_fresh, logs, mode_cfg)
                                 except Exception:
-                                    logs.error("file_reference_retry_failed", {"message_id": msg_id})
+                                    logs.error("file_reference_retry_failed", {"message_id": msg_id}, error_code=EXTERNAL_API_ERROR)
                                     downloaded_path_raw = None
                                     media_errors_count += 1
                                     media_files.append(
@@ -652,14 +681,14 @@ class TelegramParser:
                                 )
 
                         except asyncio.TimeoutError:
-                            logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"})
+                            logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"}, error_code=EXTERNAL_API_ERROR)
                             downloaded_path_raw = None
                             media_errors_count += 1
                             media_files.append(
                                 {"type": mtype, "path": None, "filename": None, "error": "download_timeout"}
                             )
                         except Exception:
-                            logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"})
+                            logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"}, error_code=EXTERNAL_API_ERROR)
                             downloaded_path_raw = None
                             media_errors_count += 1
                             media_files.append(
@@ -774,6 +803,7 @@ class TelegramParser:
         partial_failure = not dry_run and media_errors_count > 0
         summary = {
             "run_at": utc_now_iso(),
+            "run_id": run_id,
             "channel_id": channel_id,
             "channel_username": username,
             "mode": mode,
@@ -805,7 +835,11 @@ class TelegramParser:
         if cleanup_temp and temp_dir.exists():
             shutil.rmtree(temp_dir, ignore_errors=True)
 
-        logs.info("run_finished", summary)
+        logs.info(
+            "run_finished",
+            summary,
+            error_code=PARTIAL_FAILURE if partial_failure else None,
+        )
 
         return {
             "summary": summary,

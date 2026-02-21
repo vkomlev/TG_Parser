@@ -13,7 +13,7 @@
 | `logs/app.log` | Основной лог: команды CLI, подключение Telethon, общий ход работы |
 | `logs/errors.log` | Сообщения уровня WARNING и ERROR (в т.ч. трассировки исключений) |
 
-Создаются при первом запуске любой команды CLI. Настраиваются в `logging_setup.py` (вызов `setup_app_logging(Path(__file__).parent / "logs")`).
+Создаются при первом запуске любой команды CLI. Настраиваются в `logging_setup.py` (вызов `setup_app_logging(Path(__file__).parent / "logs", run_id=run_id)` из `main()`).
 
 ### 2. Логи экспорта (в каталоге результата парсинга)
 
@@ -30,22 +30,25 @@
 
 ## Формат логов приложения (app.log, errors.log в logs/)
 
-Стандартный формат Python `logging`:
+Стандартный формат Python `logging` с полями **run_id** (correlation id запуска) и при ошибках — **error_code**:
 
 ```text
-YYYY-MM-DD HH:MM:SS,mmmZ LEVEL name: message
+YYYY-MM-DD HH:MM:SS,mmmZ LEVEL [run_id] name: message [error_code=CODE]
 ```
 
 - Время в UTC (суффикс `Z`).
+- **run_id** — короткий id запуска (первые 8 символов UUID) или `-`, если не задан.
 - **LEVEL** — DEBUG, INFO, WARNING, ERROR.
-- **name** — имя логгера (например `tg_parser.cli`, `tg_parser.core`, `telethon...`).
-- **message** — текст сообщения (на русском или английском).
+- **name** — имя логгера (например `tg_parser.cli`, `tg_parser.core`).
+- **message** — текст сообщения.
+- **error_code** — при ошибках выводится суффиксом (например `CONFIG_ERROR`, `AUTH_ERROR`, `EXTERNAL_API_ERROR`). Коды заданы в `errors.py`.
 
 **Пример:**
 
 ```text
-2026-02-17 14:31:58,813Z INFO tg_parser.cli: Команда parse (channel=https://t.me/AlgorithmPythonStruct/36, mode=safe, dry_run=False, output_dir=D:\Work\TG_Parser\out)
-2026-02-17 14:31:58,873Z INFO tg_parser.core: Сессия Telethon: SQLiteSession (telegram_session.session)
+2026-02-17 14:31:58,813Z INFO [a1b2c3d4] tg_parser.cli: Команда parse (channel=https://t.me/..., mode=safe, dry_run=False, output_dir=...)
+2026-02-17 14:31:58,873Z INFO [a1b2c3d4] tg_parser.core: Сессия Telethon: SQLiteSession (telegram_session.session)
+2026-02-17 14:32:00,100Z ERROR [a1b2c3d4] tg_parser.cli: Отсутствуют TELEGRAM_API_ID/TELEGRAM_API_HASH в .env error_code=CONFIG_ERROR
 ```
 
 ---
@@ -59,12 +62,12 @@ YYYY-MM-DD HH:MM:SS,mmmZ LEVEL name: message
 | `ts` | строка | Время события (ISO UTC, `YYYY-MM-DDTHH:mm:ssZ`) |
 | `level` | строка | `INFO` или `ERROR` |
 | `event` | строка | Тип события (см. ниже) |
-| `data` | объект | Дополнительные данные (зависят от event) |
+| `data` | объект | Дополнительные данные; при наличии передаются `run_id` (correlation id) и при ошибках — `error_code` (коды из `errors.py`: `EXTERNAL_API_ERROR`, `RATE_LIMIT` и т.д.) |
 
 **Типичные значения event:**
 
 - `run_started` — старт парсинга (channel_identifier, mode, dry_run).
-- `run_finished` — завершение (полная сводка, как в summary).
+- `run_finished` — завершение (полная сводка, как в summary); при частичном успехе (есть сбои медиа) в `data` добавляется `error_code: "PARTIAL_FAILURE"`.
 - `flood_wait` — срабатывание FloodWait (seconds, sleep).
 - `retry` — повторная попытка (attempt, sleep, error).
 - `retry_exhausted` — исчерпаны попытки (error).

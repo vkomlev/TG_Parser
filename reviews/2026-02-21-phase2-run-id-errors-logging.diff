@@ -1,0 +1,422 @@
+﻿diff --git a/docs/logging.md b/docs/logging.md
+index 8d837df..aa1af13 100644
+--- a/docs/logging.md
++++ b/docs/logging.md
+@@ -30,22 +30,25 @@
+ 
+ ## ╨д╨╛╤А╨╝╨░╤В ╨╗╨╛╨│╨╛╨▓ ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╤П (app.log, errors.log ╨▓ logs/)
+ 
+-╨б╤В╨░╨╜╨┤╨░╤А╤В╨╜╤Л╨╣ ╤Д╨╛╤А╨╝╨░╤В Python `logging`:
++╨б╤В╨░╨╜╨┤╨░╤А╤В╨╜╤Л╨╣ ╤Д╨╛╤А╨╝╨░╤В Python `logging` ╤Б ╨┐╨╛╨╗╤П╨╝╨╕ **run_id** (correlation id ╨╖╨░╨┐╤Г╤Б╨║╨░) ╨╕ ╨┐╤А╨╕ ╨╛╤И╨╕╨▒╨║╨░╤Е тАФ **error_code**:
+ 
+ ```text
+-YYYY-MM-DD HH:MM:SS,mmmZ LEVEL name: message
++YYYY-MM-DD HH:MM:SS,mmmZ LEVEL [run_id] name: message [error_code=CODE]
+ ```
+ 
+ - ╨Т╤А╨╡╨╝╤П ╨▓ UTC (╤Б╤Г╤Д╤Д╨╕╨║╤Б `Z`).
++- **run_id** тАФ ╨║╨╛╤А╨╛╤В╨║╨╕╨╣ id ╨╖╨░╨┐╤Г╤Б╨║╨░ (╨┐╨╡╤А╨▓╤Л╨╡ 8 ╤Б╨╕╨╝╨▓╨╛╨╗╨╛╨▓ UUID) ╨╕╨╗╨╕ `-`, ╨╡╤Б╨╗╨╕ ╨╜╨╡ ╨╖╨░╨┤╨░╨╜.
+ - **LEVEL** тАФ DEBUG, INFO, WARNING, ERROR.
+-- **name** тАФ ╨╕╨╝╤П ╨╗╨╛╨│╨│╨╡╤А╨░ (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `tg_parser.cli`, `tg_parser.core`, `telethon...`).
+-- **message** тАФ ╤В╨╡╨║╤Б╤В ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П (╨╜╨░ ╤А╤Г╤Б╤Б╨║╨╛╨╝ ╨╕╨╗╨╕ ╨░╨╜╨│╨╗╨╕╨╣╤Б╨║╨╛╨╝).
++- **name** тАФ ╨╕╨╝╤П ╨╗╨╛╨│╨│╨╡╤А╨░ (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `tg_parser.cli`, `tg_parser.core`).
++- **message** тАФ ╤В╨╡╨║╤Б╤В ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П.
++- **error_code** тАФ ╨┐╤А╨╕ ╨╛╤И╨╕╨▒╨║╨░╤Е ╨▓╤Л╨▓╨╛╨┤╨╕╤В╤Б╤П ╤Б╤Г╤Д╤Д╨╕╨║╤Б╨╛╨╝ (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `CONFIG_ERROR`, `AUTH_ERROR`, `EXTERNAL_API_ERROR`). ╨Ъ╨╛╨┤╤Л ╨╖╨░╨┤╨░╨╜╤Л ╨▓ `errors.py`.
+ 
+ **╨Я╤А╨╕╨╝╨╡╤А:**
+ 
+ ```text
+-2026-02-17 14:31:58,813Z INFO tg_parser.cli: ╨Ъ╨╛╨╝╨░╨╜╨┤╨░ parse (channel=https://t.me/AlgorithmPythonStruct/36, mode=safe, dry_run=False, output_dir=D:\Work\TG_Parser\out)
+-2026-02-17 14:31:58,873Z INFO tg_parser.core: ╨б╨╡╤Б╤Б╨╕╤П Telethon: SQLiteSession (telegram_session.session)
++2026-02-17 14:31:58,813Z INFO [a1b2c3d4] tg_parser.cli: ╨Ъ╨╛╨╝╨░╨╜╨┤╨░ parse (channel=https://t.me/..., mode=safe, dry_run=False, output_dir=...)
++2026-02-17 14:31:58,873Z INFO [a1b2c3d4] tg_parser.core: ╨б╨╡╤Б╤Б╨╕╤П Telethon: SQLiteSession (telegram_session.session)
++2026-02-17 14:32:00,100Z ERROR [a1b2c3d4] tg_parser.cli: ╨Ю╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╤О╤В TELEGRAM_API_ID/TELEGRAM_API_HASH ╨▓ .env error_code=CONFIG_ERROR
+ ```
+ 
+ ---
+@@ -59,7 +62,7 @@ YYYY-MM-DD HH:MM:SS,mmmZ LEVEL name: message
+ | `ts` | ╤Б╤В╤А╨╛╨║╨░ | ╨Т╤А╨╡╨╝╤П ╤Б╨╛╨▒╤Л╤В╨╕╤П (ISO UTC, `YYYY-MM-DDTHH:mm:ssZ`) |
+ | `level` | ╤Б╤В╤А╨╛╨║╨░ | `INFO` ╨╕╨╗╨╕ `ERROR` |
+ | `event` | ╤Б╤В╤А╨╛╨║╨░ | ╨в╨╕╨┐ ╤Б╨╛╨▒╤Л╤В╨╕╤П (╤Б╨╝. ╨╜╨╕╨╢╨╡) |
+-| `data` | ╨╛╨▒╤К╨╡╨║╤В | ╨Ф╨╛╨┐╨╛╨╗╨╜╨╕╤В╨╡╨╗╤М╨╜╤Л╨╡ ╨┤╨░╨╜╨╜╤Л╨╡ (╨╖╨░╨▓╨╕╤Б╤П╤В ╨╛╤В event) |
++| `data` | ╨╛╨▒╤К╨╡╨║╤В | ╨Ф╨╛╨┐╨╛╨╗╨╜╨╕╤В╨╡╨╗╤М╨╜╤Л╨╡ ╨┤╨░╨╜╨╜╤Л╨╡; ╨┐╤А╨╕ ╨╜╨░╨╗╨╕╤З╨╕╨╕ ╨┐╨╡╤А╨╡╨┤╨░╤О╤В╤Б╤П `run_id` (correlation id) ╨╕ ╨┐╤А╨╕ ╨╛╤И╨╕╨▒╨║╨░╤Е тАФ `error_code` (╨║╨╛╨┤╤Л ╨╕╨╖ `errors.py`: `EXTERNAL_API_ERROR`, `RATE_LIMIT` ╨╕ ╤В.╨┤.) |
+ 
+ **╨в╨╕╨┐╨╕╤З╨╜╤Л╨╡ ╨╖╨╜╨░╤З╨╡╨╜╨╕╤П event:**
+ 
+diff --git a/docs/output-formats.md b/docs/output-formats.md
+index 5b88939..7dd1d85 100644
+--- a/docs/output-formats.md
++++ b/docs/output-formats.md
+@@ -166,6 +166,7 @@
+ | ╨Я╨╛╨╗╨╡ | ╨в╨╕╨┐ | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ |
+ |------|-----|----------|
+ | `run_at` | ╤Б╤В╤А╨╛╨║╨░ | ╨Т╤А╨╡╨╝╤П ╨╖╨░╨┐╤Г╤Б╨║╨░ (ISO UTC) |
++| `run_id` | ╤Б╤В╤А╨╛╨║╨░ \| null | Correlation id ╨╖╨░╨┐╤Г╤Б╨║╨░ (╨┐╨╡╤А╨▓╤Л╨╡ 8 ╤Б╨╕╨╝╨▓╨╛╨╗╨╛╨▓ UUID; null ╨┐╤А╨╕ ╨▓╤Л╨╖╨╛╨▓╨╡ ╨▒╨╡╨╖ run_id) |
+ | `channel_id` | ╤З╨╕╤Б╨╗╨╛ | Id ╨║╨░╨╜╨░╨╗╨░ |
+ | `channel_username` | ╤Б╤В╤А╨╛╨║╨░ \| null | Username ╨║╨░╨╜╨░╨╗╨░ |
+ | `mode` | ╤Б╤В╤А╨╛╨║╨░ | ╨а╨╡╨╢╨╕╨╝: `safe` ╨╕╨╗╨╕ `normal` |
+@@ -189,6 +190,7 @@
+ ```json
+ {
+   "run_at": "2026-02-17T18:57:17Z",
++  "run_id": "a1b2c3d4",
+   "channel_id": 2614091536,
+   "channel_username": "AlgorithmPythonStruct",
+   "mode": "safe",
+diff --git a/logging_setup.py b/logging_setup.py
+index fc09e74..b12642a 100644
+--- a/logging_setup.py
++++ b/logging_setup.py
+@@ -1,26 +1,58 @@
+ """╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨░ ╨╗╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╤П ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╤П.
+ 
+ ╨Ы╨╛╨│╨╕ ╨┐╨╕╤И╤Г╤В╤Б╤П ╨▓ ╨┐╨░╨┐╨║╤Г `logs/` ╤А╤П╨┤╨╛╨╝ ╤Б ╤Д╨░╨╣╨╗╨╛╨╝ ╨╕ ╤А╨╛╤В╨╕╤А╤Г╤О╤В╤Б╤П ╨┐╨╛ ╤А╨░╨╖╨╝╨╡╤А╤Г.
++╨Я╨╛╨┤╨┤╨╡╤А╨╢╨╕╨▓╨░╤О╤В╤Б╤П run_id (correlation id) ╨╕ error_code ╨▓ ╨║╨░╨╢╨┤╨╛╨╣ ╨╖╨░╨┐╨╕╤Б╨╕.
+ """
+ 
+ from __future__ import annotations
+ 
+ import logging
+ import time
++from contextvars import ContextVar
+ from logging.handlers import RotatingFileHandler
+ from pathlib import Path
++from typing import Optional
+ 
++# ╨Ъ╨╛╨╜╤В╨╡╨║╤Б╤В run_id ╨┤╨╗╤П ╤В╨╡╨║╤Г╤Й╨╡╨│╨╛ ╨╖╨░╨┐╤А╨╛╤Б╨░ (╤Г╤Б╤В╨░╨╜╨░╨▓╨╗╨╕╨▓╨░╨╡╤В╤Б╤П ╨▓ main()).
++_run_id_ctx: ContextVar[Optional[str]] = ContextVar("run_id", default=None)
+ 
+-def setup_app_logging(logs_dir: Path, level: int = logging.INFO) -> None:
++
++def set_run_id(run_id: Optional[str]) -> None:
++    """╨г╤Б╤В╨░╨╜╨╛╨▓╨╕╤В╤М run_id ╨┤╨╗╤П ╤В╨╡╨║╤Г╤Й╨╡╨│╨╛ ╨║╨╛╨╜╤В╨╡╨║╤Б╤В╨░ (╨╗╨╛╨│╨╕)."""
++    _run_id_ctx.set(run_id)
++
++
++def get_run_id() -> Optional[str]:
++    """╨в╨╡╨║╤Г╤Й╨╕╨╣ run_id ╨╕╨╖ ╨║╨╛╨╜╤В╨╡╨║╤Б╤В╨░."""
++    return _run_id_ctx.get()
++
++
++class RunIdFilter(logging.Filter):
++    """╨Ф╨╛╨▒╨░╨▓╨╗╤П╨╡╤В run_id ╨╕ error_code ╨▓ ╨║╨░╨╢╨┤╤Г╤О ╨╖╨░╨┐╨╕╤Б╤М ╨╗╨╛╨│╨░ (╨╕╨╖ ╨║╨╛╨╜╤В╨╡╨║╤Б╤В╨░ ╨╕ extra)."""
++
++    def filter(self, record: logging.LogRecord) -> bool:
++        record.run_id = getattr(record, "run_id", None) or _run_id_ctx.get() or "-"
++        record.error_code = getattr(record, "error_code", None) or "-"
++        return True
++
++
++def setup_app_logging(
++    logs_dir: Path,
++    level: int = logging.INFO,
++    run_id: Optional[str] = None,
++) -> None:
+     """╨Э╨░╤Б╤В╤А╨╛╨╕╤В╤М ╨╗╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ ╨▓ `logs/app.log` ╤Б ╤А╨╛╤В╨░╤Ж╨╕╨╡╨╣.
+ 
+     Args:
+         logs_dir: ╨Ъ╨░╤В╨░╨╗╨╛╨│ ╨┤╨╗╤П ╨╗╨╛╨│╨╛╨▓.
+         level: ╨г╤А╨╛╨▓╨╡╨╜╤М ╨╗╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╤П (╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О INFO).
++        run_id: Correlation id ╨┤╨╗╤П ╤Н╤В╨╛╨│╨╛ ╨╖╨░╨┐╤Г╤Б╨║╨░ (╨┤╨╛╨▒╨░╨▓╨╗╤П╨╡╤В╤Б╤П ╨▓╨╛ ╨▓╤Б╨╡ ╨╖╨░╨┐╨╕╤Б╨╕).
+ 
+     Returns:
+         None.
+     """
++    if run_id is not None:
++        set_run_id(run_id)
+ 
+     logs_dir.mkdir(parents=True, exist_ok=True)
+ 
+@@ -32,8 +64,16 @@ def setup_app_logging(logs_dir: Path, level: int = logging.INFO) -> None:
+         if isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", "").endswith("app.log"):
+             return
+ 
+-    formatter = logging.Formatter("%(asctime)sZ %(levelname)s %(name)s: %(message)s")
+-    # UTC timestamps, ╨║╨░╨║ ╨▓ JSON-╤Н╨║╤Б╨┐╨╛╤А╤В╨╡
++    root.addFilter(RunIdFilter())
++
++    class AppLogFormatter(logging.Formatter):
++        def format(self, record: logging.LogRecord) -> str:
++            base = super().format(record)
++            if getattr(record, "error_code", "-") != "-":
++                base += f" error_code={record.error_code}"
++            return base
++
++    formatter = AppLogFormatter("%(asctime)sZ %(levelname)s [%(run_id)s] %(name)s: %(message)s")
+     formatter.converter = time.gmtime
+ 
+     app_handler = RotatingFileHandler(
+diff --git a/telegram_parser.py b/telegram_parser.py
+index df5af92..51f97e8 100644
+--- a/telegram_parser.py
++++ b/telegram_parser.py
+@@ -28,6 +28,8 @@ from telethon.errors.rpcerrorlist import FileReferenceExpiredError
+ from telethon.tl.functions.messages import GetHistoryRequest
+ from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaPoll
+ 
++from errors import EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT
++
+ 
+ WINDOWS_BAD_CHARS = r'<>:"/\\|?*'
+ 
+@@ -136,7 +138,15 @@ class JsonLogger:
+     - `logs/errors.log`
+     """
+ 
+-    def __init__(self, logs_dir: Path, *, max_bytes: int = 2 * 1024 * 1024, backup_count: int = 10) -> None:
++    def __init__(
++        self,
++        logs_dir: Path,
++        *,
++        run_id: Optional[str] = None,
++        max_bytes: int = 2 * 1024 * 1024,
++        backup_count: int = 10,
++    ) -> None:
++        self._run_id = run_id
+         logs_dir.mkdir(parents=True, exist_ok=True)
+ 
+         # ╨Ш╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╨╝ ╨╛╤В╨┤╨╡╨╗╤М╨╜╤Л╨╡ ╨╗╨╛╨│╨│╨╡╤А╤Л, ╤З╤В╨╛╨▒╤Л ╨╜╨╡ ╨╝╨╡╤И╨░╤В╤М ╨│╨╗╨╛╨▒╨░╨╗╤М╨╜╨╛╨╣ ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕.
+@@ -171,22 +181,33 @@ class JsonLogger:
+             err_h.setFormatter(fmt)
+             self._err_logger.addHandler(err_h)
+ 
+-    def _record(self, level: str, event: str, payload: Optional[Dict[str, Any]] = None) -> str:
++    def _record(
++        self,
++        level: str,
++        event: str,
++        payload: Optional[Dict[str, Any]] = None,
++        error_code: Optional[str] = None,
++    ) -> str:
++        data = dict(payload or {})
++        if self._run_id is not None:
++            data["run_id"] = self._run_id
++        if error_code is not None:
++            data["error_code"] = error_code
+         return json.dumps(
+-            {
+-                "ts": utc_now_iso(),
+-                "level": level,
+-                "event": event,
+-                "data": payload or {},
+-            },
++            {"ts": utc_now_iso(), "level": level, "event": event, "data": data},
+             ensure_ascii=False,
+         )
+ 
+     def info(self, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
+         self._run_logger.info(self._record("INFO", event, payload))
+ 
+-    def error(self, event: str, payload: Optional[Dict[str, Any]] = None) -> None:
+-        self._err_logger.error(self._record("ERROR", event, payload))
++    def error(
++        self,
++        event: str,
++        payload: Optional[Dict[str, Any]] = None,
++        error_code: Optional[str] = None,
++    ) -> None:
++        self._err_logger.error(self._record("ERROR", event, payload, error_code))
+ 
+ 
+ class TelegramParser:
+@@ -329,7 +350,7 @@ class TelegramParser:
+                 raise
+             except FloodWaitError as e:
+                 wait_for = int(e.seconds) + mode_cfg.flood_extra_delay + random.randint(0, 2)
+-                logger.error("flood_wait", {"seconds": int(e.seconds), "sleep": wait_for})
++                logger.error("flood_wait", {"seconds": int(e.seconds), "sleep": wait_for}, error_code=RATE_LIMIT)
+                 await asyncio.sleep(wait_for)
+             except asyncio.TimeoutError as e:
+                 retries += 1
+@@ -337,6 +358,7 @@ class TelegramParser:
+                     logger.error(
+                         "retry_exhausted",
+                         {"error": "download_timeout", "timeout_sec": mode_cfg.media_download_timeout_sec},
++                        error_code=EXTERNAL_API_ERROR,
+                     )
+                     raise
+                 backoff = 2 ** retries
+@@ -348,15 +370,16 @@ class TelegramParser:
+                         "error": "download_timeout",
+                         "timeout_sec": mode_cfg.media_download_timeout_sec,
+                     },
++                    error_code=EXTERNAL_API_ERROR,
+                 )
+                 await asyncio.sleep(backoff)
+             except Exception as e:
+                 retries += 1
+                 if retries > mode_cfg.max_retries:
+-                    logger.error("retry_exhausted", {"error": str(e)})
++                    logger.error("retry_exhausted", {"error": str(e)}, error_code=EXTERNAL_API_ERROR)
+                     raise
+                 backoff = 2 ** retries
+-                logger.error("retry", {"attempt": retries, "sleep": backoff, "error": str(e)})
++                logger.error("retry", {"attempt": retries, "sleep": backoff, "error": str(e)}, error_code=EXTERNAL_API_ERROR)
+                 await asyncio.sleep(backoff)
+ 
+     async def _resolve_entity(self, channel_identifier: str):
+@@ -442,6 +465,7 @@ class TelegramParser:
+         dry_run: bool = False,
+         zip_output: bool = False,
+         cleanup_temp: bool = True,
++        run_id: Optional[str] = None,
+     ) -> Dict[str, Any]:
+         await self.connect()
+         assert self.client
+@@ -464,7 +488,7 @@ class TelegramParser:
+         for d in [photos_dir, videos_dir, docs_dir, temp_dir]:
+             d.mkdir(parents=True, exist_ok=True)
+ 
+-        logs = JsonLogger(export_dir / "logs")
++        logs = JsonLogger(export_dir / "logs", run_id=run_id)
+         logs.info("run_started", {"channel_identifier": channel_identifier, "mode": mode, "dry_run": dry_run})
+ 
+         export_json_path = export_dir / "export.json"
+@@ -619,7 +643,7 @@ class TelegramParser:
+                         try:
+                             downloaded_path_raw = await self._with_retries(dl_media, logs, mode_cfg)
+                         except FileReferenceExpiredError:
+-                            logs.error("file_reference_expired", {"message_id": msg_id})
++                            logs.error("file_reference_expired", {"message_id": msg_id}, error_code=EXTERNAL_API_ERROR)
+                             fresh = await self.client.get_messages(entity, ids=msg_id)
+                             # Telethon may return either a single Message or a list-like container.
+                             if isinstance(fresh, (list, tuple)):
+@@ -638,7 +662,7 @@ class TelegramParser:
+                                 try:
+                                     downloaded_path_raw = await self._with_retries(dl_fresh, logs, mode_cfg)
+                                 except Exception:
+-                                    logs.error("file_reference_retry_failed", {"message_id": msg_id})
++                                    logs.error("file_reference_retry_failed", {"message_id": msg_id}, error_code=EXTERNAL_API_ERROR)
+                                     downloaded_path_raw = None
+                                     media_errors_count += 1
+                                     media_files.append(
+@@ -652,14 +676,14 @@ class TelegramParser:
+                                 )
+ 
+                         except asyncio.TimeoutError:
+-                            logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"})
++                            logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"}, error_code=EXTERNAL_API_ERROR)
+                             downloaded_path_raw = None
+                             media_errors_count += 1
+                             media_files.append(
+                                 {"type": mtype, "path": None, "filename": None, "error": "download_timeout"}
+                             )
+                         except Exception:
+-                            logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"})
++                            logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"}, error_code=EXTERNAL_API_ERROR)
+                             downloaded_path_raw = None
+                             media_errors_count += 1
+                             media_files.append(
+@@ -774,6 +798,7 @@ class TelegramParser:
+         partial_failure = not dry_run and media_errors_count > 0
+         summary = {
+             "run_at": utc_now_iso(),
++            "run_id": run_id,
+             "channel_id": channel_id,
+             "channel_username": username,
+             "mode": mode,
+diff --git a/telegram_parser_skill.py b/telegram_parser_skill.py
+index a89601a..1a41069 100644
+--- a/telegram_parser_skill.py
++++ b/telegram_parser_skill.py
+@@ -9,12 +9,14 @@ import json
+ import logging
+ import os
+ import sys
++import uuid
+ from pathlib import Path
+ 
+ from dotenv import load_dotenv
+ 
+ # local import
+ sys.path.append(os.path.dirname(__file__))
++from errors import AUTH_ERROR, CONFIG_ERROR  # noqa: E402
+ from exit_codes import EXIT_FAILURE, EXIT_INTERRUPTED, EXIT_PARTIAL, EXIT_SUCCESS  # noqa: E402
+ from logging_setup import setup_app_logging  # noqa: E402
+ from telegram_parser import TelegramParser  # noqa: E402
+@@ -79,14 +81,17 @@ def build_parser() -> argparse.ArgumentParser:
+     return p
+ 
+ 
+-async def run(args: argparse.Namespace) -> int:
++async def run(args: argparse.Namespace, run_id: str | None = None) -> int:
+     log = logging.getLogger("tg_parser.cli")
+ 
+     api_id = os.getenv("TELEGRAM_API_ID")
+     api_hash = os.getenv("TELEGRAM_API_HASH")
+ 
+     if not api_id or not api_hash:
+-        log.error("╨Ю╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╤О╤В TELEGRAM_API_ID/TELEGRAM_API_HASH ╨▓ .env")
++        log.error(
++            "╨Ю╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╤О╤В TELEGRAM_API_ID/TELEGRAM_API_HASH ╨▓ .env",
++            extra={"error_code": CONFIG_ERROR},
++        )
+         _print_err_utf8("Error: TELEGRAM_API_ID and TELEGRAM_API_HASH are required in .env")
+         return EXIT_FAILURE
+ 
+@@ -106,7 +111,10 @@ async def run(args: argparse.Namespace) -> int:
+ 
+         if args.command == "resolve":
+             if not args.channel:
+-                log.error("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ resolve ╨▒╨╡╨╖ --channel")
++                log.error(
++                    "╨Ъ╨╛╨╝╨░╨╜╨┤╨░ resolve ╨▒╨╡╨╖ --channel",
++                    extra={"error_code": CONFIG_ERROR},
++                )
+                 _print_err_utf8("Error: --channel is required for resolve (link, @username or id)")
+                 return EXIT_FAILURE
+             log.info("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ resolve (channel=%s)", args.channel)
+@@ -116,7 +124,10 @@ async def run(args: argparse.Namespace) -> int:
+ 
+         if args.command == "parse":
+             if not args.channel:
+-                log.error("╨Ъ╨╛╨╝╨░╨╜╨┤╨░ parse ╨▒╨╡╨╖ --channel")
++                log.error(
++                    "╨Ъ╨╛╨╝╨░╨╜╨┤╨░ parse ╨▒╨╡╨╖ --channel",
++                    extra={"error_code": CONFIG_ERROR},
++                )
+                 _print_err_utf8("Error: --channel is required for parse")
+                 return EXIT_FAILURE
+ 
+@@ -138,6 +149,7 @@ async def run(args: argparse.Namespace) -> int:
+                 dry_run=args.dry_run,
+                 zip_output=args.zip,
+                 cleanup_temp=not args.no_cleanup_temp,
++                run_id=run_id,
+             )
+ 
+             _print_utf8(json.dumps(result, ensure_ascii=False, indent=2))
+@@ -146,6 +158,11 @@ async def run(args: argparse.Namespace) -> int:
+             return EXIT_SUCCESS
+ 
+         return EXIT_FAILURE
++    except RuntimeError as e:
++        msg = str(e)
++        if "TELEGRAM" in msg or "╨Ъ╨╛╨┤ ╨╛╤В╨┐╤А╨░╨▓╨╗╨╡╨╜" in msg or "authorization" in msg.lower():
++            log.exception("╨Ю╤И╨╕╨▒╨║╨░ ╨░╨▓╤В╨╛╤А╨╕╨╖╨░╤Ж╨╕╨╕: %s", e, extra={"error_code": AUTH_ERROR})
++        raise
+     except Exception:
+         log.exception("╨Э╨╡╨╛╨▒╤А╨░╨▒╨╛╤В╨░╨╜╨╜╨░╤П ╨╛╤И╨╕╨▒╨║╨░ CLI")
+         raise
+@@ -156,16 +173,18 @@ async def run(args: argparse.Namespace) -> int:
+ def main() -> int:
+     _configure_utf8_stdio()
+     load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+-    setup_app_logging(Path(__file__).parent / "logs")
++    run_id = str(uuid.uuid4())[:8]
++    setup_app_logging(Path(__file__).parent / "logs", run_id=run_id)
+     args = build_parser().parse_args()
+     try:
+-        return asyncio.run(run(args))
++        return asyncio.run(run(args, run_id=run_id))
+     except KeyboardInterrupt:
+         logging.getLogger("tg_parser.cli").warning("╨Ю╤Б╤В╨░╨╜╨╛╨▓╨║╨░ ╨┐╨╛ Ctrl+C")
+         _print_err_utf8("Interrupted")
+         return EXIT_INTERRUPTED
+     except Exception as e:
+-        logging.getLogger("tg_parser.cli").exception("╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П: %s", e)
++        log = logging.getLogger("tg_parser.cli")
++        log.exception("╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П: %s", e, extra={"error_code": getattr(e, "error_code", None)})
+         _print_err_utf8(f"Error: {e}")
+         return EXIT_FAILURE
+ 
