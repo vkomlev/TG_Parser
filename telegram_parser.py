@@ -10,11 +10,13 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import random
 import re
 import shutil
-import logging
+import sqlite3
+import time
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -28,7 +30,7 @@ from telethon.errors.rpcerrorlist import FileReferenceExpiredError
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaPoll
 
-from errors import EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT
+from errors import EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT, SESSION_LOCKED
 
 
 WINDOWS_BAD_CHARS = r'<>:"/\\|?*'
@@ -236,6 +238,11 @@ class TelegramParser:
         self.auth_state_dir.mkdir(parents=True, exist_ok=True)
         return self.auth_state_dir / "telegram_auth_state.json"
 
+    def _is_database_locked_error(self, e: BaseException) -> bool:
+        if isinstance(e, sqlite3.OperationalError):
+            return "database is locked" in (e.args[0] or "").lower()
+        return "database is locked" in str(e).lower()
+
     async def connect(self) -> None:
         if self.client is None:
             self.client = TelegramClient(self.session_file, int(self.api_id), self.api_hash)
@@ -246,7 +253,36 @@ class TelegramParser:
                 self._log.info("Сессия Telethon: %s (%s)", sess_name, sess_file or "без файла")
             except Exception:
                 pass
-        await self.client.connect()
+
+        max_connect_retries = 5
+        for attempt in range(1, max_connect_retries + 1):
+            try:
+                await self.client.connect()
+                if attempt > 1:
+                    self._log.info("connect succeeded after %s attempt(s)", attempt)
+                break
+            except Exception as e:
+                if not self._is_database_locked_error(e):
+                    raise
+                if attempt >= max_connect_retries:
+                    self._log.error(
+                        "database is locked after %s retries: %s",
+                        max_connect_retries,
+                        e,
+                        extra={"error_code": SESSION_LOCKED},
+                    )
+                    err = RuntimeError(f"Session database is locked after {max_connect_retries} retries: {e}")
+                    setattr(err, "error_code", SESSION_LOCKED)
+                    raise err from e
+                backoff = 2 ** attempt
+                self._log.warning(
+                    "connect database is locked, retry %s/%s in %s s: %s",
+                    attempt,
+                    max_connect_retries,
+                    backoff,
+                    e,
+                )
+                await asyncio.sleep(backoff)
 
         if await self.client.is_user_authorized():
             return
@@ -639,12 +675,46 @@ class TelegramParser:
                         temp_path = temp_dir / f"tmp_{msg_id}_{random.randint(1000, 9999)}"
                         media_to_dl = msg.media
 
+                        def _media_timeout_sec() -> int:
+                            """Таймаут загрузки: базовый или адаптивный по известному размеру (с потолком)."""
+                            base = mode_cfg.media_download_timeout_sec
+                            if not known_size or known_size <= 0:
+                                return base
+                            cap = 3600
+                            mb = known_size / (1024 * 1024)
+                            adaptive = base + int(mb * 60)
+                            return min(adaptive, cap)
+
+                        timeout_sec = _media_timeout_sec()
                         async def dl_media(media=media_to_dl):
                             return await asyncio.wait_for(
                                 self.client.download_media(media, file=str(temp_path)),
-                                timeout=mode_cfg.media_download_timeout_sec,
+                                timeout=timeout_sec,
                             )
 
+                        t0_media = time.monotonic()
+                        logs.info(
+                            "media_download_start",
+                            {
+                                "message_id": msg_id,
+                                "media_type": mtype,
+                                "known_size": known_size if known_size else None,
+                            },
+                        )
+
+                        def _log_media_finish(outcome: str) -> None:
+                            dur = round(time.monotonic() - t0_media, 2)
+                            logs.info(
+                                "media_download_finished",
+                                {
+                                    "message_id": msg_id,
+                                    "media_type": mtype,
+                                    "duration_sec": dur,
+                                    "outcome": outcome,
+                                },
+                            )
+
+                        media_outcome = "error"
                         try:
                             downloaded_path_raw = await self._with_retries(dl_media, logs, mode_cfg)
                         except FileReferenceExpiredError:
@@ -661,7 +731,7 @@ class TelegramParser:
                                 async def dl_fresh():
                                     return await asyncio.wait_for(
                                         self.client.download_media(fresh_msg.media, file=str(temp_path)),
-                                        timeout=mode_cfg.media_download_timeout_sec,
+                                        timeout=timeout_sec,
                                     )
 
                                 try:
@@ -681,6 +751,7 @@ class TelegramParser:
                                 )
 
                         except asyncio.TimeoutError:
+                            media_outcome = "timeout"
                             logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"}, error_code=EXTERNAL_API_ERROR)
                             downloaded_path_raw = None
                             media_errors_count += 1
@@ -688,6 +759,7 @@ class TelegramParser:
                                 {"type": mtype, "path": None, "filename": None, "error": "download_timeout"}
                             )
                         except Exception:
+                            media_outcome = "error"
                             logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"}, error_code=EXTERNAL_API_ERROR)
                             downloaded_path_raw = None
                             media_errors_count += 1
@@ -695,41 +767,46 @@ class TelegramParser:
                                 {"type": mtype, "path": None, "filename": None, "error": "retry_exhausted"}
                             )
 
-                        if downloaded_path_raw:
-                            downloaded_path = Path(downloaded_path_raw)
-                            if downloaded_path.exists():
-                                file_hash = self._sha256_file(downloaded_path)
-                                existing_rel = hash_index.get(file_hash)
-                                if existing_rel:
-                                    media_dedup_hits += 1
-                                    downloaded_path.unlink(missing_ok=True)
-                                    media_files.append(
-                                        {
-                                            "type": mtype,
-                                            "path": existing_rel,
-                                            "filename": Path(existing_rel).name,
-                                            "sha256": file_hash,
-                                        }
-                                    )
-                                else:
-                                    final_path = target_dir / final_name
-                                    if final_path.exists():
-                                        alt_base = limit_filename_base(f"{Path(final_name).stem}_{short_hash(file_hash)}", 120)
-                                        final_path = target_dir / f"{alt_base}{final_path.suffix}"
+                        try:
+                            if downloaded_path_raw:
+                                downloaded_path = Path(downloaded_path_raw)
+                                if downloaded_path.exists():
+                                    file_hash = self._sha256_file(downloaded_path)
+                                    existing_rel = hash_index.get(file_hash)
+                                    if existing_rel:
+                                        media_dedup_hits += 1
+                                        downloaded_path.unlink(missing_ok=True)
+                                        media_files.append(
+                                            {
+                                                "type": mtype,
+                                                "path": existing_rel,
+                                                "filename": Path(existing_rel).name,
+                                                "sha256": file_hash,
+                                            }
+                                        )
+                                        media_outcome = "success"
+                                    else:
+                                        final_path = target_dir / final_name
+                                        if final_path.exists():
+                                            alt_base = limit_filename_base(f"{Path(final_name).stem}_{short_hash(file_hash)}", 120)
+                                            final_path = target_dir / f"{alt_base}{final_path.suffix}"
 
-                                    shutil.move(str(downloaded_path), str(final_path))
-                                    rel_path = str(final_path.relative_to(export_dir)).replace("\\", "/")
-                                    hash_index[file_hash] = rel_path
-                                    media_saved_count += 1
-                                    media_files.append(
-                                        {
-                                            "type": mtype,
-                                            "path": rel_path,
-                                            "filename": final_path.name,
-                                            "size": final_path.stat().st_size,
-                                            "sha256": file_hash,
-                                        }
-                                    )
+                                        shutil.move(str(downloaded_path), str(final_path))
+                                        rel_path = str(final_path.relative_to(export_dir)).replace("\\", "/")
+                                        hash_index[file_hash] = rel_path
+                                        media_saved_count += 1
+                                        media_files.append(
+                                            {
+                                                "type": mtype,
+                                                "path": rel_path,
+                                                "filename": final_path.name,
+                                                "size": final_path.stat().st_size,
+                                                "sha256": file_hash,
+                                            }
+                                        )
+                                        media_outcome = "success"
+                        finally:
+                            _log_media_finish(media_outcome)
 
                 elif mtype and dry_run:
                     media_files.append(

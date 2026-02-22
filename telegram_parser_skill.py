@@ -16,9 +16,10 @@ from dotenv import load_dotenv
 
 # local import
 sys.path.append(os.path.dirname(__file__))
-from errors import AUTH_ERROR, CONFIG_ERROR  # noqa: E402
+from errors import AUTH_ERROR, CONFIG_ERROR, SESSION_LOCKED  # noqa: E402
 from exit_codes import EXIT_FAILURE, EXIT_INTERRUPTED, EXIT_PARTIAL, EXIT_SUCCESS  # noqa: E402
 from logging_setup import setup_app_logging  # noqa: E402
+from session_lock import session_lock  # noqa: E402
 from telegram_parser import TelegramParser  # noqa: E402
 
 
@@ -176,6 +177,32 @@ def main() -> int:
     run_id = str(uuid.uuid4())[:8]
     setup_app_logging(Path(__file__).parent / "logs", run_id=run_id)
     args = build_parser().parse_args()
+
+    def _run_with_lock() -> int:
+        with session_lock(args.session_file) as acquired:
+            if not acquired:
+                log = logging.getLogger("tg_parser.cli")
+                log.error(
+                    "Сессия занята другим процессом: session_file=%s",
+                    args.session_file,
+                    extra={"error_code": SESSION_LOCKED},
+                )
+                _print_err_utf8("Error: session is locked by another process (use another --session-file or wait)")
+                return EXIT_FAILURE
+            try:
+                return asyncio.run(run(args, run_id=run_id))
+            except KeyboardInterrupt:
+                logging.getLogger("tg_parser.cli").warning("Остановка по Ctrl+C")
+                _print_err_utf8("Interrupted")
+                return EXIT_INTERRUPTED
+            except Exception as e:
+                log = logging.getLogger("tg_parser.cli")
+                log.exception("Ошибка выполнения: %s", e, extra={"error_code": getattr(e, "error_code", None)})
+                _print_err_utf8(f"Error: {e}")
+                return EXIT_FAILURE
+
+    if args.command == "parse":
+        return _run_with_lock()
     try:
         return asyncio.run(run(args, run_id=run_id))
     except KeyboardInterrupt:

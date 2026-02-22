@@ -1,0 +1,261 @@
+﻿diff --git a/.cursor/rules/review-changes.mdc b/.cursor/rules/review-changes.mdc
+index 8384857..fc3a8d8 100644
+--- a/.cursor/rules/review-changes.mdc
++++ b/.cursor/rules/review-changes.mdc
+@@ -5,12 +5,12 @@ alwaysApply: true
+ 
+ # ╨б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡ review-changes ╨┐╨╛╤Б╨╗╨╡ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╨╣ ╨║╨╛╨┤╨░
+ 
+-## ╨Ю╨▒╤П╨╖╨░╤В╨╡╨╗╤М╨╜╤Л╨╣ ╤З╨╡╨║-╨╗╨╕╤Б╤В ╨┐╨╡╤А╨╡╨┤ ╨╖╨░╨▓╨╡╤А╤И╨╡╨╜╨╕╨╡╨╝ ╨╛╤В╨▓╨╡╤В╨░
++## тЪая╕П ╨Ю╨С╨п╨Ч╨Р╨в╨Х╨Ы╨м╨Э╨Ю тАФ ╨Э╨Х ╨Я╨а╨Ю╨Я╨г╨б╨Ъ╨Р╨в╨м
+ 
+-**╨Х╤Б╨╗╨╕ ╨▓ ╤Н╤В╨╛╨╣ ╤Б╨╡╤Б╤Б╨╕╨╕ ╤В╤Л ╨▓╨╜╨╛╤Б╨╕╨╗ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╤П ╨▓ ╨║╨╛╨┤ ╨╕╨╗╨╕ ╨┤╨╛╨║╤Г╨╝╨╡╨╜╤В╨░╤Ж╨╕╤О ╨┐╤А╨╛╨╡╨║╤В╨░:**
++**╨Я╤А╨╕ ╨╗╤О╨▒╨╛╨╝ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╨╕ ╨║╨╛╨┤╨░ ╨╕╨╗╨╕ ╨┤╨╛╨║╤Г╨╝╨╡╨╜╤В╨░╤Ж╨╕╨╕ ╨▓ ╤Н╤В╨╛╨╣ ╤Б╨╡╤Б╤Б╨╕╨╕:**
+ 
+-1. **╨Я╨╡╤А╨╡╨┤** ╤В╨╡╨╝ ╨║╨░╨║ ╨╜╨░╨┐╨╕╤Б╨░╤В╤М ╨╕╤В╨╛╨│ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤О (┬л╨У╨╛╤В╨╛╨▓╨╛┬╗, ┬л╨Ш╤В╨╛╨│┬╗ ╨╕ ╤В.╨┐.) тАФ ╨▓╤Л╨┐╨╛╨╗╨╜╨╕ ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡ ╤А╨╡╨▓╤М╤О (╨┐. 2 ╨╜╨╕╨╢╨╡).
+-2. ╨Ю╤В╨▓╨╡╤В ╤Б ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╤П╨╝╨╕ ╨║╨╛╨┤╨░/╨┤╨╛╨║ **╨▒╨╡╨╖** ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╤П ╨░╤А╤В╨╡╤Д╨░╨║╤В╨╛╨▓ ╨▓ `reviews/` ╤Б╤З╨╕╤В╨░╨╡╤В╤Б╤П **╨╜╨╡╨╖╨░╨▓╨╡╤А╤И╤С╨╜╨╜╤Л╨╝** тАФ ╨╜╨╡ ╨┐╤А╨╛╨┐╤Г╤Б╨║╨░╨╣ ╤Н╤В╨╛╤В ╤И╨░╨│.
++1. **╨Я╨╡╤А╨╡╨┤** ╤Д╨╕╨╜╨░╨╗╤М╨╜╤Л╨╝ ╨╛╤В╨▓╨╡╤В╨╛╨╝ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤О (┬л╨У╨╛╤В╨╛╨▓╨╛┬╗, ┬л╨Ш╤В╨╛╨│┬╗ ╨╕ ╤В.╨┐.) тАФ ╤Б╨╛╤Е╤А╨░╨╜╨╕ ╨░╤А╤В╨╡╤Д╨░╨║╤В╤Л ╤А╨╡╨▓╤М╤О ╨▓ `reviews/` (╤Б╨╝. ╨╜╨╕╨╢╨╡).  
++2. **╨Ю╤В╨▓╨╡╤В ╤Б ╨┐╤А╨░╨▓╨║╨░╨╝╨╕ ╨▒╨╡╨╖ ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╤П ╨▓ `reviews/` ╤Б╤З╨╕╤В╨░╨╡╤В╤Б╤П ╨╜╨╡╨╖╨░╨▓╨╡╤А╤И╤С╨╜╨╜╤Л╨╝.** ╨Я╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤О ╨╜╨░╨┐╨╛╨╝╨╕╨╜╨░╤В╤М ╨╜╨╡ ╨╜╤Г╨╢╨╜╨╛ тАФ ╨▓╤Л╨┐╨╛╨╗╨╜╤П╤В╤М ╨▓╤Б╨╡╨│╨┤╨░.
+ 
+ ---
+ 
+diff --git a/errors.py b/errors.py
+index b392ecd..f0f2870 100644
+--- a/errors.py
++++ b/errors.py
+@@ -10,3 +10,5 @@ NETWORK_ERROR = "NETWORK_ERROR"
+ DATA_FORMAT_ERROR = "DATA_FORMAT_ERROR"
+ EXTERNAL_API_ERROR = "EXTERNAL_API_ERROR"
+ PARTIAL_FAILURE = "PARTIAL_FAILURE"
++SESSION_LOCKED = "SESSION_LOCKED"
++"""╨б╨╡╤Б╤Б╨╕╤П ╨╖╨░╨╜╤П╤В╨░ ╨┤╤А╤Г╨│╨╕╨╝ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨╛╨╝ ╨╕╨╗╨╕ database is locked ╨┐╨╛╤Б╨╗╨╡ ╨╕╤Б╤З╨╡╤А╨┐╨░╨╜╨╕╤П retry."""
+diff --git a/telegram_parser.py b/telegram_parser.py
+index f20ce84..eabc30f 100644
+--- a/telegram_parser.py
++++ b/telegram_parser.py
+@@ -10,11 +10,13 @@ from __future__ import annotations
+ import asyncio
+ import hashlib
+ import json
++import logging
+ import os
+ import random
+ import re
+ import shutil
+-import logging
++import sqlite3
++import time
+ import zipfile
+ from dataclasses import dataclass
+ from datetime import datetime, timezone
+@@ -28,7 +30,7 @@ from telethon.errors.rpcerrorlist import FileReferenceExpiredError
+ from telethon.tl.functions.messages import GetHistoryRequest
+ from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaPoll
+ 
+-from errors import EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT
++from errors import EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT, SESSION_LOCKED
+ 
+ 
+ WINDOWS_BAD_CHARS = r'<>:"/\\|?*'
+@@ -236,6 +238,11 @@ class TelegramParser:
+         self.auth_state_dir.mkdir(parents=True, exist_ok=True)
+         return self.auth_state_dir / "telegram_auth_state.json"
+ 
++    def _is_database_locked_error(self, e: BaseException) -> bool:
++        if isinstance(e, sqlite3.OperationalError):
++            return "database is locked" in (e.args[0] or "").lower()
++        return "database is locked" in str(e).lower()
++
+     async def connect(self) -> None:
+         if self.client is None:
+             self.client = TelegramClient(self.session_file, int(self.api_id), self.api_hash)
+@@ -246,7 +253,36 @@ class TelegramParser:
+                 self._log.info("╨б╨╡╤Б╤Б╨╕╤П Telethon: %s (%s)", sess_name, sess_file or "╨▒╨╡╨╖ ╤Д╨░╨╣╨╗╨░")
+             except Exception:
+                 pass
+-        await self.client.connect()
++
++        max_connect_retries = 5
++        for attempt in range(1, max_connect_retries + 1):
++            try:
++                await self.client.connect()
++                if attempt > 1:
++                    self._log.info("connect succeeded after %s attempt(s)", attempt)
++                break
++            except Exception as e:
++                if not self._is_database_locked_error(e):
++                    raise
++                if attempt >= max_connect_retries:
++                    self._log.error(
++                        "database is locked after %s retries: %s",
++                        max_connect_retries,
++                        e,
++                        extra={"error_code": SESSION_LOCKED},
++                    )
++                    err = RuntimeError(f"Session database is locked after {max_connect_retries} retries: {e}")
++                    setattr(err, "error_code", SESSION_LOCKED)
++                    raise err from e
++                backoff = 2 ** attempt
++                self._log.warning(
++                    "connect database is locked, retry %s/%s in %s s: %s",
++                    attempt,
++                    max_connect_retries,
++                    backoff,
++                    e,
++                )
++                await asyncio.sleep(backoff)
+ 
+         if await self.client.is_user_authorized():
+             return
+@@ -639,10 +675,43 @@ class TelegramParser:
+                         temp_path = temp_dir / f"tmp_{msg_id}_{random.randint(1000, 9999)}"
+                         media_to_dl = msg.media
+ 
++                        def _media_timeout_sec() -> int:
++                            """╨в╨░╨╣╨╝╨░╤Г╤В ╨╖╨░╨│╤А╤Г╨╖╨║╨╕: ╨▒╨░╨╖╨╛╨▓╤Л╨╣ ╨╕╨╗╨╕ ╨░╨┤╨░╨┐╤В╨╕╨▓╨╜╤Л╨╣ ╨┐╨╛ ╨╕╨╖╨▓╨╡╤Б╤В╨╜╨╛╨╝╤Г ╤А╨░╨╖╨╝╨╡╤А╤Г (╤Б ╨┐╨╛╤В╨╛╨╗╨║╨╛╨╝)."""
++                            base = mode_cfg.media_download_timeout_sec
++                            if not known_size or known_size <= 0:
++                                return base
++                            cap = 3600
++                            mb = known_size / (1024 * 1024)
++                            adaptive = base + int(mb * 60)
++                            return min(adaptive, cap)
++
++                        timeout_sec = _media_timeout_sec()
+                         async def dl_media(media=media_to_dl):
+                             return await asyncio.wait_for(
+                                 self.client.download_media(media, file=str(temp_path)),
+-                                timeout=mode_cfg.media_download_timeout_sec,
++                                timeout=timeout_sec,
++                            )
++
++                        t0_media = time.monotonic()
++                        logs.info(
++                            "media_download_start",
++                            {
++                                "message_id": msg_id,
++                                "media_type": mtype,
++                                "known_size": known_size if known_size else None,
++                            },
++                        )
++
++                        def _log_media_finish(outcome: str) -> None:
++                            dur = round(time.monotonic() - t0_media, 2)
++                            logs.info(
++                                "media_download_finished",
++                                {
++                                    "message_id": msg_id,
++                                    "media_type": mtype,
++                                    "duration_sec": dur,
++                                    "outcome": outcome,
++                                },
+                             )
+ 
+                         try:
+@@ -661,7 +730,7 @@ class TelegramParser:
+                                 async def dl_fresh():
+                                     return await asyncio.wait_for(
+                                         self.client.download_media(fresh_msg.media, file=str(temp_path)),
+-                                        timeout=mode_cfg.media_download_timeout_sec,
++                                        timeout=timeout_sec,
+                                     )
+ 
+                                 try:
+@@ -673,14 +742,17 @@ class TelegramParser:
+                                     media_files.append(
+                                         {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
+                                     )
++                                    _log_media_finish("error")
+                             else:
+                                 downloaded_path_raw = None
+                                 media_errors_count += 1
+                                 media_files.append(
+                                     {"type": mtype, "path": None, "filename": None, "error": "file_reference_expired"}
+                                 )
++                                _log_media_finish("error")
+ 
+                         except asyncio.TimeoutError:
++                            _log_media_finish("timeout")
+                             logs.error("media_download_failed", {"message_id": msg_id, "error": "download_timeout"}, error_code=EXTERNAL_API_ERROR)
+                             downloaded_path_raw = None
+                             media_errors_count += 1
+@@ -688,6 +760,7 @@ class TelegramParser:
+                                 {"type": mtype, "path": None, "filename": None, "error": "download_timeout"}
+                             )
+                         except Exception:
++                            _log_media_finish("error")
+                             logs.error("media_download_failed", {"message_id": msg_id, "error": "retry_exhausted"}, error_code=EXTERNAL_API_ERROR)
+                             downloaded_path_raw = None
+                             media_errors_count += 1
+@@ -711,6 +784,7 @@ class TelegramParser:
+                                             "sha256": file_hash,
+                                         }
+                                     )
++                                    _log_media_finish("success")
+                                 else:
+                                     final_path = target_dir / final_name
+                                     if final_path.exists():
+@@ -730,6 +804,7 @@ class TelegramParser:
+                                             "sha256": file_hash,
+                                         }
+                                     )
++                                    _log_media_finish("success")
+ 
+                 elif mtype and dry_run:
+                     media_files.append(
+diff --git a/telegram_parser_skill.py b/telegram_parser_skill.py
+index 1a41069..2f50cf7 100644
+--- a/telegram_parser_skill.py
++++ b/telegram_parser_skill.py
+@@ -16,9 +16,10 @@ from dotenv import load_dotenv
+ 
+ # local import
+ sys.path.append(os.path.dirname(__file__))
+-from errors import AUTH_ERROR, CONFIG_ERROR  # noqa: E402
++from errors import AUTH_ERROR, CONFIG_ERROR, SESSION_LOCKED  # noqa: E402
+ from exit_codes import EXIT_FAILURE, EXIT_INTERRUPTED, EXIT_PARTIAL, EXIT_SUCCESS  # noqa: E402
+ from logging_setup import setup_app_logging  # noqa: E402
++from session_lock import session_lock  # noqa: E402
+ from telegram_parser import TelegramParser  # noqa: E402
+ 
+ 
+@@ -176,17 +177,28 @@ def main() -> int:
+     run_id = str(uuid.uuid4())[:8]
+     setup_app_logging(Path(__file__).parent / "logs", run_id=run_id)
+     args = build_parser().parse_args()
+-    try:
+-        return asyncio.run(run(args, run_id=run_id))
+-    except KeyboardInterrupt:
+-        logging.getLogger("tg_parser.cli").warning("╨Ю╤Б╤В╨░╨╜╨╛╨▓╨║╨░ ╨┐╨╛ Ctrl+C")
+-        _print_err_utf8("Interrupted")
+-        return EXIT_INTERRUPTED
+-    except Exception as e:
+-        log = logging.getLogger("tg_parser.cli")
+-        log.exception("╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П: %s", e, extra={"error_code": getattr(e, "error_code", None)})
+-        _print_err_utf8(f"Error: {e}")
+-        return EXIT_FAILURE
++
++    with session_lock(args.session_file) as acquired:
++        if not acquired:
++            log = logging.getLogger("tg_parser.cli")
++            log.error(
++                "╨б╨╡╤Б╤Б╨╕╤П ╨╖╨░╨╜╤П╤В╨░ ╨┤╤А╤Г╨│╨╕╨╝ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨╛╨╝: session_file=%s",
++                args.session_file,
++                extra={"error_code": SESSION_LOCKED},
++            )
++            _print_err_utf8("Error: session is locked by another process (use another --session-file or wait)")
++            return EXIT_FAILURE
++        try:
++            return asyncio.run(run(args, run_id=run_id))
++        except KeyboardInterrupt:
++            logging.getLogger("tg_parser.cli").warning("╨Ю╤Б╤В╨░╨╜╨╛╨▓╨║╨░ ╨┐╨╛ Ctrl+C")
++            _print_err_utf8("Interrupted")
++            return EXIT_INTERRUPTED
++        except Exception as e:
++            log = logging.getLogger("tg_parser.cli")
++            log.exception("╨Ю╤И╨╕╨▒╨║╨░ ╨▓╤Л╨┐╨╛╨╗╨╜╨╡╨╜╨╕╤П: %s", e, extra={"error_code": getattr(e, "error_code", None)})
++            _print_err_utf8(f"Error: {e}")
++            return EXIT_FAILURE
+ 
+ 
+ if __name__ == "__main__":
