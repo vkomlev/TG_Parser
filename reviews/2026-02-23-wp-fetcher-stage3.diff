@@ -1,0 +1,30 @@
+--- Этап 3 Fetcher: сводка изменений (репозиторий не git, diff вручную) ---
+
+=== wp/fetcher.py ===
++ В начале файла добавлен докстринг "Этап 3: пагинация по X-WP-TotalPages с fallback..."
++ _total_pages(headers): типизация Optional[Dict[str, Any]]; при not headers return 1;
+  try: raw = headers.get("X-WP-TotalPages") or headers.get("x-wp-totalpages") or 1;
+  n = int(raw); return max(1, n); except (ValueError, TypeError): return 1
++ В fetch_users, fetch_categories, fetch_tags, fetch_posts, fetch_pages:
+  после data, headers = client.get_with_headers(...):
+  if not isinstance(data, list): logger.warning("WP API <path> вернул не список..."); break
+  (без выброса исключения, возвращаются уже собранные result/contents)
+
+=== tests/test_wp_fetcher.py (новый файл) ===
++ test_total_pages_from_header: X-WP-TotalPages / x-wp-totalpages → int; {} / None → 1
++ test_total_pages_fallback_invalid: "bad", "", "0", "-1" → 1
++ test_fetch_users_pagination_two_pages: мок 2 страницы (100+30), проверка вызовов и params
++ test_fetch_users_stop_on_empty_page: одна запись, без TotalPages → один вызов
++ test_fetch_posts_params_status_and_embed / test_fetch_pages_params_status_and_embed
++ test_mapping_post_content_rendered: post_content только из content.rendered
++ test_mapping_embedded_terms: slug, author_id, date, terms из _embedded['wp:term']
++ test_fetch_non_list_safe_finish: ответ dict → пустой список, один вызов, без исключения
++ test_fetch_categories_pagination: две страницы, без дубликатов по id
+
+=== docs/wp-source-implementation-plan.md ===
++ После "Маппинг ответов... api-mapping.md." добавлен абзац:
+  "Реализовано (2026-02-23): wp/fetcher.py — пагинация по X-WP-TotalPages с fallback...
+   Тесты: tests/test_wp_fetcher.py; ревью: reviews/2026-02-23-wp-fetcher-stage3.md."
+
+=== wp/mapper.py ===
+  Без изменений (используются существующие user_to_author, post_to_content, content_embedded_terms и др.)

@@ -1,4 +1,8 @@
-"""Загрузка users, terms, posts, pages из WP REST API с пагинацией."""
+"""Загрузка users, terms, posts, pages из WP REST API с пагинацией.
+
+Этап 3: пагинация по X-WP-TotalPages с fallback, фильтры status=publish и _embed,
+маппинг в AuthorRow/TermRow/ContentRow/ContentTermRow.
+"""
 
 from __future__ import annotations
 
@@ -22,9 +26,14 @@ from .mapper import (
 logger = logging.getLogger("wp.fetcher")
 
 
-def _total_pages(headers: dict) -> int:
+def _total_pages(headers: Optional[Dict[str, Any]]) -> int:
+    """Число страниц из X-WP-TotalPages. Защита от невалидных значений: не падать, возвращать >= 1."""
+    if not headers:
+        return 1
     try:
-        return int(headers.get("X-WP-TotalPages") or headers.get("x-wp-totalpages") or 1)
+        raw = headers.get("X-WP-TotalPages") or headers.get("x-wp-totalpages") or 1
+        n = int(raw)
+        return max(1, n)
     except (ValueError, TypeError):
         return 1
 
@@ -35,7 +44,7 @@ def fetch_users(
     per_page: int = 100,
     run_id: Optional[str] = None,
 ) -> List[AuthorRow]:
-    """Загрузить всех пользователей (авторов)."""
+    """Загрузить всех пользователей (авторов). GET /users с пагинацией."""
     result: List[AuthorRow] = []
     page = 1
     while True:
@@ -45,6 +54,11 @@ def fetch_users(
             run_id=run_id,
         )
         if not isinstance(data, list):
+            logger.warning(
+                "WP API /users вернул не список (type=%s), завершаем пагинацию",
+                type(data).__name__,
+                extra={"site_id": site_id, "run_id": run_id},
+            )
             break
         for item in data:
             if isinstance(item, dict):
@@ -62,7 +76,7 @@ def fetch_categories(
     per_page: int = 100,
     run_id: Optional[str] = None,
 ) -> List[TermRow]:
-    """Загрузить все категории."""
+    """Загрузить все категории. GET /categories с пагинацией."""
     result: List[TermRow] = []
     page = 1
     while True:
@@ -72,6 +86,11 @@ def fetch_categories(
             run_id=run_id,
         )
         if not isinstance(data, list):
+            logger.warning(
+                "WP API /categories вернул не список (type=%s), завершаем пагинацию",
+                type(data).__name__,
+                extra={"site_id": site_id, "run_id": run_id},
+            )
             break
         for item in data:
             if isinstance(item, dict):
@@ -89,7 +108,7 @@ def fetch_tags(
     per_page: int = 100,
     run_id: Optional[str] = None,
 ) -> List[TermRow]:
-    """Загрузить все теги."""
+    """Загрузить все теги. GET /tags с пагинацией."""
     result: List[TermRow] = []
     page = 1
     while True:
@@ -99,6 +118,11 @@ def fetch_tags(
             run_id=run_id,
         )
         if not isinstance(data, list):
+            logger.warning(
+                "WP API /tags вернул не список (type=%s), завершаем пагинацию",
+                type(data).__name__,
+                extra={"site_id": site_id, "run_id": run_id},
+            )
             break
         for item in data:
             if isinstance(item, dict):
@@ -116,7 +140,7 @@ def fetch_posts(
     per_page: int = 100,
     run_id: Optional[str] = None,
 ) -> Tuple[List[ContentRow], List[ContentTermRow]]:
-    """Загрузить все посты (status=publish) с _embed для терминов. Возвращает (content_rows, content_term_rows)."""
+    """Загрузить все посты (status=publish) с _embed. Возвращает (content_rows, content_term_rows)."""
     contents: List[ContentRow] = []
     content_terms: List[ContentTermRow] = []
     page = 1
@@ -132,6 +156,11 @@ def fetch_posts(
             run_id=run_id,
         )
         if not isinstance(data, list):
+            logger.warning(
+                "WP API /posts вернул не список (type=%s), завершаем пагинацию",
+                type(data).__name__,
+                extra={"site_id": site_id, "run_id": run_id},
+            )
             break
         for item in data:
             if not isinstance(item, dict):
@@ -169,6 +198,11 @@ def fetch_pages(
             run_id=run_id,
         )
         if not isinstance(data, list):
+            logger.warning(
+                "WP API /pages вернул не список (type=%s), завершаем пагинацию",
+                type(data).__name__,
+                extra={"site_id": site_id, "run_id": run_id},
+            )
             break
         for item in data:
             if not isinstance(item, dict):

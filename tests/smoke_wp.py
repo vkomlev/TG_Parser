@@ -193,7 +193,9 @@ def test_should_retry() -> bool:
     assert _should_retry(429, None) is True
     assert _should_retry(500, None) is True
     assert _should_retry(401, None) is False
+    assert _should_retry(403, None) is False
     assert _should_retry(404, None) is False
+    assert _should_retry(400, None) is False
     assert _should_retry(None, Exception()) is True
     return True
 

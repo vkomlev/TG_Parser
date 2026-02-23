@@ -1,4 +1,7 @@
-"""HTTP-клиент для WP REST API: Basic Auth, timeout, retries, rate limit."""
+"""HTTP-клиент для WordPress REST API: Basic Auth, timeout, retries, rate limit.
+
+Этап 2: production-ready с предсказуемым retry/rate-limit и наблюдаемостью.
+"""
 
 from __future__ import annotations
 
@@ -18,14 +21,14 @@ MIN_DELAY_BETWEEN_REQUESTS = 1.0 / 3.0
 
 
 def _backoff_delay(attempt: int, retry_after_header: Optional[int] = None) -> float:
-    """Задержка перед повтором: Retry-After или exponential backoff, кап 60 с."""
+    """Задержка перед повтором: Retry-After (cap 60) или exponential backoff 2^(attempt+1) сек, cap 60."""
     if retry_after_header is not None and retry_after_header > 0:
         return min(float(retry_after_header), 60.0)
     return min(2.0 ** (attempt + 1), 60.0)
 
 
 def _should_retry(status_code: Optional[int], error: Optional[Exception]) -> bool:
-    """Повторять при: сетевые ошибки, таймаут, 5xx, 429. Не повторять при 400, 401, 403, 404."""
+    """Retry: timeout/сеть, 429, 5xx. Не retry: 401, 403, 400, 404 и прочие 4xx."""
     if error is not None:
         return True
     if status_code is None:
@@ -47,7 +50,7 @@ class WPClientError(Exception):
 
 
 class WPRestClient:
-    """Клиент к WordPress REST API с Basic Auth, лимитом запросов и retry."""
+    """Клиент к WordPress REST API: Basic Auth, до 3 req/s, timeout 30 сек, retry с backoff."""
 
     def __init__(
         self,
@@ -68,7 +71,7 @@ class WPRestClient:
         self._last_request_time: float = 0.0
 
     def _wait_rate_limit(self) -> None:
-        """Соблюдение лимита запросов в секунду."""
+        """Соблюдение лимита: пауза >= 1/3 сек перед каждым запросом (включая retry)."""
         elapsed = time.monotonic() - self._last_request_time
         if elapsed < self._min_delay:
             time.sleep(self._min_delay - elapsed)
@@ -80,8 +83,8 @@ class WPRestClient:
         path: str,
         params: Optional[dict] = None,
         run_id: Optional[str] = None,
-    ) -> Any:
-        """Выполнить запрос с retry и rate limit. Возвращает JSON. При ошибке — WPClientError."""
+    ) -> tuple[Any, requests.Response]:
+        """Выполнить запрос с rate limit и retry. Возвращает (json_data, response). При ошибке — WPClientError."""
         url = f"{self.base_url}/wp-json/wp/v2{path}"
         last_status: Optional[int] = None
         last_error: Optional[Exception] = None
@@ -89,6 +92,7 @@ class WPRestClient:
         for attempt in range(self.max_retries + 1):
             self._wait_rate_limit()
             try:
+                t0 = time.monotonic()
                 resp = requests.request(
                     method,
                     url,
@@ -99,7 +103,7 @@ class WPRestClient:
                 )
                 last_status = resp.status_code
 
-                if resp.status_code == 401 or resp.status_code == 403:
+                if resp.status_code in (401, 403):
                     logger.warning(
                         "WP API auth failed: %s %s status=%s",
                         method,
@@ -112,23 +116,24 @@ class WPRestClient:
                         WP_AUTH_ERROR,
                         status_code=resp.status_code,
                     )
-                if resp.status_code == 404:
+                if 400 <= resp.status_code < 500 and resp.status_code != 429:
                     raise WPClientError(
-                        f"WP API not found: {url}",
+                        f"WP API client error: {resp.status_code}",
                         WP_NETWORK_ERROR,
-                        status_code=404,
+                        status_code=resp.status_code,
                     )
                 if resp.status_code == 429:
-                    retry_after = None
+                    retry_after: Optional[int] = None
                     if "Retry-After" in resp.headers:
                         try:
                             retry_after = int(resp.headers["Retry-After"])
-                        except ValueError:
+                        except (ValueError, TypeError):
                             pass
                     delay = _backoff_delay(attempt, retry_after)
                     logger.warning(
-                        "WP API rate limit (429), retry after %.1fs",
+                        "WP API rate limit (429), retry after %.1fs (attempt %s)",
                         delay,
+                        attempt + 1,
                         extra={"site_id": self.site_id, "run_id": run_id, "error_code": WP_RATE_LIMIT},
                     )
                     if attempt < self.max_retries:
@@ -142,9 +147,10 @@ class WPRestClient:
                 if 500 <= resp.status_code < 600:
                     delay = _backoff_delay(attempt, None)
                     logger.warning(
-                        "WP API server error %s, retry in %.1fs",
+                        "WP API server error %s, retry in %.1fs (attempt %s)",
                         resp.status_code,
                         delay,
+                        attempt + 1,
                         extra={"site_id": self.site_id, "run_id": run_id, "error_code": WP_NETWORK_ERROR},
                     )
                     if attempt < self.max_retries:
@@ -166,18 +172,32 @@ class WPRestClient:
                         WP_DATA_FORMAT_ERROR,
                         status_code=resp.status_code,
                     ) from e
-                return (data, resp)
-
-            except requests.exceptions.Timeout as e:
-                last_error = e
-                logger.warning(
-                    "WP API timeout: %s %s",
+                latency_sec = round(time.monotonic() - t0, 2)
+                logger.info(
+                    "WP API %s %s status=%s latency_sec=%s",
                     method,
                     path,
+                    resp.status_code,
+                    latency_sec,
+                    extra={"site_id": self.site_id, "run_id": run_id},
+                )
+                return (data, resp)
+
+            except WPClientError:
+                raise
+            except requests.exceptions.Timeout as e:
+                last_error = e
+                delay = _backoff_delay(attempt, None)
+                logger.warning(
+                    "WP API timeout: %s %s, retry in %.1fs (attempt %s)",
+                    method,
+                    path,
+                    delay,
+                    attempt + 1,
                     extra={"site_id": self.site_id, "run_id": run_id, "error_code": WP_NETWORK_ERROR},
                 )
                 if attempt < self.max_retries:
-                    time.sleep(_backoff_delay(attempt, None))
+                    time.sleep(delay)
                     continue
                 raise WPClientError(
                     f"WP API timeout: {e}",
@@ -185,13 +205,16 @@ class WPRestClient:
                 ) from e
             except requests.exceptions.RequestException as e:
                 last_error = e
+                delay = _backoff_delay(attempt, None)
                 logger.warning(
-                    "WP API request error: %s",
+                    "WP API request error: %s, retry in %.1fs (attempt %s)",
                     e,
+                    delay,
+                    attempt + 1,
                     extra={"site_id": self.site_id, "run_id": run_id, "error_code": WP_NETWORK_ERROR},
                 )
                 if attempt < self.max_retries:
-                    time.sleep(_backoff_delay(attempt, None))
+                    time.sleep(delay)
                     continue
                 raise WPClientError(
                     f"WP API request failed: {e}",
@@ -205,6 +228,7 @@ class WPRestClient:
         )
 
     def get(self, path: str, params: Optional[dict] = None, run_id: Optional[str] = None) -> Any:
+        """GET запрос. Возвращает JSON-тело ответа."""
         data, _ = self._request("GET", path, params=params, run_id=run_id)
         return data
 

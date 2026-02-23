@@ -31,11 +31,15 @@
 
 **Критерий:** unit-тесты на backoff и на решение retry/not retry; ручная проверка с реальным или мок-сервером.
 
+**Этап 2 (HTTP-клиент production-ready):** Уточнённая реализация в `wp/client.py`: rate limit перед каждым запросом (включая retry), backoff `2^(attempt+1)` с cap 60 и учётом `Retry-After` при 429, без retry для 401/403/400/404, структурированное логирование с run_id/site_id/error_code и задержкой до повтора. Тесты: `tests/test_wp_client.py`, критерии приёмки Этапа 2 см. в ТЗ разработчику.
+
 ### Шаг 3. Fetcher: users, terms, posts, pages (1.5–2 дн.)
 - Последовательные запросы к эндпоинтам с пагинацией (per_page=100, page); фильтр status=publish для posts/pages.
 - По возможности использовать _embed для постов/страниц, чтобы уменьшить число запросов.
 - **post_content в MVP:** сохранять только `content.rendered`; опция `context=edit` и `content.raw` — phase 2.
 - Маппинг ответов в внутренние структуры (dataclass или dict) согласно [api-mapping](wp-source-api-mapping.md).
+
+**Реализовано (2026-02-23):** `wp/fetcher.py` — пагинация по `X-WP-TotalPages` с fallback при пустой странице или невалидных заголовках; обработка ответа не-list (лог + безопасное завершение без исключения); `wp/mapper.py` без изменений. Тесты: `tests/test_wp_fetcher.py`; ревью: `reviews/2026-02-23-wp-fetcher-stage3.md`.
 
 **Критерий:** для заданного тестового сайта получаем полный список постов и страниц; маппинг полей (slug, author, date, content) корректен.
 

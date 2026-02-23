@@ -9,3 +9,7 @@ sites:
   - site_id: rodina
     base_url: https://rodina-road.ru
     name: Rodina Road
+per_page: 20
+timeout_sec: 30
+retries: 3
+requests_per_second: 3.0
