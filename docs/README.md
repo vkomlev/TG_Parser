@@ -5,6 +5,7 @@
 | Документ | Содержание |
 |----------|------------|
 | [setup.md](setup.md) | Первоначальная настройка: окружение, .env, первый вход, 2FA, алиасы |
+| [auth-2fa-env-setup.md](auth-2fa-env-setup.md) | Подробная настройка авторизации и .env (включая 2FA) |
 | [cli.md](cli.md) | CLI: команды channels, resolve, parse; опции и примеры запуска |
 | [output-formats.md](output-formats.md) | Форматы выходных файлов: export.json, state.json, media-index.json, summary.json, структура каталога |
 | [logging.md](logging.md) | Логирование: форматы логов, ротация, расположение (app.log, run.log, errors.log) |

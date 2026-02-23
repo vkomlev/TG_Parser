@@ -41,6 +41,14 @@ logs/
 *.log
 **/.tmp/
 
+# --- Output / smoke test artifacts (do not commit) ---
+out/
+out_init/
+out_smoke_phase1/
+out_smoke_phase2/
+out_smoke_phase3/
+videos.db
+
 # Common export artifacts (usually outside repo, but ignore if inside)
 **/export.json
 **/state.json

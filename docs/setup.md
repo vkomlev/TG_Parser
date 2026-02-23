@@ -115,5 +115,5 @@ python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPytho
 
 ## См. также
 
-- [AUTH_2FA_ENV_SETUP.md](../AUTH_2FA_ENV_SETUP.md) — подробнее про 2FA и первый вход
+- [auth-2fa-env-setup.md](auth-2fa-env-setup.md) — подробнее про 2FA и первый вход
 - [CLI и формы запуска](cli.md)

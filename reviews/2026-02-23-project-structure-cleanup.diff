@@ -1,0 +1,102 @@
+﻿diff --git a/.gitignore b/.gitignore
+index b443111..c121104 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -41,6 +41,14 @@ logs/
+ *.log
+ **/.tmp/
+ 
++# --- Output / smoke test artifacts (do not commit) ---
++out/
++out_init/
++out_smoke_phase1/
++out_smoke_phase2/
++out_smoke_phase3/
++videos.db
++
+ # Common export artifacts (usually outside repo, but ignore if inside)
+ **/export.json
+ **/state.json
+diff --git a/AUTH_2FA_ENV_SETUP.md b/AUTH_2FA_ENV_SETUP.md
+deleted file mode 100644
+index 8b75e31..0000000
+--- a/AUTH_2FA_ENV_SETUP.md
++++ /dev/null
+@@ -1,66 +0,0 @@
+-# ╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨░ ╨░╨▓╤В╨╛╤А╨╕╨╖╨░╤Ж╨╕╨╕ ╨╕ .env (╨▓╨║╨╗╤О╤З╨░╤П 2FA)
+-
+-## 1) ╨Я╨╛╨┤╨│╨╛╤В╨╛╨▓╨║╨░
+-1. ╨Я╨╡╤А╨╡╨╣╨┤╨╕╤В╨╡ ╨▓ ╨║╨░╤В╨░╨╗╨╛╨│ ╨┐╤А╨╛╨╡╨║╤В╨░:
+-   - `cd D:\work\TG_Parser`
+-2. ╨б╨╛╨╖╨┤╨░╨╣╤В╨╡ `.env` ╨╕╨╖ ╤И╨░╨▒╨╗╨╛╨╜╨░:
+-   - `Copy-Item .env.example .env`
+-
+-## 2) ╨Я╨╛╨╗╤Г╤З╨╡╨╜╨╕╨╡ API_ID/API_HASH
+-1. ╨Ю╤В╨║╤А╨╛╨╣╤В╨╡: https://my.telegram.org/apps
+-2. ╨б╨╛╨╖╨┤╨░╨╣╤В╨╡ ╨┐╤А╨╕╨╗╨╛╨╢╨╡╨╜╨╕╨╡ (╨╡╤Б╨╗╨╕ ╨╜╨╡ ╤Б╨╛╨╖╨┤╨░╨╜╨╛)
+-3. ╨б╨║╨╛╨┐╨╕╤А╤Г╨╣╤В╨╡:
+-   - `api_id`
+-   - `api_hash`
+-
+-## 3) ╨Ч╨░╨┐╨╛╨╗╨╜╨╡╨╜╨╕╨╡ .env
+-╨Ю╤В╨║╤А╨╛╨╣╤В╨╡ `.env` ╨╕ ╨╖╨░╨┐╨╛╨╗╨╜╨╕╤В╨╡:
+-
+-```env
+-TELEGRAM_API_ID=12345678
+-TELEGRAM_API_HASH=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+-TELEGRAM_PHONE=+7XXXXXXXXXX
+-TELEGRAM_2FA_PASSWORD=╨Т╨Р╨и_╨Я╨Р╨а╨Ю╨Ы╨м_2FA
+-```
+-
+-╨Я╤А╨╕╨╝╨╡╤З╨░╨╜╨╕╤П:
+-- `TELEGRAM_PHONE` ╨╛╨▒╤П╨╖╨░╤В╨╡╨╗╨╡╨╜ ╨┤╨╗╤П ╨┐╨╡╤А╨▓╨╛╨│╨╛ ╨▓╤Е╨╛╨┤╨░.
+-- `TELEGRAM_2FA_PASSWORD`:
+-  - ╨╡╤Б╨╗╨╕ ╨╖╨░╨┐╨╛╨╗╨╜╨╡╨╜ тАФ ╤Б╨║╤А╨╕╨┐╤В ╨▓╨╛╨╖╤М╨╝╤С╤В ╨┐╨░╤А╨╛╨╗╤М ╨╕╨╖ `.env`;
+-  - ╨╡╤Б╨╗╨╕ ╨┐╤Г╤Б╤В╨╛ тАФ ╤Б╨║╤А╨╕╨┐╤В ╨╖╨░╨┐╤А╨╛╤Б╨╕╤В ╨┐╨░╤А╨╛╨╗╤М ╨╕╨╜╤В╨╡╤А╨░╨║╤В╨╕╨▓╨╜╨╛.
+-- ╨Э╨╡ ╨╛╤В╨┐╤А╨░╨▓╨╗╤П╨╣╤В╨╡ `.env` ╨▓ git/╨╝╨╡╤Б╤Б╨╡╨╜╨┤╨╢╨╡╤А╤Л.
+-
+-## 4) ╨Я╨╡╤А╨▓╤Л╨╣ ╨▓╤Е╨╛╨┤ (╨║╨╛╨┤ + ╨┐╨░╤А╨╛╨╗╤М)
+-╨Ч╨░╨┐╤Г╤Б╤В╨╕╤В╨╡ ╨╗╤О╨▒╤Г╤О ╨║╨╛╨╝╨░╨╜╨┤╤Г, ╨╜╨░╨┐╤А╨╕╨╝╨╡╤А:
+-
+-```powershell
+-python .\telegram_parser_skill.py channels
+-```
+-
+-╨з╤В╨╛ ╨┐╤А╨╛╨╕╨╖╨╛╨╣╨┤╨╡╤В:
+-1. Telegram ╨╛╤В╨┐╤А╨░╨▓╨╕╤В ╨║╨╛╨┤ ╨╜╨░ ╨╜╨╛╨╝╨╡╤А `TELEGRAM_PHONE`.
+-2. ╨б╨║╤А╨╕╨┐╤В ╨┐╨╛╨┐╤А╨╛╤Б╨╕╤В ╨▓╨▓╨╡╤Б╤В╨╕ ╨║╨╛╨┤ ╨▓ ╨║╨╛╨╜╤Б╨╛╨╗╤М.
+-3. ╨Х╤Б╨╗╨╕ ╨▓╨║╨╗╤О╤З╨╡╨╜╨░ 2FA:
+-   - ╨▓╨╛╨╖╤М╨╝╤С╤В ╨┐╨░╤А╨╛╨╗╤М ╨╕╨╖ `TELEGRAM_2FA_PASSWORD`, ╨╗╨╕╨▒╨╛
+-   - ╨┐╨╛╨┐╤А╨╛╤Б╨╕╤В ╨▓╨▓╨╡╤Б╤В╨╕ ╨┐╨░╤А╨╛╨╗╤М ╨▓╤А╤Г╤З╨╜╤Г╤О.
+-
+-╨Я╨╛╤Б╨╗╨╡ ╤Г╤Б╨┐╨╡╤И╨╜╨╛╨│╨╛ ╨▓╤Е╨╛╨┤╨░ ╤Б╨╛╨╖╨┤╨░╤Б╤В╤Б╤П session-╤Д╨░╨╣╨╗ (`telegram_session*`).
+-
+-## 5) ╨Я╨╛╨▓╤В╨╛╤А╨╜╤Л╨╡ ╨╖╨░╨┐╤Г╤Б╨║╨╕
+-- ╨Ю╨▒╤Л╤З╨╜╨╛ ╨║╨╛╨┤/╨┐╨░╤А╨╛╨╗╤М ╨▒╨╛╨╗╤М╤И╨╡ ╨╜╨╡ ╨╜╤Г╨╢╨╜╤Л, ╨┐╨╛╨║╨░ ╤Б╨╡╤Б╤Б╨╕╤П ╨▓╨░╨╗╨╕╨┤╨╜╨░.
+-- ╨Х╤Б╨╗╨╕ ╤Б╨╡╤Б╤Б╨╕╤О ╤Г╨┤╨░╨╗╨╕╤В╤М/╨┐╤А╨╛╤В╤Г╤Е╨╜╨╡╤В тАФ ╨┐╨╛╨▓╤В╨╛╤А╨╕╤В╨╡ ╤И╨░╨│ 4.
+-
+-## 6) ╨С╤Л╤Б╤В╤А╤Л╨╡ ╨║╨╛╨╝╨░╨╜╨┤╤Л
+-- ╨б╨┐╨╕╤Б╨╛╨║ ╨║╨░╨╜╨░╨╗╨╛╨▓:
+-  - `python .\telegram_parser_skill.py channels`
+-- ╨Я╨░╤А╤Б╨╕╨╜╨│:
+-  - `python .\telegram_parser_skill.py parse --channel @my_channel`
+-
+-## 7) ╨Р╨╗╨╕╨░╤Б╤Л (PowerShell)
+-1. ╨Т╤Л╨┐╨╛╨╗╨╜╨╕╤В╨╡:
+-   - `.\setup_aliases.ps1`
+-2. ╨Я╨╡╤А╨╡╨╖╨░╨│╤А╤Г╨╖╨╕╤В╨╡ ╨┐╤А╨╛╤Д╨╕╨╗╤М:
+-   - `. $PROFILE`
+-3. ╨Ш╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╣╤В╨╡:
+-   - `telegram_channels`
+-   - `telegram_parse --channel @my_channel --mode safe`
+diff --git a/docs/setup.md b/docs/setup.md
+index 48055e6..3fe37c8 100644
+--- a/docs/setup.md
++++ b/docs/setup.md
+@@ -115,5 +115,5 @@ python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPytho
+ 
+ ## ╨б╨╝. ╤В╨░╨║╨╢╨╡
+ 
+-- [AUTH_2FA_ENV_SETUP.md](../AUTH_2FA_ENV_SETUP.md) тАФ ╨┐╨╛╨┤╤А╨╛╨▒╨╜╨╡╨╡ ╨┐╤А╨╛ 2FA ╨╕ ╨┐╨╡╤А╨▓╤Л╨╣ ╨▓╤Е╨╛╨┤
++- [auth-2fa-env-setup.md](auth-2fa-env-setup.md) тАФ ╨┐╨╛╨┤╤А╨╛╨▒╨╜╨╡╨╡ ╨┐╤А╨╛ 2FA ╨╕ ╨┐╨╡╤А╨▓╤Л╨╣ ╨▓╤Е╨╛╨┤
+ - [CLI ╨╕ ╤Д╨╛╤А╨╝╤Л ╨╖╨░╨┐╤Г╤Б╨║╨░](cli.md)
