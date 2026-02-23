@@ -128,3 +128,31 @@ def build_single_site_output(
 def build_multi_site_output(sites: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Несколько сайтов: массив объектов (каждый как build_single_site_output)."""
     return list(sites)
+
+
+def build_multisite_aggregated(
+    run_id: str,
+    exit_code: int,
+    site_outputs: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Multi-site: один объект с run_id, status, totals и массивом sites.
+    exit_code: 0=success, 2=partial, 1=failed.
+    """
+    status = "success" if exit_code == 0 else ("partial" if exit_code == 2 else "failed")
+    success_count = sum(1 for s in site_outputs if s.get("status") == "success")
+    failed_count = sum(1 for s in site_outputs if s.get("status") == "failed")
+    totals = {
+        "sites": len(site_outputs),
+        "success": success_count,
+        "failed": failed_count,
+        "posts_count": sum(s.get("posts_count", 0) for s in site_outputs),
+        "pages_count": sum(s.get("pages_count", 0) for s in site_outputs),
+        "terms_count": sum(s.get("terms_count", 0) for s in site_outputs),
+        "authors_count": sum(s.get("authors_count", 0) for s in site_outputs),
+    }
+    return {
+        "run_id": run_id,
+        "status": status,
+        "totals": totals,
+        "sites": site_outputs,
+    }

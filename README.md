@@ -48,15 +48,19 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
 - Секреты не выводятся в логи
 - Время в JSON и логах — UTC в формате ISO (`YYYY-MM-DDTHH:mm:ssZ`)
 
-## WordPress Source (sync в PostgreSQL)
+## WordPress Source (sync в PostgreSQL или SQLite)
 
-Отдельная точка входа для синхронизации WordPress-сайтов в PostgreSQL (только чтение, full sync).
+Отдельная точка входа для синхронизации WordPress-сайтов (только чтение, full sync).
 
-- **Конфиг:** `config/wp-sites.yml`; секреты — переменные окружения `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`.
-- **Миграции:** применить DDL из `migrations/wp/` в порядке 001–006 к PostgreSQL.
-- **Переменная БД:** `WP_DATABASE_URL` (или `DATABASE_URL`) — строка подключения к PostgreSQL.
-- **Команды:** `python wp_sync_skill.py list-sites`, `python wp_sync_skill.py sync [--site SITE_ID]`.
-- Подробнее: [docs/wp-source-architecture.md](docs/wp-source-architecture.md), [docs/wp-source-implementation-plan.md](docs/wp-source-implementation-plan.md).
+- **Конфиг:** `config/wp-sites.yml`; секреты — переменные окружения `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`. Опционально `storage_backend: sqlite` в YAML.
+- **Хранилище:** по умолчанию PostgreSQL (`WP_DATABASE_URL` или `DATABASE_URL`). При недоступности Postgres или при явном указании используется **SQLite** (файл `data/wp_sync.db` или путь из `WP_STORAGE_PATH`). Явное включение: `WP_STORAGE_BACKEND=sqlite` или в конфиге `storage_backend: sqlite`. **Fallback:** по умолчанию при ошибке Postgres sync завершается с ошибкой; для авто-перехода на SQLite задайте `WP_STORAGE_FALLBACK=auto`.
+- **Миграции:** PostgreSQL — DDL в `migrations/wp/` (001–006); SQLite — скрипты в `migrations/wp/sqlite/`, применяются автоматически при первом подключении.
+- **Команды:**  
+  `python wp_sync_skill.py list-sites`  
+  `python wp_sync_skill.py sync` — мультисайт (все сайты из конфига, один run_id, агрегированный summary в stdout)  
+  `python wp_sync_skill.py sync --site SITE_ID` — один сайт  
+- **Коды выхода:** 0 — все сайты success; 2 — partial (часть успешна); 1 — все failed или фатальная ошибка конфига.
+- Подробнее: [docs/wp-source-setup.md](docs/wp-source-setup.md), [docs/wp-source-architecture.md](docs/wp-source-architecture.md), [docs/wp-source-implementation-plan.md](docs/wp-source-implementation-plan.md).
 
 ## Интеграция
 

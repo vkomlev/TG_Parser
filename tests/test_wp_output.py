@@ -18,6 +18,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from wp.mapper import ContentRow, ContentTermRow, TermRow, post_to_content, content_embedded_terms
 from wp.output import (
     build_content_export_list,
+    build_multisite_aggregated,
     build_multi_site_output,
     build_single_site_output,
     content_row_to_export_dict,
@@ -138,6 +139,30 @@ def test_multi_site_output_is_array() -> bool:
     return True
 
 
+def test_multisite_aggregated_format() -> bool:
+    """Агрегированный multi-site: один объект с run_id, status, totals, sites."""
+    one = build_single_site_output({"run_id": "r1", "site_id": "a", "status": "success", "run_at": "", "error_code": None, "posts_count": 2, "pages_count": 1, "terms_count": 3, "authors_count": 1}, [])
+    two = build_single_site_output({"run_id": "r1", "site_id": "b", "status": "failed", "run_at": "", "error_code": "AUTH", "posts_count": 0, "pages_count": 0, "terms_count": 0, "authors_count": 0}, [])
+    out = build_multisite_aggregated("r1", 2, [one, two])  # exit 2 = partial
+    assert isinstance(out, dict)
+    assert out["run_id"] == "r1"
+    assert out["status"] == "partial"
+    assert "totals" in out
+    assert out["totals"]["sites"] == 2
+    assert out["totals"]["success"] == 1
+    assert out["totals"]["failed"] == 1
+    assert out["totals"]["posts_count"] == 2
+    assert out["totals"]["pages_count"] == 1
+    assert out["totals"]["terms_count"] == 3
+    assert out["totals"]["authors_count"] == 1
+    assert out["sites"] == [one, two]
+    out_success = build_multisite_aggregated("r2", 0, [one, one])
+    assert out_success["status"] == "success"
+    out_failed = build_multisite_aggregated("r3", 1, [two, two])
+    assert out_failed["status"] == "failed"
+    return True
+
+
 def test_required_keys_present() -> bool:
     """В документе контента есть обязательные ключи контракта."""
     row = _row()
@@ -216,6 +241,7 @@ def run_all() -> bool:
         ("content export empty taxonomies", test_content_export_empty_taxonomies),
         ("single-site output is object", test_single_site_output_is_object),
         ("multi-site output is array", test_multi_site_output_is_array),
+        ("multisite aggregated format", test_multisite_aggregated_format),
         ("required keys present", test_required_keys_present),
         ("post_content only rendered", test_post_content_only_rendered),
         ("mapping from fixed API post with yoast", test_mapping_from_fixed_api_post_with_yoast),

@@ -20,6 +20,9 @@
 | [wp-source-implementation-plan.md](wp-source-implementation-plan.md) | План внедрения: MVP → hardening → scale |
 | [wp-source-risks-and-open-questions.md](wp-source-risks-and-open-questions.md) | Риски, ограничения и открытые вопросы |
 | [wp-source-setup.md](wp-source-setup.md) | Настройка WP sync: конфиг, env, миграции, запуск |
+| **WordPress Source — Scale (Phase 2)** | |
+| [wp-source-scale-contract.md](wp-source-scale-contract.md) | Контракт этапа Scale: совместимость, флаги, БД/JSON v2, коды ошибок, критерии приёмки |
+| [wp-source-scale-tasks.md](wp-source-scale-tasks.md) | ТЗ-пакеты S1–S5: content.raw, incremental, Gutenberg, performance, OpenClaw |
 | [AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md](AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md) | Аудит архитектуры: расширяемость, DRY, стратегия масштабирования |
 | [AUDIT-IMPLEMENTATION-2026-02-21.md](AUDIT-IMPLEMENTATION-2026-02-21.md) | Аудит реализации TG_Parser и пошаговый план внедрения (Phase 1–4) |
 

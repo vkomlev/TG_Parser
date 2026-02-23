@@ -1,22 +1,75 @@
-"""Сохранение данных WP в PostgreSQL: идемпотентные upsert по (site_id, wp_*_id)."""
+"""Сохранение данных WP: PostgreSQL или SQLite (fallback). Единый контракт операций."""
 
 from __future__ import annotations
 
 import logging
 import os
+import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Iterator, List, Optional
-
-import psycopg2
-from psycopg2.extras import Json
+from pathlib import Path
+from typing import Iterator, List, Optional, Union
 
 from .mapper import AuthorRow, ContentRow, ContentTermRow, TermRow
 
 logger = logging.getLogger("wp.storage")
 
-# Переменная окружения для строки подключения к PostgreSQL
+STORAGE_BACKEND_ENV = "WP_STORAGE_BACKEND"
+STORAGE_FALLBACK_ENV = "WP_STORAGE_FALLBACK"  # auto | off (по умолчанию off — fail fast при недоступности Postgres)
 DATABASE_URL_ENV = "WP_DATABASE_URL"
+
+
+def _pg_connect():
+    import psycopg2
+    return psycopg2.connect(get_connection_string())
+
+
+def _pg_json(val):
+    import psycopg2.extras
+    return psycopg2.extras.Json(val) if val is not None else None
+
+
+def _resolve_backend() -> str:
+    backend = (os.environ.get(STORAGE_BACKEND_ENV) or "").strip().lower()
+    if backend == "sqlite":
+        return "sqlite"
+    url = (os.environ.get(DATABASE_URL_ENV) or os.environ.get("DATABASE_URL") or "").strip()
+    if not url:
+        raise ValueError(
+            "Задайте WP_DATABASE_URL для PostgreSQL или явно укажите WP_STORAGE_BACKEND=sqlite."
+        )
+    try:
+        conn = _pg_connect()
+        conn.close()
+        return "postgres"
+    except Exception as e:
+        fallback = (os.environ.get(STORAGE_FALLBACK_ENV) or "off").strip().lower()
+        if fallback == "auto":
+            logger.warning("PostgreSQL недоступен (%s), переключаемся на SQLite (WP_STORAGE_FALLBACK=auto)", e)
+            return "sqlite"
+        logger.error("PostgreSQL недоступен (%s). Для авто-перехода на SQLite задайте WP_STORAGE_FALLBACK=auto", e)
+        raise
+
+
+_backend: Optional[str] = None
+_sqlite = None
+
+
+def _get_backend() -> str:
+    global _backend, _sqlite
+    if _backend is None:
+        _backend = _resolve_backend()
+        if _backend == "sqlite":
+            from . import storage_sqlite as _sqlite_mod  # noqa: F401
+            _sqlite = _sqlite_mod
+        else:
+            _sqlite = None
+    return _backend
+
+
+def _get_sqlite():
+    _get_backend()
+    return _sqlite
 
 
 def get_connection_string() -> str:
@@ -29,16 +82,21 @@ def get_connection_string() -> str:
 
 
 @contextmanager
-def get_connection() -> Iterator[psycopg2.extensions.connection]:
-    conn = psycopg2.connect(get_connection_string())
-    try:
-        yield conn
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        conn.close()
+def get_connection() -> Iterator[Union[object, sqlite3.Connection]]:
+    if _get_backend() == "sqlite":
+        project_root = Path(__file__).resolve().parent.parent
+        with _get_sqlite().get_connection(project_root=project_root) as conn:
+            yield conn
+    else:
+        conn = _pg_connect()
+        try:
+            yield conn
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
 
 def _ts(d: Optional[datetime]) -> Optional[datetime]:
@@ -50,11 +108,13 @@ def _ts(d: Optional[datetime]) -> Optional[datetime]:
 
 
 def upsert_site(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     site_id: str,
     base_url: str,
     name: Optional[str],
 ) -> None:
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().upsert_site(conn, site_id, base_url, name)
     logger.debug("upsert_site site_id=%s", site_id, extra={"site_id": site_id})
     now = datetime.now(timezone.utc)
     with conn.cursor() as cur:
@@ -72,10 +132,12 @@ def upsert_site(
 
 
 def upsert_authors(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     rows: List[AuthorRow],
     synced_at: datetime,
 ) -> None:
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().upsert_authors(conn, rows, synced_at)
     if not rows:
         return
     site_id = rows[0].site_id if rows else ""
@@ -99,17 +161,19 @@ def upsert_authors(
                     r.login,
                     r.name,
                     r.slug,
-                    Json(r.raw_json) if r.raw_json else None,
+                    _pg_json(r.raw_json),
                     synced_at,
                 ),
             )
 
 
 def upsert_terms(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     rows: List[TermRow],
     synced_at: datetime,
 ) -> None:
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().upsert_terms(conn, rows, synced_at)
     if not rows:
         return
     site_id = rows[0].site_id if rows else ""
@@ -134,17 +198,19 @@ def upsert_terms(
                     r.name,
                     r.slug,
                     r.parent_id,
-                    Json(r.raw_json) if r.raw_json else None,
+                    _pg_json(r.raw_json),
                     synced_at,
                 ),
             )
 
 
 def upsert_content(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     rows: List[ContentRow],
     synced_at: datetime,
 ) -> None:
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().upsert_content(conn, rows, synced_at)
     if not rows:
         return
     site_id = rows[0].site_id if rows else ""
@@ -188,18 +254,20 @@ def upsert_content(
                     _ts(r.modified_at),
                     r.seo_title,
                     r.seo_description,
-                    Json(r.seo_json) if r.seo_json else None,
-                    Json(r.raw_json) if r.raw_json else None,
+                    _pg_json(r.seo_json),
+                    _pg_json(r.raw_json),
                     synced_at,
                 ),
             )
 
 
 def upsert_content_terms(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     rows: List[ContentTermRow],
     synced_at: datetime,
 ) -> None:
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().upsert_content_terms(conn, rows, synced_at)
     if not rows:
         return
     site_id = rows[0].site_id if rows else ""
@@ -218,11 +286,13 @@ def upsert_content_terms(
 
 
 def insert_sync_run(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     run_id: str,
     site_id: str,
     started_at: datetime,
 ) -> None:
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().insert_sync_run(conn, run_id, site_id, started_at)
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -234,7 +304,7 @@ def insert_sync_run(
 
 
 def update_sync_run(
-    conn: psycopg2.extensions.connection,
+    conn: Union[object, sqlite3.Connection],
     run_id: str,
     site_id: str,
     finished_at: datetime,
@@ -246,6 +316,11 @@ def update_sync_run(
     authors_count: int,
 ) -> int:
     """Обновить запись run. Возвращает rowcount (ожидается 1)."""
+    if isinstance(conn, sqlite3.Connection):
+        return _get_sqlite().update_sync_run(
+            conn, run_id, site_id, finished_at, status, error_code,
+            posts_count, pages_count, terms_count, authors_count,
+        )
     with conn.cursor() as cur:
         cur.execute(
             """

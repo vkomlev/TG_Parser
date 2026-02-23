@@ -50,20 +50,42 @@ except ImportError as e:
     upsert_authors = upsert_content = upsert_content_terms = upsert_site = upsert_terms = None
     AuthorRow = ContentRow = ContentTermRow = TermRow = None
 
+import sqlite3
+
 TEST_SITE_ID = "_test_storage"
 
 
 def _skip_no_db() -> bool:
     if not _storage_available:
         return True
+    backend = (os.environ.get("WP_STORAGE_BACKEND") or "").strip().lower()
+    if backend == "sqlite":
+        return False
     url = os.environ.get("WP_DATABASE_URL") or os.environ.get("DATABASE_URL") or ""
     return not url.strip()
 
 
 def _count(conn, table: str, where: str = "", params: tuple = ()) -> int:
+    if isinstance(conn, sqlite3.Connection):
+        q = f"SELECT COUNT(*) FROM {table}" + (f" WHERE {where}" if where else "")
+        # SQLite uses ? placeholders; convert %s -> ?
+        q = q.replace("%s", "?")
+        cur = conn.execute(q, params)
+        return cur.fetchone()[0]
     with conn.cursor() as cur:
         q = f"SELECT COUNT(*) FROM {table}" + (f" WHERE {where}" if where else "")
         cur.execute(q, params)
+        return cur.fetchone()[0]
+
+
+def _fetch_one(conn, sql: str, params: tuple = ()):
+    """Вернуть первую строку первого столбца (для synced_at и т.п.)."""
+    if isinstance(conn, sqlite3.Connection):
+        sql = sql.replace("%s", "?")
+        cur = conn.execute(sql, params)
+        return cur.fetchone()[0]
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
         return cur.fetchone()[0]
 
 
@@ -95,9 +117,7 @@ def test_upsert_authors_idempotent() -> bool:
         n1 = _count(conn, "wp_authors", "site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
         upsert_authors(conn, [row], t2)
         n2 = _count(conn, "wp_authors", "site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
-        with conn.cursor() as cur:
-            cur.execute("SELECT synced_at FROM wp_authors WHERE site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
-            synced = cur.fetchone()[0]
+        synced = _fetch_one(conn, "SELECT synced_at FROM wp_authors WHERE site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
     assert n1 == 1 and n2 == 1
     assert synced is not None
     return True
@@ -170,11 +190,13 @@ def test_update_sync_run_returns_zero_when_no_row() -> bool:
     if _skip_no_db():
         print("  SKIP update_sync_run rowcount (no DB or no WP_DATABASE_URL)")
         return True
-    try:
-        get_connection_string()
-    except ValueError:
-        print("  SKIP update_sync_run (no DB URL)")
-        return True
+    backend = (os.environ.get("WP_STORAGE_BACKEND") or "").strip().lower()
+    if backend != "sqlite":
+        try:
+            get_connection_string()
+        except ValueError:
+            print("  SKIP update_sync_run (no DB URL)")
+            return True
     with get_connection() as conn:
         n = update_sync_run(
             conn,

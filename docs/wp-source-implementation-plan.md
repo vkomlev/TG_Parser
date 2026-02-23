@@ -87,15 +87,20 @@
 - **Документация:** обновить README/docs — как создать Application Password, пример конфига, переменные окружения.
 - **Тесты:** расширить интеграционные сценарии (401, 429, таймаут); добавить smoke_wp в CI при наличии.
 
+**Реализовано (Hardening):** Мультисайт: `sync` без `--site` проходит по всем сайтам из `config/wp-sites.yml`; один run_id; в stdout при 2+ сайтах — один объект с `run_id`, `status`, `totals`, `sites` (`wp/output.py` — `build_multisite_aggregated`). Коды выхода: 0 — все success, 2 — partial, 1 — все failed/конфиг. SQLite: backend в `wp/storage.py` (выбор по `WP_STORAGE_BACKEND` или авто-fallback при недоступности Postgres); `wp/storage_sqlite.py` — тот же контракт операций; DDL в `migrations/wp/sqlite/` (001–006), автоприменение при первом подключении. Конфиг: опция `storage_backend: sqlite` в YAML; переменные `WP_STORAGE_BACKEND`, `WP_STORAGE_PATH`. Документация: README, wp-source-setup (Application Password пошагово, пример multisite, переменные, fallback, 401/429/timeout). Тесты: test_wp_storage поддерживает SQLite (`_count`/`_fetch_one` по типу conn); интеграция два прогона на SQLite. Ревью: `reviews/<date>-wp-hardening.md`, инструкция CI — в docs или reviews (smoke_wp в CI не добавлен по ограничению).
+
 ---
 
 ## 4. Этап Scale (по необходимости)
 
-- **content.raw (phase 2):** опция запроса с `context=edit` для получения сырого редакторского контента; сохранять в отдельное поле или заменить post_content по конфигу.
-- **Инкрементальная синхронизация:** фильтр по modified_after (если API поддерживает) или кэш последнего run и запрос только изменённых id — отдельное ТЗ.
-- **Gutenberg raw comments:** парсинг блоков из post_content или отдельное поле; расширение маппинга и БД.
-- **Производительность:** батчинг вставок, параллельные запросы к разным сайтам (с сохранением лимита на сайт), индексы по запросам аналитики.
-- **Оркестрация:** интеграция с OpenClaw (команды/триггеры) — конфиг на стороне оркестратора.
+Реализация — отдельными задачами S1–S5 по контракту и ТЗ-пакетам. Контракт гарантирует совместимость с MVP (additive изменения, флаги по умолчанию = поведение MVP).
+
+- **Контракт и ТЗ:** [wp-source-scale-contract](wp-source-scale-contract.md), [wp-source-scale-tasks](wp-source-scale-tasks.md).
+- **content.raw (S1):** опция `context=edit`, поле `post_content_raw`, флаг `WP_CONTENT_MODE=rendered|raw|both`.
+- **Incremental sync (S2):** `WP_SYNC_MODE=incremental`, таблица `wp_sync_state`, watermark в summary.
+- **Gutenberg (S3):** парсинг raw comments, `gutenberg_blocks_json` / `gutenberg_blocks`, флаг `WP_GUTENBERG_PARSE=basic`.
+- **Performance (S4):** батч upsert, параллельность по сайтам (лимит на сайт сохраняется), индексы.
+- **OpenClaw (S5):** формальный контракт команды, exit codes, stdout summary, cron и retry policy.
 
 ---
 

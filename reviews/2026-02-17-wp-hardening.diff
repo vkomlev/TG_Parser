@@ -1,0 +1,1045 @@
+﻿diff --git a/README.md b/README.md
+index 473c477..c8e6d1f 100644
+--- a/README.md
++++ b/README.md
+@@ -48,15 +48,19 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
+ - ╨б╨╡╨║╤А╨╡╤В╤Л ╨╜╨╡ ╨▓╤Л╨▓╨╛╨┤╤П╤В╤Б╤П ╨▓ ╨╗╨╛╨│╨╕
+ - ╨Т╤А╨╡╨╝╤П ╨▓ JSON ╨╕ ╨╗╨╛╨│╨░╤Е тАФ UTC ╨▓ ╤Д╨╛╤А╨╝╨░╤В╨╡ ISO (`YYYY-MM-DDTHH:mm:ssZ`)
+ 
+-## WordPress Source (sync ╨▓ PostgreSQL)
+-
+-╨Ю╤В╨┤╨╡╨╗╤М╨╜╨░╤П ╤В╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░ ╨┤╨╗╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╨╕ WordPress-╤Б╨░╨╣╤В╨╛╨▓ ╨▓ PostgreSQL (╤В╨╛╨╗╤М╨║╨╛ ╤З╤В╨╡╨╜╨╕╨╡, full sync).
+-
+-- **╨Ъ╨╛╨╜╤Д╨╕╨│:** `config/wp-sites.yml`; ╤Б╨╡╨║╤А╨╡╤В╤Л тАФ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`.
+-- **╨Ь╨╕╨│╤А╨░╤Ж╨╕╨╕:** ╨┐╤А╨╕╨╝╨╡╨╜╨╕╤В╤М DDL ╨╕╨╖ `migrations/wp/` ╨▓ ╨┐╨╛╤А╤П╨┤╨║╨╡ 001тАУ006 ╨║ PostgreSQL.
+-- **╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╨░╤П ╨С╨Ф:** `WP_DATABASE_URL` (╨╕╨╗╨╕ `DATABASE_URL`) тАФ ╤Б╤В╤А╨╛╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨║ PostgreSQL.
+-- **╨Ъ╨╛╨╝╨░╨╜╨┤╤Л:** `python wp_sync_skill.py list-sites`, `python wp_sync_skill.py sync [--site SITE_ID]`.
+-- ╨Я╨╛╨┤╤А╨╛╨▒╨╜╨╡╨╡: [docs/wp-source-architecture.md](docs/wp-source-architecture.md), [docs/wp-source-implementation-plan.md](docs/wp-source-implementation-plan.md).
++## WordPress Source (sync ╨▓ PostgreSQL ╨╕╨╗╨╕ SQLite)
++
++╨Ю╤В╨┤╨╡╨╗╤М╨╜╨░╤П ╤В╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░ ╨┤╨╗╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╨╕ WordPress-╤Б╨░╨╣╤В╨╛╨▓ (╤В╨╛╨╗╤М╨║╨╛ ╤З╤В╨╡╨╜╨╕╨╡, full sync).
++
++- **╨Ъ╨╛╨╜╤Д╨╕╨│:** `config/wp-sites.yml`; ╤Б╨╡╨║╤А╨╡╤В╤Л тАФ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`. ╨Ю╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛ `storage_backend: sqlite` ╨▓ YAML.
++- **╨е╤А╨░╨╜╨╕╨╗╨╕╤Й╨╡:** ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О PostgreSQL (`WP_DATABASE_URL` ╨╕╨╗╨╕ `DATABASE_URL`). ╨Я╤А╨╕ ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╨╕ Postgres ╨╕╨╗╨╕ ╨┐╤А╨╕ ╤П╨▓╨╜╨╛╨╝ ╤Г╨║╨░╨╖╨░╨╜╨╕╨╕ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П **SQLite** (╤Д╨░╨╣╨╗ `data/wp_sync.db` ╨╕╨╗╨╕ ╨┐╤Г╤В╤М ╨╕╨╖ `WP_STORAGE_PATH`). ╨п╨▓╨╜╨╛╨╡ ╨▓╨║╨╗╤О╤З╨╡╨╜╨╕╨╡: `WP_STORAGE_BACKEND=sqlite` ╨╕╨╗╨╕ ╨▓ ╨║╨╛╨╜╤Д╨╕╨│╨╡ `storage_backend: sqlite`.
++- **╨Ь╨╕╨│╤А╨░╤Ж╨╕╨╕:** PostgreSQL тАФ DDL ╨▓ `migrations/wp/` (001тАУ006); SQLite тАФ ╤Б╨║╤А╨╕╨┐╤В╤Л ╨▓ `migrations/wp/sqlite/`, ╨┐╤А╨╕╨╝╨╡╨╜╤П╤О╤В╤Б╤П ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕ ╨┐╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╨╕.
++- **╨Ъ╨╛╨╝╨░╨╜╨┤╤Л:**  
++  `python wp_sync_skill.py list-sites`  
++  `python wp_sync_skill.py sync` тАФ ╨╝╤Г╨╗╤М╤В╨╕╤Б╨░╨╣╤В (╨▓╤Б╨╡ ╤Б╨░╨╣╤В╤Л ╨╕╨╖ ╨║╨╛╨╜╤Д╨╕╨│╨░, ╨╛╨┤╨╕╨╜ run_id, ╨░╨│╤А╨╡╨│╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ summary ╨▓ stdout)  
++  `python wp_sync_skill.py sync --site SITE_ID` тАФ ╨╛╨┤╨╕╨╜ ╤Б╨░╨╣╤В  
++- **╨Ъ╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░:** 0 тАФ ╨▓╤Б╨╡ ╤Б╨░╨╣╤В╤Л success; 2 тАФ partial (╤З╨░╤Б╤В╤М ╤Г╤Б╨┐╨╡╤И╨╜╨░); 1 тАФ ╨▓╤Б╨╡ failed ╨╕╨╗╨╕ ╤Д╨░╤В╨░╨╗╤М╨╜╨░╤П ╨╛╤И╨╕╨▒╨║╨░ ╨║╨╛╨╜╤Д╨╕╨│╨░.
++- ╨Я╨╛╨┤╤А╨╛╨▒╨╜╨╡╨╡: [docs/wp-source-setup.md](docs/wp-source-setup.md), [docs/wp-source-architecture.md](docs/wp-source-architecture.md), [docs/wp-source-implementation-plan.md](docs/wp-source-implementation-plan.md).
+ 
+ ## ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╤П
+ 
+diff --git a/docs/wp-source-ci-smoke-job.md b/docs/wp-source-ci-smoke-job.md
+new file mode 100644
+index 0000000..7f7f9e4
+--- /dev/null
++++ b/docs/wp-source-ci-smoke-job.md
+@@ -0,0 +1,51 @@
++# ╨Ш╨╜╤Б╤В╤А╤Г╨║╤Ж╨╕╤П: ╨▓╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ smoke_wp ╨▓ CI
++
++**╨Ф╨░╤В╨░:** 2026-02-17  
++**╨Ъ╨╛╨╜╤В╨╡╨║╤Б╤В:** ╨┐╨╛ ╨в╨Ч Hardening smoke_wp ╨▓ CI ╤Б╨╡╨╣╤З╨░╤Б ╨╜╨╡ ╨┤╨╛╨▒╨░╨▓╨╗╤П╨╡╤В╤Б╤П (┬л╨╜╨╡╤В ╨▓ ╨╜╨░╨╗╨╕╤З╨╕╨╕┬╗). ╨Э╨╕╨╢╨╡ тАФ ╨│╨╛╤В╨╛╨▓╤Л╨╣ ╤И╨░╨▒╨╗╨╛╨╜ job/╨╕╨╜╤Б╤В╤А╤Г╨║╤Ж╨╕╤П ╨┤╨╗╤П ╨▓╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨┐╨╛╨╖╨╢╨╡.
++
++## ╨Ъ╨╛╨╝╨░╨╜╨┤╤Л ╨┤╨╗╤П CI
++
++╨а╨╡╨║╨╛╨╝╨╡╨╜╨┤╤Г╨╡╨╝╤Л╨╣ ╨╝╨╕╨╜╨╕╨╝╨░╨╗╤М╨╜╤Л╨╣ ╨╜╨░╨▒╨╛╤А (╨▒╨╡╨╖ ╨┤╨╛╤Б╤В╤Г╨┐╨░ ╨║ ╤А╨╡╨░╨╗╤М╨╜╨╛╨╝╤Г WordPress ╨╕ ╨▒╨╡╨╖ PostgreSQL ╨┐╤А╨╕ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╨╜╨╕╨╕ SQLite):
++
++```yaml
++# ╨Я╤А╨╕╨╝╨╡╤А ╨┤╨╗╤П GitHub Actions
++- name: WP unit / smoke (unit-only)
++  run: python tests/smoke_wp.py --unit-only
++  env:
++    # ╨С╨╡╨╖ WP_DATABASE_URL тАФ ╤В╨╡╤Б╤В╤Л, ╨╜╨╡ ╤В╤А╨╡╨▒╤Г╤О╤Й╨╕╨╡ ╨С╨Ф, ╨┐╤А╨╛╨╣╨┤╤Г╤В
++    WP_STORAGE_BACKEND: sqlite
++```
++
++╨б ╨┐╨╛╨╗╨╜╤Л╨╝ ╨║╨╛╨╜╤В╤Г╤А╨╛╨╝ WP (╨╡╤Б╨╗╨╕ ╨▓ CI ╨╡╤Б╤В╤М ╤Б╨╡╨║╤А╨╡╤В╤Л ╨╕ ╨С╨Ф):
++
++```yaml
++- name: WP storage (SQLite)
++  run: |
++    $env:WP_STORAGE_BACKEND = "sqlite"
++    python tests/test_wp_storage.py
++    python tests/test_wp_storage.py --integration
++  shell: pwsh
++
++- name: WP smoke (unit-only)
++  run: python tests/smoke_wp.py --unit-only
++
++# ╨Ю╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛: sync ╨║ ╤В╨╡╤Б╤В╨╛╨▓╨╛╨╝╤Г WP (╨╜╤Г╨╢╨╜╤Л ╤Б╨╡╨║╤А╨╡╤В╤Л)
++# - name: WP sync smoke (real)
++#   run: python wp_sync_skill.py sync --site <test_site_id>
++#   env:
++#     WP_SITE_<ID>_USER: ${{ secrets.WP_TEST_USER }}
++#     WP_SITE_<ID>_APP_PASSWORD: ${{ secrets.WP_TEST_APP_PASSWORD }}
++```
++
++## ╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П ╨┤╨╗╤П job
++
++| ╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╨░╤П | ╨Э╤Г╨╢╨╜╨░ ╨┤╨╗╤П | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ |
++|------------|-----------|----------|
++| `WP_STORAGE_BACKEND=sqlite` | ╨в╨╡╤Б╤В╤Л storage ╨▒╨╡╨╖ Postgres | ╨Ш╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М SQLite |
++| `WP_DATABASE_URL` | ╨а╨╡╨░╨╗╤М╨╜╤Л╨╣ sync ╨▓ Postgres | ╨б╤В╤А╨╛╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П |
++| `WP_SITE_<ID>_USER` / `WP_SITE_<ID>_APP_PASSWORD` | ╨а╨╡╨░╨╗╤М╨╜╤Л╨╣ sync ╨║ WP | ╨Ъ╤А╨╡╨┤╤Л ╤В╨╡╤Б╤В╨╛╨▓╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░ |
++
++## ╨Ю╨│╤А╨░╨╜╨╕╤З╨╡╨╜╨╕╤П
++
++- **smoke_wp** ╤Б ╤А╨╡╨░╨╗╤М╨╜╤Л╨╝ WordPress ╨╕ ╤Б ╤А╨╡╨░╨╗╤М╨╜╤Л╨╝ sync ╨▓ CI ╨╜╨╡ ╨╖╨░╨┐╤Г╤Б╨║╨░╨╗╤Б╤П ╨┐╤А╨╕ ╤Б╨┤╨░╤З╨╡ Hardening; ╨┤╨╗╤П ╤Н╤В╨╛╨│╨╛ ╨╜╤Г╨╢╨╜╤Л ╤В╨╡╤Б╤В╨╛╨▓╤Л╨╣ ╤Б╨░╨╣╤В ╨╕ ╤Б╨╡╨║╤А╨╡╤В╤Л ╨▓ CI.
++- ╨Ы╨╛╨║╨░╨╗╤М╨╜╨╛ ╨▓╤Б╨╡ ╨┐╨╡╤А╨╡╤З╨╕╤Б╨╗╨╡╨╜╨╜╤Л╨╡ ╨║╨╛╨╝╨░╨╜╨┤╤Л ╨┤╨╛╨╗╨╢╨╜╤Л ╨┐╤А╨╛╤Е╨╛╨┤╨╕╤В╤М; ╨┐╤А╨╕ ╨┤╨╛╨▒╨░╨▓╨╗╨╡╨╜╨╕╨╕ job ╨▓ pipeline ╨┤╨╛╤Б╤В╨░╤В╨╛╤З╨╜╨╛ ╨┐╨╛╨┤╤Б╤В╨░╨▓╨╕╤В╤М ╤Б╨▓╨╛╨╣ shell (bash/pwsh) ╨╕ ╤Б╨╡╨║╤А╨╡╤В╤Л ╨┐╤А╨╕ ╨╜╨╡╨╛╨▒╤Е╨╛╨┤╨╕╨╝╨╛╤Б╤В╨╕.
+diff --git a/docs/wp-source-implementation-plan.md b/docs/wp-source-implementation-plan.md
+index c614473..343256c 100644
+--- a/docs/wp-source-implementation-plan.md
++++ b/docs/wp-source-implementation-plan.md
+@@ -87,6 +87,8 @@
+ - **╨Ф╨╛╨║╤Г╨╝╨╡╨╜╤В╨░╤Ж╨╕╤П:** ╨╛╨▒╨╜╨╛╨▓╨╕╤В╤М README/docs тАФ ╨║╨░╨║ ╤Б╨╛╨╖╨┤╨░╤В╤М Application Password, ╨┐╤А╨╕╨╝╨╡╤А ╨║╨╛╨╜╤Д╨╕╨│╨░, ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П.
+ - **╨в╨╡╤Б╤В╤Л:** ╤А╨░╤Б╤И╨╕╤А╨╕╤В╤М ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ ╤Б╤Ж╨╡╨╜╨░╤А╨╕╨╕ (401, 429, ╤В╨░╨╣╨╝╨░╤Г╤В); ╨┤╨╛╨▒╨░╨▓╨╕╤В╤М smoke_wp ╨▓ CI ╨┐╤А╨╕ ╨╜╨░╨╗╨╕╤З╨╕╨╕.
+ 
++**╨а╨╡╨░╨╗╨╕╨╖╨╛╨▓╨░╨╜╨╛ (Hardening):** ╨Ь╤Г╨╗╤М╤В╨╕╤Б╨░╨╣╤В: `sync` ╨▒╨╡╨╖ `--site` ╨┐╤А╨╛╤Е╨╛╨┤╨╕╤В ╨┐╨╛ ╨▓╤Б╨╡╨╝ ╤Б╨░╨╣╤В╨░╨╝ ╨╕╨╖ `config/wp-sites.yml`; ╨╛╨┤╨╕╨╜ run_id; ╨▓ stdout ╨┐╤А╨╕ 2+ ╤Б╨░╨╣╤В╨░╤Е тАФ ╨╛╨┤╨╕╨╜ ╨╛╨▒╤К╨╡╨║╤В ╤Б `run_id`, `status`, `totals`, `sites` (`wp/output.py` тАФ `build_multisite_aggregated`). ╨Ъ╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░: 0 тАФ ╨▓╤Б╨╡ success, 2 тАФ partial, 1 тАФ ╨▓╤Б╨╡ failed/╨║╨╛╨╜╤Д╨╕╨│. SQLite: backend ╨▓ `wp/storage.py` (╨▓╤Л╨▒╨╛╤А ╨┐╨╛ `WP_STORAGE_BACKEND` ╨╕╨╗╨╕ ╨░╨▓╤В╨╛-fallback ╨┐╤А╨╕ ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╨╕ Postgres); `wp/storage_sqlite.py` тАФ ╤В╨╛╤В ╨╢╨╡ ╨║╨╛╨╜╤В╤А╨░╨║╤В ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╣; DDL ╨▓ `migrations/wp/sqlite/` (001тАУ006), ╨░╨▓╤В╨╛╨┐╤А╨╕╨╝╨╡╨╜╨╡╨╜╨╕╨╡ ╨┐╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╨╕. ╨Ъ╨╛╨╜╤Д╨╕╨│: ╨╛╨┐╤Ж╨╕╤П `storage_backend: sqlite` ╨▓ YAML; ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ `WP_STORAGE_BACKEND`, `WP_STORAGE_PATH`. ╨Ф╨╛╨║╤Г╨╝╨╡╨╜╤В╨░╤Ж╨╕╤П: README, wp-source-setup (Application Password ╨┐╨╛╤И╨░╨│╨╛╨▓╨╛, ╨┐╤А╨╕╨╝╨╡╤А multisite, ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡, fallback, 401/429/timeout). ╨в╨╡╤Б╤В╤Л: test_wp_storage ╨┐╨╛╨┤╨┤╨╡╤А╨╢╨╕╨▓╨░╨╡╤В SQLite (`_count`/`_fetch_one` ╨┐╨╛ ╤В╨╕╨┐╤Г conn); ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╤П ╨┤╨▓╨░ ╨┐╤А╨╛╨│╨╛╨╜╨░ ╨╜╨░ SQLite. ╨а╨╡╨▓╤М╤О: `reviews/<date>-wp-hardening.md`, ╨╕╨╜╤Б╤В╤А╤Г╨║╤Ж╨╕╤П CI тАФ ╨▓ docs ╨╕╨╗╨╕ reviews (smoke_wp ╨▓ CI ╨╜╨╡ ╨┤╨╛╨▒╨░╨▓╨╗╨╡╨╜ ╨┐╨╛ ╨╛╨│╤А╨░╨╜╨╕╤З╨╡╨╜╨╕╤О).
++
+ ---
+ 
+ ## 4. ╨н╤В╨░╨┐ Scale (╨┐╨╛ ╨╜╨╡╨╛╨▒╤Е╨╛╨┤╨╕╨╝╨╛╤Б╤В╨╕)
+diff --git a/docs/wp-source-setup.md b/docs/wp-source-setup.md
+index 3dffa70..3c6e0f5 100644
+--- a/docs/wp-source-setup.md
++++ b/docs/wp-source-setup.md
+@@ -1,4 +1,4 @@
+-# WordPress Source тАФ ╨╜╨░╤Б╤В╤А╨╛╨╣╨║╨░ (╨н╤В╨░╨┐ 1 MVP)
++# WordPress Source тАФ ╨╜╨░╤Б╤В╤А╨╛╨╣╨║╨░ (MVP + Hardening)
+ 
+ **╨Ф╨░╤В╨░:** 2026-02-23
+ 
+@@ -6,50 +6,83 @@
+ 
+ ╨д╨░╨╣╨╗ `config/wp-sites.yml` (╨╝╨╛╨╢╨╜╨╛ ╤Б╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨╕╨╖ `config/wp-sites.yml.example`):
+ 
++**╨Ю╨┤╨╕╨╜ ╤Б╨░╨╣╤В:**
++
++```yaml
++sites:
++  - site_id: main
++    base_url: https://your-site.com
++    name: Main Site
++```
++
++**╨Ь╤Г╨╗╤М╤В╨╕╤Б╨░╨╣╤В (╨╜╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ ╤Б╨░╨╣╤В╨╛╨▓ ╨▓ ╨╛╨┤╨╜╨╛╨╝ ╨║╨╛╨╜╤Д╨╕╨│╨╡):**
++
+ ```yaml
+ sites:
+   - site_id: main
+     base_url: https://your-site.com
+     name: Main Site
++  - site_id: rodina
++    base_url: https://rodina.example.com
++    name: Rodina
++
++# ╨Ю╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛: ╨│╨╗╨╛╨▒╨░╨╗╤М╨╜╤Л╨╡ ╨┐╨░╤А╨░╨╝╨╡╤В╤А╤Л ╨╕ ╤П╨▓╨╜╤Л╨╣ backend
++per_page: 100
++timeout_sec: 30
++retries: 3
++requests_per_second: 3.0
++# storage_backend: sqlite   # ╤А╨░╤Б╨║╨╛╨╝╨╝╨╡╨╜╤В╨╕╤А╨╛╨▓╨░╤В╤М ╨┤╨╗╤П ╨┐╤А╨╕╨╜╤Г╨┤╨╕╤В╨╡╨╗╤М╨╜╨╛╨│╨╛ SQLite
+ ```
+ 
+ - `site_id` тАФ ╤Г╨╜╨╕╨║╨░╨╗╤М╨╜╤Л╨╣ ╨╕╨┤╨╡╨╜╤В╨╕╤Д╨╕╨║╨░╤В╨╛╤А ╤Б╨░╨╣╤В╨░ (╨╗╨░╤В╨╕╨╜╨╕╤Ж╨░, ╤Ж╨╕╤Д╤А╤Л, ╨┤╨╡╤Д╨╕╤Б).
+ - `base_url` тАФ ╨▒╨░╨╖╨╛╨▓╤Л╨╣ URL ╨▒╨╡╨╖ ╤Б╨╗╤Н╤И╨░ ╨▓ ╨║╨╛╨╜╤Ж╨╡.
+ - ╨б╨╡╨║╤А╨╡╤В╤Л **╨╜╨╡** ╤Е╤А╨░╨╜╤П╤В╤Б╤П ╨▓ YAML: ╤В╨╛╨╗╤М╨║╨╛ ╨▓ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╤Е ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П.
++- ╨Ъ╨╛╨╝╨░╨╜╨┤╨░ `python wp_sync_skill.py sync` ╨▒╨╡╨╖ `--site` ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨╕╤А╤Г╨╡╤В **╨▓╤Б╨╡** ╤Б╨░╨╣╤В╤Л ╨╕╨╖ ╤Б╨┐╨╕╤Б╨║╨░; ╨╛╨┤╨╕╨╜ ╨╛╨▒╤Й╨╕╨╣ `run_id`, ╨▓ stdout тАФ ╨░╨│╤А╨╡╨│╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ JSON ╤Б ╨┐╨╛╨╗╤П╨╝╨╕ `run_id`, `status`, `totals`, `sites`.
+ 
+ ## 2. ╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П
+ 
+-╨Ф╨╗╤П ╨║╨░╨╢╨┤╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░ ╨╖╨░╨┤╨░╨╣╤В╨╡ (╨┐╨╛╨┤╤Б╤В╨░╨▓╤М╤В╨╡ ╤Б╨▓╨╛╨╣ `site_id`, ╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `main`):
++╨Ф╨╗╤П ╨║╨░╨╢╨┤╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░ ╨╖╨░╨┤╨░╨╣╤В╨╡ (╨┐╨╛╨┤╤Б╤В╨░╨▓╤М╤В╨╡ ╤Б╨▓╨╛╨╣ `site_id` ╨▓ ╨▓╨╡╤А╤Е╨╜╨╡╨╝ ╤А╨╡╨│╨╕╤Б╤В╤А╨╡, ╨┤╨╡╤Д╨╕╤Б тЖТ ╨┐╨╛╨┤╤З╤С╤А╨║╨╕╨▓╨░╨╜╨╕╨╡, ╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `main`, `rodina` тЖТ `RODINA`):
+ 
+ - `WP_SITE_<SITE_ID>_USER` тАФ ╨╗╨╛╨│╨╕╨╜ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П WordPress (╤Б ╨┐╤А╨░╨▓╨░╨╝╨╕ ╨╜╨░ ╤З╤В╨╡╨╜╨╕╨╡ REST API).
+-- `WP_SITE_<SITE_ID>_APP_PASSWORD` тАФ Application Password (╤Б╨╛╨╖╨┤╨░╤С╤В╤Б╤П ╨▓ ╨┐╤А╨╛╤Д╨╕╨╗╨╡ ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П WP: Users тЖТ Profile тЖТ Application Passwords).
++- `WP_SITE_<SITE_ID>_APP_PASSWORD` тАФ Application Password (╤Б╨╝. ╤А╨░╨╖╨┤╨╡╨╗ 3).
+ 
+-╨Я╤А╨╕╨╝╨╡╤А ╨┤╨╗╤П `site_id: main`:
++╨Я╤А╨╕╨╝╨╡╤А ╨┤╨╗╤П ╨┤╨▓╤Г╤Е ╤Б╨░╨╣╤В╨╛╨▓ `main` ╨╕ `rodina`:
+ 
+ ```bash
+ WP_SITE_MAIN_USER=admin
+ WP_SITE_MAIN_APP_PASSWORD=xxxx xxxx xxxx xxxx
++WP_SITE_RODINA_USER=editor
++WP_SITE_RODINA_APP_PASSWORD=yyyy yyyy yyyy yyyy
+ ```
+ 
+-╨б╤В╤А╨╛╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨║ PostgreSQL:
++**╨е╤А╨░╨╜╨╕╨╗╨╕╤Й╨╡:**
+ 
+-```bash
+-WP_DATABASE_URL=postgresql://user:password@host:5432/dbname
+-```
++- **PostgreSQL (╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О):**  
++  `WP_DATABASE_URL=postgresql://user:password@host:5432/dbname`  
++  ╨Ы╨╕╨▒╨╛ `DATABASE_URL`, ╨╡╤Б╨╗╨╕ ╤Г╨╢╨╡ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨▓ ╨┐╤А╨╛╨╡╨║╤В╨╡.
++
++- **SQLite (fallback ╨╕╨╗╨╕ ╤П╨▓╨╜╨╛):**  
++  - `WP_STORAGE_BACKEND=sqlite` тАФ ╨┐╤А╨╕╨╜╤Г╨┤╨╕╤В╨╡╨╗╤М╨╜╨╛ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М SQLite.  
++  - `WP_STORAGE_PATH` тАФ ╨┐╤Г╤В╤М ╨║ ╤Д╨░╨╣╨╗╤Г ╨С╨Ф (╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О `data/wp_sync.db` ╨▓ ╨║╨╛╤А╨╜╨╡ ╨┐╤А╨╛╨╡╨║╤В╨░).
+ 
+-╨Ы╨╕╨▒╨╛ `DATABASE_URL` (╨╡╤Б╨╗╨╕ ╤Г╨╢╨╡ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╨▓ ╨┐╤А╨╛╨╡╨║╤В╨╡).
++**╨Я╨╛╨▓╨╡╨┤╨╡╨╜╨╕╨╡ fallback:** ╨╡╤Б╨╗╨╕ `WP_STORAGE_BACKEND` ╨╜╨╡ ╨╖╨░╨┤╨░╨╜ ╨╕ ╨╖╨░╨┤╨░╨╜ `WP_DATABASE_URL`, ╨┐╤А╨╕ ╤Б╤В╨░╤А╤В╨╡ sync ╨┤╨╡╨╗╨░╨╡╤В╤Б╤П ╨┐╨╛╨┐╤Л╤В╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╕╤В╤М╤Б╤П ╨║ PostgreSQL. ╨Я╤А╨╕ ╨╛╤И╨╕╨▒╨║╨╡ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П (╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╣ ╤Е╨╛╤Б╤В, ╨╜╨╡╨▓╨╡╤А╨╜╤Л╨╣ ╨┐╨░╤А╨╛╨╗╤М ╨╕ ╤В.╨┐.) backend ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕ ╨┐╨╡╤А╨╡╨║╨╗╤О╤З╨░╨╡╤В╤Б╤П ╨╜╨░ SQLite ╤Б ╨┐╤А╨╡╨┤╤Г╨┐╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╡╨╝ ╨▓ ╨╗╨╛╨│╨░╤Е. ╨Х╤Б╨╗╨╕ `WP_DATABASE_URL` ╨╜╨╡ ╨╖╨░╨┤╨░╨╜, ╤Б╤А╨░╨╖╤Г ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П SQLite.
+ 
+-## 3. Application Password ╨▓ WordPress
++## 3. Application Password ╨▓ WordPress (╨┐╨╛╤И╨░╨│╨╛╨▓╨╛)
+ 
+-1. ╨Т╤Е╨╛╨┤ ╨▓ ╨░╨┤╨╝╨╕╨╜╨║╤Г WP тЖТ Users тЖТ Profile.
+-2. ╨а╨░╨╖╨┤╨╡╨╗ **Application Passwords**: ╨▓╨▓╨╡╤Б╤В╨╕ ╨╕╨╝╤П (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `tg-parser-sync`), ╨╜╨░╨╢╨░╤В╤М **Add New Application Password**.
+-3. ╨б╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╤Б╨│╨╡╨╜╨╡╤А╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╨┐╨░╤А╨╛╨╗╤М ╨╛╨┤╨╕╨╜ ╤А╨░╨╖ (╨╛╤В╨╛╨▒╤А╨░╨╢╨░╨╡╤В╤Б╤П ╨╡╨┤╨╕╨╜╤Б╤В╨▓╨╡╨╜╨╜╤Л╨╣ ╤А╨░╨╖) ╨╕ ╨╖╨░╨┤╨░╤В╤М ╨▓ `WP_SITE_<ID>_APP_PASSWORD`.
++1. ╨Т╨╛╨╣╨┤╨╕╤В╨╡ ╨▓ ╨░╨┤╨╝╨╕╨╜╨║╤Г WordPress тЖТ **Users** тЖТ **Profile** (╨┐╤А╨╛╤Д╨╕╨╗╤М ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П ╤Б ╨┐╤А╨░╨▓╨░╨╝╨╕ ╨╜╨░ ╤З╤В╨╡╨╜╨╕╨╡).
++2. ╨Я╤А╨╛╨╗╨╕╤Б╤В╨░╨╣╤В╨╡ ╨┤╨╛ ╤А╨░╨╖╨┤╨╡╨╗╨░ **Application Passwords**.
++3. ╨Т ╨┐╨╛╨╗╨╡ **New Application Password Name** ╨▓╨▓╨╡╨┤╨╕╤В╨╡ ╨╕╨╝╤П (╨╜╨░╨┐╤А╨╕╨╝╨╡╤А `tg-parser-sync`), ╨╜╨░╨╢╨╝╨╕╤В╨╡ **Add New Application Password**.
++4. ╨б╨║╨╛╨┐╨╕╤А╤Г╨╣╤В╨╡ ╤Б╨│╨╡╨╜╨╡╤А╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ ╨┐╨░╤А╨╛╨╗╤М **╨╛╨┤╨╕╨╜ ╤А╨░╨╖** (╨╛╤В╨╛╨▒╤А╨░╨╢╨░╨╡╤В╤Б╤П ╨╡╨┤╨╕╨╜╤Б╤В╨▓╨╡╨╜╨╜╤Л╨╣ ╤А╨░╨╖) ╨╕ ╨╖╨░╨┤╨░╨╣╤В╨╡ ╨╡╨│╨╛ ╨▓ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╨╛╨╣ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П `WP_SITE_<ID>_APP_PASSWORD` (╨┐╤А╨╛╨▒╨╡╨╗╤Л ╨▓ ╨┐╨░╤А╨╛╨╗╨╡ ╨┤╨╛╨┐╤Г╤Б╤В╨╕╨╝╤Л).
+ 
+ ╨в╤А╨╡╨▒╤Г╨╡╤В╤Б╤П WordPress 6.0+ ╨╕ ╨▓╨║╨╗╤О╤З╤С╨╜╨╜╤Л╨╣ REST API.
+ 
+-## 4. ╨Ь╨╕╨│╤А╨░╤Ж╨╕╨╕ PostgreSQL (Alembic)
++## 4. ╨Ь╨╕╨│╤А╨░╤Ж╨╕╨╕ PostgreSQL ╨╕ SQLite
++
++**PostgreSQL:** ╤Б╤Е╨╡╨╝╨░ WP (╤В╨░╨▒╨╗╨╕╤Ж╤Л `wp_sites`, `wp_sync_runs`, тАж) ╨┐╤А╨╕╨╝╨╡╨╜╤П╨╡╤В╤Б╤П ╤З╨╡╤А╨╡╨╖ **Alembic**. URL ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨▒╨╡╤А╤С╤В╤Б╤П ╨╕╨╖ `WP_DATABASE_URL` ╨╕╨╗╨╕ `DATABASE_URL` (╨╕╨╖ `.env`).
++
++**SQLite:** DDL ╨╗╨╡╨╢╨╕╤В ╨▓ `migrations/wp/sqlite/` (001тАУ006). ╨Я╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ ╨▓╤Л╨╖╨╛╨▓╨╡ `get_connection()` ╤Б backend=sqlite ╤Б╤Е╨╡╨╝╨░ ╤Б╨╛╨╖╨┤╨░╤С╤В╤Б╤П ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕; ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛ ╨┐╤А╨╕╨╝╨╡╨╜╤П╤В╤М ╨╜╨╕╤З╨╡╨│╨╛ ╨╜╨╡ ╨╜╤Г╨╢╨╜╨╛. ╨д╨░╨╣╨╗ ╨С╨Ф ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О: `data/wp_sync.db` (╨╕╨╗╨╕ ╨┐╤Г╤В╤М ╨╕╨╖ `WP_STORAGE_PATH`).
+ 
+-╨б╤Е╨╡╨╝╨░ WP (╤В╨░╨▒╨╗╨╕╤Ж╤Л `wp_sites`, `wp_sync_runs`, тАж) ╨┐╤А╨╕╨╝╨╡╨╜╤П╨╡╤В╤Б╤П ╤З╨╡╤А╨╡╨╖ **Alembic**. URL ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨▒╨╡╤А╤С╤В╤Б╤П ╨╕╨╖ `WP_DATABASE_URL` ╨╕╨╗╨╕ `DATABASE_URL` (╨╕╨╖ `.env`).
++╨б╤Е╨╡╨╝╨░ WP (╤В╨░╨▒╨╗╨╕╤Ж╤Л `wp_sites`, `wp_sync_runs`, тАж) ╨┤╨╗╤П Postgres ╨┐╤А╨╕╨╝╨╡╨╜╤П╨╡╤В╤Б╤П ╤З╨╡╤А╨╡╨╖ **Alembic**. URL ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨▒╨╡╤А╤С╤В╤Б╤П ╨╕╨╖ `WP_DATABASE_URL` ╨╕╨╗╨╕ `DATABASE_URL` (╨╕╨╖ `.env`).
+ 
+ **╨Т╨░╨╢╨╜╨╛:** ╨▒╨░╨╖╨░ ╨┤╨░╨╜╨╜╤Л╤Е **Pipeline** ╨┤╨╛╨╗╨╢╨╜╨░ ╤Б╤Г╤Й╨╡╤Б╤В╨▓╨╛╨▓╨░╤В╤М ╨┤╨╛ ╨╖╨░╨┐╤Г╤Б╨║╨░ ╨╝╨╕╨│╤А╨░╤Ж╨╕╨╣. ╨Х╤Б╨╗╨╕ ╨╡╤С ╨╡╤Й╤С ╨╜╨╡╤В:
+ 
+@@ -93,18 +126,28 @@ alembic upgrade head
+ 
+ ╨д╨░╨╣╨╗╤Л ╨▓ `migrations/wp/*.sql` ╨╛╤Б╤В╨░╤О╤В╤Б╤П ╤Б╨┐╤А╨░╨▓╨╛╤З╨╜╤Л╨╝╨╕ (╨╕╤Б╤Е╨╛╨┤╨╜╤Л╨╣ DDL); ╨┤╨╗╤П ╨┐╤А╨╕╨╝╨╡╨╜╨╡╨╜╨╕╤П ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П ╤В╨╛╨╗╤М╨║╨╛ Alembic.
+ 
+-## 5. ╨Ч╨░╨┐╤Г╤Б╨║
++## 5. ╨Ч╨░╨┐╤Г╤Б╨║ ╨╕ ╨┤╨╕╨░╨│╨╜╨╛╤Б╤В╨╕╨║╨░
++
++**╨Ъ╨╛╨╝╨░╨╜╨┤╤Л:**
+ 
+ - ╨б╨┐╨╕╤Б╨╛╨║ ╤Б╨░╨╣╤В╨╛╨▓ ╨╕╨╖ ╨║╨╛╨╜╤Д╨╕╨│╨░ (╨▒╨╡╨╖ ╨║╤А╨╡╨┤╨╛╨▓):  
+   `python wp_sync_skill.py list-sites`
+ 
+-- ╨б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╤П ╨▓╤Б╨╡╤Е ╤Б╨░╨╣╤В╨╛╨▓ ╨╕╨╖ ╨║╨╛╨╜╤Д╨╕╨│╨░:  
++- ╨б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╤П **╨▓╤Б╨╡╤Е** ╤Б╨░╨╣╤В╨╛╨▓ (╨╝╤Г╨╗╤М╤В╨╕╤Б╨░╨╣╤В, ╨╛╨┤╨╕╨╜ run_id, ╨░╨│╤А╨╡╨│╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ summary ╨▓ stdout):  
+   `python wp_sync_skill.py sync`
+ 
+-- ╨б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╤П ╨╛╨┤╨╜╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░:  
++- ╨б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╤П **╨╛╨┤╨╜╨╛╨│╨╛** ╤Б╨░╨╣╤В╨░:  
+   `python wp_sync_skill.py sync --site main`
+ 
+-╨Ш╤В╨╛╨│╨╛╨▓╤Л╨╣ summary ╨▓╤Л╨▓╨╛╨┤╨╕╤В╤Б╤П ╨▓ stdout ╨▓ ╤Д╨╛╤А╨╝╨░╤В╨╡ JSON. ╨Ы╨╛╨│╨╕ тАФ ╨▓ `logs/app.log`, `logs/errors.log` (run_id ╨╕ site_id ╨▓ ╨╖╨░╨┐╨╕╤Б╤П╤Е).
++╨Ш╤В╨╛╨│╨╛╨▓╤Л╨╣ summary ╨▓╤Л╨▓╨╛╨┤╨╕╤В╤Б╤П ╨▓ stdout ╨▓ ╤Д╨╛╤А╨╝╨░╤В╨╡ JSON. ╨Ы╨╛╨│╨╕ тАФ ╨▓ `logs/app.log`, `logs/errors.log` (╨▓ ╨║╨░╨╢╨┤╨╛╨╣ ╨╖╨░╨┐╨╕╤Б╨╕ WP тАФ `run_id` ╨╕ `site_id`).
++
++**╨Ъ╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░:** 0 тАФ ╨▓╤Б╨╡ ╤Б╨░╨╣╤В╤Л success; 2 тАФ partial (╤Е╨╛╤В╤П ╨▒╤Л ╨╛╨┤╨╕╨╜ success ╨╕ ╤Е╨╛╤В╤П ╨▒╤Л ╨╛╨┤╨╕╨╜ failed); 1 тАФ ╨▓╤Б╨╡ failed ╨╕╨╗╨╕ ╤Д╨░╤В╨░╨╗╤М╨╜╨░╤П ╨╛╤И╨╕╨▒╨║╨░ ╨║╨╛╨╜╤Д╨╕╨│╨░.
++
++**╨в╨╕╨┐╨╕╤З╨╜╤Л╨╡ ╨╛╤И╨╕╨▒╨║╨╕:**
++
++- **401 Unauthorized** тАФ ╨╜╨╡╨▓╨╡╤А╨╜╤Л╨╣ ╨╗╨╛╨│╨╕╨╜ ╨╕╨╗╨╕ Application Password. ╨Я╤А╨╛╨▓╨╡╤А╤М╤В╨╡ `WP_SITE_<ID>_USER` ╨╕ `WP_SITE_<ID>_APP_PASSWORD`, ╨┐╨╡╤А╨╡╤Б╨╛╨╖╨┤╨░╨╣╤В╨╡ Application Password ╨▓ ╨┐╤А╨╛╤Д╨╕╨╗╨╡ WP ╨┐╤А╨╕ ╨╜╨╡╨╛╨▒╤Е╨╛╨┤╨╕╨╝╨╛╤Б╤В╨╕.
++- **429 Too Many Requests** тАФ ╨╗╨╕╨╝╨╕╤В ╨╖╨░╨┐╤А╨╛╤Б╨╛╨▓ ╨║ REST API. ╨г╨╝╨╡╨╜╤М╤И╨╕╤В╨╡ `requests_per_second` ╨▓ ╨║╨╛╨╜╤Д╨╕╨│╨╡ ╨╕╨╗╨╕ ╨┐╨╛╨┤╨╛╨╢╨┤╨╕╤В╨╡; ╤Б╨║╤А╨╕╨┐╤В ╨┤╨╡╨╗╨░╨╡╤В retry ╤Б backoff.
++- **Timeout** тАФ ╤Б╨░╨╣╤В ╨╜╨╡ ╨╛╤В╨▓╨╡╤З╨░╨╡╤В ╨╖╨░ `timeout_sec` ╤Б╨╡╨║╤Г╨╜╨┤. ╨г╨▓╨╡╨╗╨╕╤З╤М╤В╨╡ `timeout_sec` ╨▓ ╨║╨╛╨╜╤Д╨╕╨│╨╡ ╨╕╨╗╨╕ ╨┐╤А╨╛╨▓╨╡╤А╤М╤В╨╡ ╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╤М `base_url`.
+ 
+ ## 6. MCP PostgreSQL (╨┤╨╛╤Б╤В╤Г╨┐ ╨║ ╨С╨Ф ╨╕╨╖ Cursor)
+ 
+diff --git a/migrations/wp/sqlite/001_wp_sites.sql b/migrations/wp/sqlite/001_wp_sites.sql
+new file mode 100644
+index 0000000..431913b
+--- /dev/null
++++ b/migrations/wp/sqlite/001_wp_sites.sql
+@@ -0,0 +1,9 @@
++-- WordPress Source (SQLite): ╤В╨░╨▒╨╗╨╕╤Ж╨░ ╤Б╨░╨╣╤В╨╛╨▓
++-- TIMESTAMPTZ -> TEXT (ISO 8601), ╨╛╤Б╤В╨░╨╗╤М╨╜╨╛╨╡ ╨║╨░╨║ ╨▓ Postgres
++CREATE TABLE IF NOT EXISTS wp_sites (
++    site_id     TEXT PRIMARY KEY,
++    base_url    TEXT NOT NULL,
++    name        TEXT,
++    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
++    updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
++);
+diff --git a/migrations/wp/sqlite/002_wp_sync_runs.sql b/migrations/wp/sqlite/002_wp_sync_runs.sql
+new file mode 100644
+index 0000000..ba6a1e4
+--- /dev/null
++++ b/migrations/wp/sqlite/002_wp_sync_runs.sql
+@@ -0,0 +1,19 @@
++-- WordPress Source (SQLite): ╨╕╤Б╤В╨╛╤А╨╕╤П ╨╖╨░╨┐╤Г╤Б╨║╨╛╨▓ sync
++-- BIGSERIAL -> INTEGER PRIMARY KEY AUTOINCREMENT
++CREATE TABLE IF NOT EXISTS wp_sync_runs (
++    id              INTEGER PRIMARY KEY AUTOINCREMENT,
++    run_id          TEXT NOT NULL,
++    site_id         TEXT NOT NULL REFERENCES wp_sites(site_id),
++    started_at      TEXT NOT NULL,
++    finished_at     TEXT,
++    status          TEXT NOT NULL DEFAULT 'running',
++    error_code      TEXT,
++    posts_count     INTEGER NOT NULL DEFAULT 0,
++    pages_count     INTEGER NOT NULL DEFAULT 0,
++    terms_count     INTEGER NOT NULL DEFAULT 0,
++    authors_count   INTEGER NOT NULL DEFAULT 0,
++    created_at      TEXT NOT NULL DEFAULT (datetime('now'))
++);
++
++CREATE INDEX IF NOT EXISTS idx_wp_sync_runs_site_started ON wp_sync_runs(site_id, started_at);
++CREATE INDEX IF NOT EXISTS idx_wp_sync_runs_run_id ON wp_sync_runs(run_id);
+diff --git a/migrations/wp/sqlite/003_wp_authors.sql b/migrations/wp/sqlite/003_wp_authors.sql
+new file mode 100644
+index 0000000..44995d7
+--- /dev/null
++++ b/migrations/wp/sqlite/003_wp_authors.sql
+@@ -0,0 +1,13 @@
++-- WordPress Source (SQLite): ╨░╨▓╤В╨╛╤А╤Л
++CREATE TABLE IF NOT EXISTS wp_authors (
++    site_id         TEXT NOT NULL REFERENCES wp_sites(site_id),
++    wp_user_id      INTEGER NOT NULL,
++    login           TEXT,
++    name            TEXT,
++    slug            TEXT,
++    raw_json        TEXT,
++    synced_at       TEXT NOT NULL,
++    PRIMARY KEY (site_id, wp_user_id)
++);
++
++CREATE INDEX IF NOT EXISTS idx_wp_authors_site ON wp_authors(site_id);
+diff --git a/migrations/wp/sqlite/004_wp_terms.sql b/migrations/wp/sqlite/004_wp_terms.sql
+new file mode 100644
+index 0000000..c9b0dc5
+--- /dev/null
++++ b/migrations/wp/sqlite/004_wp_terms.sql
+@@ -0,0 +1,14 @@
++-- WordPress Source (SQLite): ╤В╨╡╤А╨╝╨╕╨╜╤Л
++CREATE TABLE IF NOT EXISTS wp_terms (
++    site_id         TEXT NOT NULL REFERENCES wp_sites(site_id),
++    taxonomy        TEXT NOT NULL,
++    wp_term_id      INTEGER NOT NULL,
++    name            TEXT,
++    slug            TEXT NOT NULL,
++    parent_id       INTEGER,
++    raw_json        TEXT,
++    synced_at       TEXT NOT NULL,
++    PRIMARY KEY (site_id, taxonomy, wp_term_id)
++);
++
++CREATE INDEX IF NOT EXISTS idx_wp_terms_site_tax ON wp_terms(site_id, taxonomy);
+diff --git a/migrations/wp/sqlite/005_wp_content.sql b/migrations/wp/sqlite/005_wp_content.sql
+new file mode 100644
+index 0000000..d5722b0
+--- /dev/null
++++ b/migrations/wp/sqlite/005_wp_content.sql
+@@ -0,0 +1,24 @@
++-- WordPress Source (SQLite): ╨┐╨╛╤Б╤В╤Л ╨╕ ╤Б╤В╤А╨░╨╜╨╕╤Ж╤Л
++CREATE TABLE IF NOT EXISTS wp_content (
++    site_id         TEXT NOT NULL REFERENCES wp_sites(site_id),
++    content_type    TEXT NOT NULL,
++    wp_id           INTEGER NOT NULL,
++    title           TEXT,
++    slug            TEXT NOT NULL,
++    post_content    TEXT,
++    excerpt         TEXT,
++    status          TEXT NOT NULL DEFAULT 'publish',
++    author_id       INTEGER,
++    published_at    TEXT,
++    modified_at     TEXT,
++    seo_title       TEXT,
++    seo_description TEXT,
++    seo_json        TEXT,
++    raw_json        TEXT,
++    synced_at       TEXT NOT NULL,
++    PRIMARY KEY (site_id, content_type, wp_id)
++);
++
++CREATE INDEX IF NOT EXISTS idx_wp_content_site_type ON wp_content(site_id, content_type);
++CREATE INDEX IF NOT EXISTS idx_wp_content_published ON wp_content(site_id, published_at);
++CREATE INDEX IF NOT EXISTS idx_wp_content_slug ON wp_content(site_id, content_type, slug);
+diff --git a/migrations/wp/sqlite/006_wp_content_terms.sql b/migrations/wp/sqlite/006_wp_content_terms.sql
+new file mode 100644
+index 0000000..0634c40
+--- /dev/null
++++ b/migrations/wp/sqlite/006_wp_content_terms.sql
+@@ -0,0 +1,16 @@
++-- WordPress Source (SQLite): ╤Б╨▓╤П╨╖╤М ╨║╨╛╨╜╤В╨╡╨╜╤В тАФ ╤В╨╡╤А╨╝╨╕╨╜╤Л
++CREATE TABLE IF NOT EXISTS wp_content_terms (
++    site_id         TEXT NOT NULL,
++    content_type    TEXT NOT NULL,
++    wp_content_id   INTEGER NOT NULL,
++    taxonomy        TEXT NOT NULL,
++    wp_term_id      INTEGER NOT NULL,
++    synced_at       TEXT NOT NULL,
++    PRIMARY KEY (site_id, content_type, wp_content_id, taxonomy, wp_term_id),
++    FOREIGN KEY (site_id, content_type, wp_content_id)
++        REFERENCES wp_content(site_id, content_type, wp_id) ON DELETE CASCADE,
++    FOREIGN KEY (site_id, taxonomy, wp_term_id)
++        REFERENCES wp_terms(site_id, taxonomy, wp_term_id) ON DELETE CASCADE
++);
++
++CREATE INDEX IF NOT EXISTS idx_wp_content_terms_term ON wp_content_terms(site_id, taxonomy, wp_term_id);
+diff --git a/tests/test_wp_storage.py b/tests/test_wp_storage.py
+index b3dd379..e3971e3 100644
+--- a/tests/test_wp_storage.py
++++ b/tests/test_wp_storage.py
+@@ -50,23 +50,45 @@ except ImportError as e:
+     upsert_authors = upsert_content = upsert_content_terms = upsert_site = upsert_terms = None
+     AuthorRow = ContentRow = ContentTermRow = TermRow = None
+ 
++import sqlite3
++
+ TEST_SITE_ID = "_test_storage"
+ 
+ 
+ def _skip_no_db() -> bool:
+     if not _storage_available:
+         return True
++    backend = (os.environ.get("WP_STORAGE_BACKEND") or "").strip().lower()
++    if backend == "sqlite":
++        return False
+     url = os.environ.get("WP_DATABASE_URL") or os.environ.get("DATABASE_URL") or ""
+     return not url.strip()
+ 
+ 
+ def _count(conn, table: str, where: str = "", params: tuple = ()) -> int:
++    if isinstance(conn, sqlite3.Connection):
++        q = f"SELECT COUNT(*) FROM {table}" + (f" WHERE {where}" if where else "")
++        # SQLite uses ? placeholders; convert %s -> ?
++        q = q.replace("%s", "?")
++        cur = conn.execute(q, params)
++        return cur.fetchone()[0]
+     with conn.cursor() as cur:
+         q = f"SELECT COUNT(*) FROM {table}" + (f" WHERE {where}" if where else "")
+         cur.execute(q, params)
+         return cur.fetchone()[0]
+ 
+ 
++def _fetch_one(conn, sql: str, params: tuple = ()):
++    """╨Т╨╡╤А╨╜╤Г╤В╤М ╨┐╨╡╤А╨▓╤Г╤О ╤Б╤В╤А╨╛╨║╤Г ╨┐╨╡╤А╨▓╨╛╨│╨╛ ╤Б╤В╨╛╨╗╨▒╤Ж╨░ (╨┤╨╗╤П synced_at ╨╕ ╤В.╨┐.)."""
++    if isinstance(conn, sqlite3.Connection):
++        sql = sql.replace("%s", "?")
++        cur = conn.execute(sql, params)
++        return cur.fetchone()[0]
++    with conn.cursor() as cur:
++        cur.execute(sql, params)
++        return cur.fetchone()[0]
++
++
+ def test_upsert_site_idempotent() -> bool:
+     """Upsert wp_sites: insert -> upsert ╤Б ╤В╨╡╨╝╨╕ ╨╢╨╡ ╨┤╨░╨╜╨╜╤Л╨╝╨╕ -> ╨╛╨┤╨╜╨░ ╤Б╤В╤А╨╛╨║╨░."""
+     if _skip_no_db():
+@@ -95,9 +117,7 @@ def test_upsert_authors_idempotent() -> bool:
+         n1 = _count(conn, "wp_authors", "site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
+         upsert_authors(conn, [row], t2)
+         n2 = _count(conn, "wp_authors", "site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
+-        with conn.cursor() as cur:
+-            cur.execute("SELECT synced_at FROM wp_authors WHERE site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
+-            synced = cur.fetchone()[0]
++        synced = _fetch_one(conn, "SELECT synced_at FROM wp_authors WHERE site_id = %s AND wp_user_id = 1", (TEST_SITE_ID,))
+     assert n1 == 1 and n2 == 1
+     assert synced is not None
+     return True
+@@ -170,11 +190,13 @@ def test_update_sync_run_returns_zero_when_no_row() -> bool:
+     if _skip_no_db():
+         print("  SKIP update_sync_run rowcount (no DB or no WP_DATABASE_URL)")
+         return True
+-    try:
+-        get_connection_string()
+-    except ValueError:
+-        print("  SKIP update_sync_run (no DB URL)")
+-        return True
++    backend = (os.environ.get("WP_STORAGE_BACKEND") or "").strip().lower()
++    if backend != "sqlite":
++        try:
++            get_connection_string()
++        except ValueError:
++            print("  SKIP update_sync_run (no DB URL)")
++            return True
+     with get_connection() as conn:
+         n = update_sync_run(
+             conn,
+diff --git a/wp/config.py b/wp/config.py
+index de81330..5b1b3bd 100644
+--- a/wp/config.py
++++ b/wp/config.py
+@@ -28,6 +28,7 @@ class WPSyncConfig:
+     timeout_sec: int = 30
+     retries: int = 3
+     requests_per_second: float = 3.0  # ╨┐╨░╤Г╨╖╨░ ╨╝╨╡╨╢╨┤╤Г ╨╖╨░╨┐╤А╨╛╤Б╨░╨╝╨╕ = 1/requests_per_second
++    storage_backend: Optional[str] = None  # 'sqlite' ╨╕╨╗╨╕ ╨┐╤Г╤Б╤В╨╛ (Postgres/╨░╨▓╤В╨╛)
+ 
+ 
+ def _env_key(site_id: str, suffix: str) -> str:
+@@ -121,6 +122,9 @@ def load_config(
+     rps = float(data.get("requests_per_second", 3.0))
+     if rps <= 0:
+         rps = 3.0
++    storage_backend = (data.get("storage_backend") or "").strip().lower() or None
++    if storage_backend and storage_backend not in ("sqlite", "postgres"):
++        storage_backend = None
+ 
+     return WPSyncConfig(
+         sites=site_configs,
+@@ -128,4 +132,5 @@ def load_config(
+         timeout_sec=timeout_sec,
+         retries=retries,
+         requests_per_second=rps,
++        storage_backend=storage_backend,
+     )
+diff --git a/wp/output.py b/wp/output.py
+index 0bfba5a..5dec0d3 100644
+--- a/wp/output.py
++++ b/wp/output.py
+@@ -128,3 +128,31 @@ def build_single_site_output(
+ def build_multi_site_output(sites: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+     """╨Э╨╡╤Б╨║╨╛╨╗╤М╨║╨╛ ╤Б╨░╨╣╤В╨╛╨▓: ╨╝╨░╤Б╤Б╨╕╨▓ ╨╛╨▒╤К╨╡╨║╤В╨╛╨▓ (╨║╨░╨╢╨┤╤Л╨╣ ╨║╨░╨║ build_single_site_output)."""
+     return list(sites)
++
++
++def build_multisite_aggregated(
++    run_id: str,
++    exit_code: int,
++    site_outputs: List[Dict[str, Any]],
++) -> Dict[str, Any]:
++    """Multi-site: ╨╛╨┤╨╕╨╜ ╨╛╨▒╤К╨╡╨║╤В ╤Б run_id, status, totals ╨╕ ╨╝╨░╤Б╤Б╨╕╨▓╨╛╨╝ sites.
++    exit_code: 0=success, 2=partial, 1=failed.
++    """
++    status = "success" if exit_code == 0 else ("partial" if exit_code == 2 else "failed")
++    success_count = sum(1 for s in site_outputs if s.get("status") == "success")
++    failed_count = sum(1 for s in site_outputs if s.get("status") == "failed")
++    totals = {
++        "sites": len(site_outputs),
++        "success": success_count,
++        "failed": failed_count,
++        "posts_count": sum(s.get("posts_count", 0) for s in site_outputs),
++        "pages_count": sum(s.get("pages_count", 0) for s in site_outputs),
++        "terms_count": sum(s.get("terms_count", 0) for s in site_outputs),
++        "authors_count": sum(s.get("authors_count", 0) for s in site_outputs),
++    }
++    return {
++        "run_id": run_id,
++        "status": status,
++        "totals": totals,
++        "sites": site_outputs,
++    }
+diff --git a/wp/storage.py b/wp/storage.py
+index 0c480e8..ffd3e6f 100644
+--- a/wp/storage.py
++++ b/wp/storage.py
+@@ -1,24 +1,71 @@
+-"""╨б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡ ╨┤╨░╨╜╨╜╤Л╤Е WP ╨▓ PostgreSQL: ╨╕╨┤╨╡╨╝╨┐╨╛╤В╨╡╨╜╤В╨╜╤Л╨╡ upsert ╨┐╨╛ (site_id, wp_*_id)."""
++"""╨б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡ ╨┤╨░╨╜╨╜╤Л╤Е WP: PostgreSQL ╨╕╨╗╨╕ SQLite (fallback). ╨Х╨┤╨╕╨╜╤Л╨╣ ╨║╨╛╨╜╤В╤А╨░╨║╤В ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╣."""
+ 
+ from __future__ import annotations
+ 
+ import logging
+ import os
++import sqlite3
+ from contextlib import contextmanager
+ from datetime import datetime, timezone
+-from typing import Iterator, List, Optional
+-
+-import psycopg2
+-from psycopg2.extras import Json
++from pathlib import Path
++from typing import Iterator, List, Optional, Union
+ 
+ from .mapper import AuthorRow, ContentRow, ContentTermRow, TermRow
+ 
+ logger = logging.getLogger("wp.storage")
+ 
+-# ╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╨░╤П ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П ╨┤╨╗╤П ╤Б╤В╤А╨╛╨║╨╕ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨║ PostgreSQL
++STORAGE_BACKEND_ENV = "WP_STORAGE_BACKEND"
+ DATABASE_URL_ENV = "WP_DATABASE_URL"
+ 
+ 
++def _pg_connect():
++    import psycopg2
++    return psycopg2.connect(get_connection_string())
++
++
++def _pg_json(val):
++    import psycopg2.extras
++    return psycopg2.extras.Json(val) if val is not None else None
++
++
++def _resolve_backend() -> str:
++    backend = (os.environ.get(STORAGE_BACKEND_ENV) or "").strip().lower()
++    if backend == "sqlite":
++        return "sqlite"
++    url = (os.environ.get(DATABASE_URL_ENV) or os.environ.get("DATABASE_URL") or "").strip()
++    if not url:
++        logger.warning("WP_DATABASE_URL ╨╜╨╡ ╨╖╨░╨┤╨░╨╜ тАФ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╨╝ SQLite fallback")
++        return "sqlite"
++    try:
++        conn = _pg_connect()
++        conn.close()
++        return "postgres"
++    except Exception as e:
++        logger.warning("PostgreSQL ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╡╨╜ (%s), ╨┐╨╡╤А╨╡╨║╨╗╤О╤З╨░╨╡╨╝╤Б╤П ╨╜╨░ SQLite", e)
++        return "sqlite"
++
++
++_backend: Optional[str] = None
++_sqlite = None
++
++
++def _get_backend() -> str:
++    global _backend, _sqlite
++    if _backend is None:
++        _backend = _resolve_backend()
++        if _backend == "sqlite":
++            from . import storage_sqlite as _sqlite_mod  # noqa: F401
++            _sqlite = _sqlite_mod
++        else:
++            _sqlite = None
++    return _backend
++
++
++def _get_sqlite():
++    _get_backend()
++    return _sqlite
++
++
+ def get_connection_string() -> str:
+     url = os.environ.get(DATABASE_URL_ENV) or os.environ.get("DATABASE_URL") or ""
+     if not url.strip():
+@@ -29,16 +76,21 @@ def get_connection_string() -> str:
+ 
+ 
+ @contextmanager
+-def get_connection() -> Iterator[psycopg2.extensions.connection]:
+-    conn = psycopg2.connect(get_connection_string())
+-    try:
+-        yield conn
+-        conn.commit()
+-    except Exception:
+-        conn.rollback()
+-        raise
+-    finally:
+-        conn.close()
++def get_connection() -> Iterator[Union[object, sqlite3.Connection]]:
++    if _get_backend() == "sqlite":
++        project_root = Path(__file__).resolve().parent.parent
++        with _get_sqlite().get_connection(project_root=project_root) as conn:
++            yield conn
++    else:
++        conn = _pg_connect()
++        try:
++            yield conn
++            conn.commit()
++        except Exception:
++            conn.rollback()
++            raise
++        finally:
++            conn.close()
+ 
+ 
+ def _ts(d: Optional[datetime]) -> Optional[datetime]:
+@@ -50,11 +102,13 @@ def _ts(d: Optional[datetime]) -> Optional[datetime]:
+ 
+ 
+ def upsert_site(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     site_id: str,
+     base_url: str,
+     name: Optional[str],
+ ) -> None:
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().upsert_site(conn, site_id, base_url, name)
+     logger.debug("upsert_site site_id=%s", site_id, extra={"site_id": site_id})
+     now = datetime.now(timezone.utc)
+     with conn.cursor() as cur:
+@@ -72,10 +126,12 @@ def upsert_site(
+ 
+ 
+ def upsert_authors(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     rows: List[AuthorRow],
+     synced_at: datetime,
+ ) -> None:
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().upsert_authors(conn, rows, synced_at)
+     if not rows:
+         return
+     site_id = rows[0].site_id if rows else ""
+@@ -99,17 +155,19 @@ def upsert_authors(
+                     r.login,
+                     r.name,
+                     r.slug,
+-                    Json(r.raw_json) if r.raw_json else None,
++                    _pg_json(r.raw_json),
+                     synced_at,
+                 ),
+             )
+ 
+ 
+ def upsert_terms(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     rows: List[TermRow],
+     synced_at: datetime,
+ ) -> None:
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().upsert_terms(conn, rows, synced_at)
+     if not rows:
+         return
+     site_id = rows[0].site_id if rows else ""
+@@ -134,17 +192,19 @@ def upsert_terms(
+                     r.name,
+                     r.slug,
+                     r.parent_id,
+-                    Json(r.raw_json) if r.raw_json else None,
++                    _pg_json(r.raw_json),
+                     synced_at,
+                 ),
+             )
+ 
+ 
+ def upsert_content(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     rows: List[ContentRow],
+     synced_at: datetime,
+ ) -> None:
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().upsert_content(conn, rows, synced_at)
+     if not rows:
+         return
+     site_id = rows[0].site_id if rows else ""
+@@ -188,18 +248,20 @@ def upsert_content(
+                     _ts(r.modified_at),
+                     r.seo_title,
+                     r.seo_description,
+-                    Json(r.seo_json) if r.seo_json else None,
+-                    Json(r.raw_json) if r.raw_json else None,
++                    _pg_json(r.seo_json),
++                    _pg_json(r.raw_json),
+                     synced_at,
+                 ),
+             )
+ 
+ 
+ def upsert_content_terms(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     rows: List[ContentTermRow],
+     synced_at: datetime,
+ ) -> None:
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().upsert_content_terms(conn, rows, synced_at)
+     if not rows:
+         return
+     site_id = rows[0].site_id if rows else ""
+@@ -218,11 +280,13 @@ def upsert_content_terms(
+ 
+ 
+ def insert_sync_run(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     run_id: str,
+     site_id: str,
+     started_at: datetime,
+ ) -> None:
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().insert_sync_run(conn, run_id, site_id, started_at)
+     with conn.cursor() as cur:
+         cur.execute(
+             """
+@@ -234,7 +298,7 @@ def insert_sync_run(
+ 
+ 
+ def update_sync_run(
+-    conn: psycopg2.extensions.connection,
++    conn: Union[object, sqlite3.Connection],
+     run_id: str,
+     site_id: str,
+     finished_at: datetime,
+@@ -246,6 +310,11 @@ def update_sync_run(
+     authors_count: int,
+ ) -> int:
+     """╨Ю╨▒╨╜╨╛╨▓╨╕╤В╤М ╨╖╨░╨┐╨╕╤Б╤М run. ╨Т╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В rowcount (╨╛╨╢╨╕╨┤╨░╨╡╤В╤Б╤П 1)."""
++    if isinstance(conn, sqlite3.Connection):
++        return _get_sqlite().update_sync_run(
++            conn, run_id, site_id, finished_at, status, error_code,
++            posts_count, pages_count, terms_count, authors_count,
++        )
+     with conn.cursor() as cur:
+         cur.execute(
+             """
+diff --git a/wp/storage_sqlite.py b/wp/storage_sqlite.py
+new file mode 100644
+index 0000000..f379b93
+--- /dev/null
++++ b/wp/storage_sqlite.py
+@@ -0,0 +1,235 @@
++"""SQLite backend ╨┤╨╗╤П WP storage: ╤В╨╡ ╨╢╨╡ ╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╕, DDL ╨▓ migrations/wp/sqlite/."""
++
++from __future__ import annotations
++
++import json
++import logging
++import os
++import sqlite3
++from contextlib import contextmanager
++from datetime import datetime, timezone
++from pathlib import Path
++from typing import Iterator, List, Optional
++
++from .mapper import AuthorRow, ContentRow, ContentTermRow, TermRow
++
++logger = logging.getLogger("wp.storage.sqlite")
++
++STORAGE_PATH_ENV = "WP_STORAGE_PATH"
++SQLITE_DEFAULT_NAME = "wp_sync.db"
++
++
++def get_sqlite_path(project_root: Optional[Path] = None) -> Path:
++    path = os.environ.get(STORAGE_PATH_ENV, "").strip()
++    if path:
++        return Path(path)
++    if project_root is None:
++        project_root = Path(__file__).resolve().parent.parent
++    return project_root / "data" / SQLITE_DEFAULT_NAME
++
++
++@contextmanager
++def get_connection(project_root: Optional[Path] = None) -> Iterator[sqlite3.Connection]:
++    path = get_sqlite_path(project_root)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    conn = sqlite3.connect(str(path))
++    conn.execute("PRAGMA foreign_keys = ON")
++    try:
++        _ensure_schema(conn)
++        yield conn
++        conn.commit()
++    except Exception:
++        conn.rollback()
++        raise
++    finally:
++        conn.close()
++
++
++def _ensure_schema(conn: sqlite3.Connection) -> None:
++    cur = conn.execute(
++        "SELECT name FROM sqlite_master WHERE type='table' AND name='wp_sites'"
++    )
++    if cur.fetchone():
++        return
++    migrations_dir = Path(__file__).resolve().parent.parent / "migrations" / "wp" / "sqlite"
++    for name in sorted(migrations_dir.glob("*.sql")):
++        sql = name.read_text(encoding="utf-8").strip()
++        for stmt in sql.split(";"):
++            stmt = stmt.strip()
++            # ╨г╨▒╤А╨░╤В╤М ╨▓╨╡╨┤╤Г╤Й╨╕╨╡ ╤Б╤В╤А╨╛╨║╨╕-╨║╨╛╨╝╨╝╨╡╨╜╤В╨░╤А╨╕╨╕
++            while stmt and stmt.split("\n")[0].strip().startswith("--"):
++                stmt = "\n".join(stmt.split("\n")[1:]).strip()
++            if stmt and not stmt.startswith("--"):
++                conn.execute(stmt)
++
++
++def _ts(d: Optional[datetime]) -> Optional[str]:
++    if d is None:
++        return None
++    if d.tzinfo is None:
++        d = d.replace(tzinfo=timezone.utc)
++    return d.isoformat()
++
++
++def _json_val(obj) -> Optional[str]:
++    if obj is None:
++        return None
++    return json.dumps(obj, ensure_ascii=False)
++
++
++def upsert_site(
++    conn: sqlite3.Connection,
++    site_id: str,
++    base_url: str,
++    name: Optional[str],
++) -> None:
++    logger.debug("upsert_site site_id=%s", site_id, extra={"site_id": site_id})
++    now = _ts(datetime.now(timezone.utc))
++    conn.execute(
++        """
++        INSERT INTO wp_sites (site_id, base_url, name, created_at, updated_at)
++        VALUES (?, ?, ?, ?, ?)
++        ON CONFLICT (site_id) DO UPDATE SET
++            base_url = excluded.base_url,
++            name = excluded.name,
++            updated_at = excluded.updated_at
++        """,
++        (site_id, base_url, name or None, now, now),
++    )
++
++
++def upsert_authors(
++    conn: sqlite3.Connection,
++    rows: List[AuthorRow],
++    synced_at: datetime,
++) -> None:
++    if not rows:
++        return
++    site_id = rows[0].site_id if rows else ""
++    logger.debug("upsert_authors site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
++    synced = _ts(synced_at)
++    for r in rows:
++        conn.execute(
++            """
++            INSERT INTO wp_authors (site_id, wp_user_id, login, name, slug, raw_json, synced_at)
++            VALUES (?, ?, ?, ?, ?, ?, ?)
++            ON CONFLICT (site_id, wp_user_id) DO UPDATE SET
++                login = excluded.login, name = excluded.name, slug = excluded.slug,
++                raw_json = excluded.raw_json, synced_at = excluded.synced_at
++            """,
++            (r.site_id, r.wp_user_id, r.login, r.name, r.slug, _json_val(r.raw_json), synced),
++        )
++
++
++def upsert_terms(
++    conn: sqlite3.Connection,
++    rows: List[TermRow],
++    synced_at: datetime,
++) -> None:
++    if not rows:
++        return
++    site_id = rows[0].site_id if rows else ""
++    logger.debug("upsert_terms site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
++    synced = _ts(synced_at)
++    for r in rows:
++        conn.execute(
++            """
++            INSERT INTO wp_terms (site_id, taxonomy, wp_term_id, name, slug, parent_id, raw_json, synced_at)
++            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
++            ON CONFLICT (site_id, taxonomy, wp_term_id) DO UPDATE SET
++                name = excluded.name, slug = excluded.slug, parent_id = excluded.parent_id,
++                raw_json = excluded.raw_json, synced_at = excluded.synced_at
++            """,
++            (r.site_id, r.taxonomy, r.wp_term_id, r.name, r.slug, r.parent_id, _json_val(r.raw_json), synced),
++        )
++
++
++def upsert_content(
++    conn: sqlite3.Connection,
++    rows: List[ContentRow],
++    synced_at: datetime,
++) -> None:
++    if not rows:
++        return
++    site_id = rows[0].site_id if rows else ""
++    logger.debug("upsert_content site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
++    synced = _ts(synced_at)
++    for r in rows:
++        conn.execute(
++            """
++            INSERT INTO wp_content (
++                site_id, content_type, wp_id, title, slug, post_content, excerpt,
++                status, author_id, published_at, modified_at,
++                seo_title, seo_description, seo_json, raw_json, synced_at
++            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
++            ON CONFLICT (site_id, content_type, wp_id) DO UPDATE SET
++                title = excluded.title, slug = excluded.slug, post_content = excluded.post_content,
++                excerpt = excluded.excerpt, status = excluded.status, author_id = excluded.author_id,
++                published_at = excluded.published_at, modified_at = excluded.modified_at,
++                seo_title = excluded.seo_title, seo_description = excluded.seo_description,
++                seo_json = excluded.seo_json, raw_json = excluded.raw_json, synced_at = excluded.synced_at
++            """,
++            (
++                r.site_id, r.content_type, r.wp_id, r.title, r.slug, r.post_content, r.excerpt,
++                r.status, r.author_id, _ts(r.published_at), _ts(r.modified_at),
++                r.seo_title, r.seo_description, _json_val(r.seo_json), _json_val(r.raw_json), synced,
++            ),
++        )
++
++
++def upsert_content_terms(
++    conn: sqlite3.Connection,
++    rows: List[ContentTermRow],
++    synced_at: datetime,
++) -> None:
++    if not rows:
++        return
++    site_id = rows[0].site_id if rows else ""
++    logger.debug("upsert_content_terms site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
++    synced = _ts(synced_at)
++    for r in rows:
++        conn.execute(
++            """
++            INSERT INTO wp_content_terms (site_id, content_type, wp_content_id, taxonomy, wp_term_id, synced_at)
++            VALUES (?, ?, ?, ?, ?, ?)
++            ON CONFLICT (site_id, content_type, wp_content_id, taxonomy, wp_term_id) DO UPDATE SET
++                synced_at = excluded.synced_at
++            """,
++            (r.site_id, r.content_type, r.wp_content_id, r.taxonomy, r.wp_term_id, synced),
++        )
++
++
++def insert_sync_run(
++    conn: sqlite3.Connection,
++    run_id: str,
++    site_id: str,
++    started_at: datetime,
++) -> None:
++    conn.execute(
++        "INSERT INTO wp_sync_runs (run_id, site_id, started_at, status) VALUES (?, ?, ?, 'running')",
++        (run_id, site_id, _ts(started_at)),
++    )
++
++
++def update_sync_run(
++    conn: sqlite3.Connection,
++    run_id: str,
++    site_id: str,
++    finished_at: datetime,
++    status: str,
++    error_code: Optional[str],
++    posts_count: int,
++    pages_count: int,
++    terms_count: int,
++    authors_count: int,
++) -> int:
++    cur = conn.execute(
++        """
++        UPDATE wp_sync_runs
++        SET finished_at = ?, status = ?, error_code = ?,
++            posts_count = ?, pages_count = ?, terms_count = ?, authors_count = ?
++        WHERE run_id = ? AND site_id = ?
++        """,
++        (_ts(finished_at), status, error_code, posts_count, pages_count, terms_count, authors_count, run_id, site_id),
++    )
++    return cur.rowcount
+diff --git a/wp_sync_skill.py b/wp_sync_skill.py
+index b4f65d4..c959655 100644
+--- a/wp_sync_skill.py
++++ b/wp_sync_skill.py
+@@ -33,9 +33,11 @@ from wp.fetcher import (  # noqa: E402
+ from wp.output import (  # noqa: E402
+     build_content_export_list,
+     build_multi_site_output,
++    build_multisite_aggregated,
+     build_single_site_output,
+ )
+ from wp.storage import (  # noqa: E402
++    STORAGE_BACKEND_ENV,
+     get_connection,
+     insert_sync_run,
+     update_sync_run,
+@@ -241,6 +243,9 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
+         _print_err_utf8(f"Error: {e}")
+         return EXIT_FAILURE, []
+ 
++    if getattr(cfg, "storage_backend", None):
++        os.environ.setdefault(STORAGE_BACKEND_ENV, cfg.storage_backend)
++
+     sites = [s for s in cfg.sites if args.site is None or s.site_id == args.site]
+     if not sites:
+         _print_err_utf8(f"Error: site '{args.site}' not found in config")
+@@ -327,7 +332,10 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
+             )
+             for d in summaries
+         ]
+-        out = site_outputs[0] if len(site_outputs) == 1 else build_multi_site_output(site_outputs)
++        if len(site_outputs) == 1:
++            out = site_outputs[0]
++        else:
++            out = build_multisite_aggregated(run_id, exit_code, site_outputs)
+         print(json.dumps(out, ensure_ascii=False, indent=2))
+     return exit_code, summaries
+ 

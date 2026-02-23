@@ -33,9 +33,11 @@ from wp.fetcher import (  # noqa: E402
 from wp.output import (  # noqa: E402
     build_content_export_list,
     build_multi_site_output,
+    build_multisite_aggregated,
     build_single_site_output,
 )
 from wp.storage import (  # noqa: E402
+    STORAGE_BACKEND_ENV,
     get_connection,
     insert_sync_run,
     update_sync_run,
@@ -241,6 +243,10 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
         _print_err_utf8(f"Error: {e}")
         return EXIT_FAILURE, []
 
+    # Приоритет: конфиг (YAML) переопределяет env — если в конфиге задан storage_backend, используем его
+    if getattr(cfg, "storage_backend", None):
+        os.environ[STORAGE_BACKEND_ENV] = cfg.storage_backend
+
     sites = [s for s in cfg.sites if args.site is None or s.site_id == args.site]
     if not sites:
         _print_err_utf8(f"Error: site '{args.site}' not found in config")
@@ -327,7 +333,10 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
             )
             for d in summaries
         ]
-        out = site_outputs[0] if len(site_outputs) == 1 else build_multi_site_output(site_outputs)
+        if len(site_outputs) == 1:
+            out = site_outputs[0]
+        else:
+            out = build_multisite_aggregated(run_id, exit_code, site_outputs)
         print(json.dumps(out, ensure_ascii=False, indent=2))
     return exit_code, summaries
 

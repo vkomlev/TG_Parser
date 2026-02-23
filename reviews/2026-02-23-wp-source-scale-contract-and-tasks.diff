@@ -1,0 +1,180 @@
+﻿diff --git a/README.md b/README.md
+index c8e6d1f..b924261 100644
+--- a/README.md
++++ b/README.md
+@@ -53,7 +53,7 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
+ ╨Ю╤В╨┤╨╡╨╗╤М╨╜╨░╤П ╤В╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░ ╨┤╨╗╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╨╕ WordPress-╤Б╨░╨╣╤В╨╛╨▓ (╤В╨╛╨╗╤М╨║╨╛ ╤З╤В╨╡╨╜╨╕╨╡, full sync).
+ 
+ - **╨Ъ╨╛╨╜╤Д╨╕╨│:** `config/wp-sites.yml`; ╤Б╨╡╨║╤А╨╡╤В╤Л тАФ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`. ╨Ю╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛ `storage_backend: sqlite` ╨▓ YAML.
+-- **╨е╤А╨░╨╜╨╕╨╗╨╕╤Й╨╡:** ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О PostgreSQL (`WP_DATABASE_URL` ╨╕╨╗╨╕ `DATABASE_URL`). ╨Я╤А╨╕ ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╨╕ Postgres ╨╕╨╗╨╕ ╨┐╤А╨╕ ╤П╨▓╨╜╨╛╨╝ ╤Г╨║╨░╨╖╨░╨╜╨╕╨╕ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П **SQLite** (╤Д╨░╨╣╨╗ `data/wp_sync.db` ╨╕╨╗╨╕ ╨┐╤Г╤В╤М ╨╕╨╖ `WP_STORAGE_PATH`). ╨п╨▓╨╜╨╛╨╡ ╨▓╨║╨╗╤О╤З╨╡╨╜╨╕╨╡: `WP_STORAGE_BACKEND=sqlite` ╨╕╨╗╨╕ ╨▓ ╨║╨╛╨╜╤Д╨╕╨│╨╡ `storage_backend: sqlite`.
++- **╨е╤А╨░╨╜╨╕╨╗╨╕╤Й╨╡:** ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О PostgreSQL (`WP_DATABASE_URL` ╨╕╨╗╨╕ `DATABASE_URL`). ╨Я╤А╨╕ ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╨╕ Postgres ╨╕╨╗╨╕ ╨┐╤А╨╕ ╤П╨▓╨╜╨╛╨╝ ╤Г╨║╨░╨╖╨░╨╜╨╕╨╕ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П **SQLite** (╤Д╨░╨╣╨╗ `data/wp_sync.db` ╨╕╨╗╨╕ ╨┐╤Г╤В╤М ╨╕╨╖ `WP_STORAGE_PATH`). ╨п╨▓╨╜╨╛╨╡ ╨▓╨║╨╗╤О╤З╨╡╨╜╨╕╨╡: `WP_STORAGE_BACKEND=sqlite` ╨╕╨╗╨╕ ╨▓ ╨║╨╛╨╜╤Д╨╕╨│╨╡ `storage_backend: sqlite`. **Fallback:** ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О ╨┐╤А╨╕ ╨╛╤И╨╕╨▒╨║╨╡ Postgres sync ╨╖╨░╨▓╨╡╤А╤И╨░╨╡╤В╤Б╤П ╤Б ╨╛╤И╨╕╨▒╨║╨╛╨╣; ╨┤╨╗╤П ╨░╨▓╤В╨╛-╨┐╨╡╤А╨╡╤Е╨╛╨┤╨░ ╨╜╨░ SQLite ╨╖╨░╨┤╨░╨╣╤В╨╡ `WP_STORAGE_FALLBACK=auto`.
+ - **╨Ь╨╕╨│╤А╨░╤Ж╨╕╨╕:** PostgreSQL тАФ DDL ╨▓ `migrations/wp/` (001тАУ006); SQLite тАФ ╤Б╨║╤А╨╕╨┐╤В╤Л ╨▓ `migrations/wp/sqlite/`, ╨┐╤А╨╕╨╝╨╡╨╜╤П╤О╤В╤Б╤П ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕ ╨┐╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╨╕.
+ - **╨Ъ╨╛╨╝╨░╨╜╨┤╤Л:**  
+   `python wp_sync_skill.py list-sites`  
+diff --git a/docs/README.md b/docs/README.md
+index d5cb23c..c11544b 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -20,6 +20,9 @@
+ | [wp-source-implementation-plan.md](wp-source-implementation-plan.md) | ╨Я╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П: MVP тЖТ hardening тЖТ scale |
+ | [wp-source-risks-and-open-questions.md](wp-source-risks-and-open-questions.md) | ╨а╨╕╤Б╨║╨╕, ╨╛╨│╤А╨░╨╜╨╕╤З╨╡╨╜╨╕╤П ╨╕ ╨╛╤В╨║╤А╤Л╤В╤Л╨╡ ╨▓╨╛╨┐╤А╨╛╤Б╤Л |
+ | [wp-source-setup.md](wp-source-setup.md) | ╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨░ WP sync: ╨║╨╛╨╜╤Д╨╕╨│, env, ╨╝╨╕╨│╤А╨░╤Ж╨╕╨╕, ╨╖╨░╨┐╤Г╤Б╨║ |
++| **WordPress Source тАФ Scale (Phase 2)** | |
++| [wp-source-scale-contract.md](wp-source-scale-contract.md) | ╨Ъ╨╛╨╜╤В╤А╨░╨║╤В ╤Н╤В╨░╨┐╨░ Scale: ╤Б╨╛╨▓╨╝╨╡╤Б╤В╨╕╨╝╨╛╤Б╤В╤М, ╤Д╨╗╨░╨│╨╕, ╨С╨Ф/JSON v2, ╨║╨╛╨┤╤Л ╨╛╤И╨╕╨▒╨╛╨║, ╨║╤А╨╕╤В╨╡╤А╨╕╨╕ ╨┐╤А╨╕╤С╨╝╨║╨╕ |
++| [wp-source-scale-tasks.md](wp-source-scale-tasks.md) | ╨в╨Ч-╨┐╨░╨║╨╡╤В╤Л S1тАУS5: content.raw, incremental, Gutenberg, performance, OpenClaw |
+ | [AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md](AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╨░╤А╤Е╨╕╤В╨╡╨║╤В╤Г╤А╤Л: ╤А╨░╤Б╤И╨╕╤А╤П╨╡╨╝╨╛╤Б╤В╤М, DRY, ╤Б╤В╤А╨░╤В╨╡╨│╨╕╤П ╨╝╨░╤Б╤И╤В╨░╨▒╨╕╤А╨╛╨▓╨░╨╜╨╕╤П |
+ | [AUDIT-IMPLEMENTATION-2026-02-21.md](AUDIT-IMPLEMENTATION-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╤А╨╡╨░╨╗╨╕╨╖╨░╤Ж╨╕╨╕ TG_Parser ╨╕ ╨┐╨╛╤И╨░╨│╨╛╨▓╤Л╨╣ ╨┐╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П (Phase 1тАУ4) |
+ 
+diff --git a/docs/wp-source-implementation-plan.md b/docs/wp-source-implementation-plan.md
+index 343256c..19c0c6d 100644
+--- a/docs/wp-source-implementation-plan.md
++++ b/docs/wp-source-implementation-plan.md
+@@ -93,11 +93,14 @@
+ 
+ ## 4. ╨н╤В╨░╨┐ Scale (╨┐╨╛ ╨╜╨╡╨╛╨▒╤Е╨╛╨┤╨╕╨╝╨╛╤Б╤В╨╕)
+ 
+-- **content.raw (phase 2):** ╨╛╨┐╤Ж╨╕╤П ╨╖╨░╨┐╤А╨╛╤Б╨░ ╤Б `context=edit` ╨┤╨╗╤П ╨┐╨╛╨╗╤Г╤З╨╡╨╜╨╕╤П ╤Б╤Л╤А╨╛╨│╨╛ ╤А╨╡╨┤╨░╨║╤В╨╛╤А╤Б╨║╨╛╨│╨╛ ╨║╨╛╨╜╤В╨╡╨╜╤В╨░; ╤Б╨╛╤Е╤А╨░╨╜╤П╤В╤М ╨▓ ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡ ╨╕╨╗╨╕ ╨╖╨░╨╝╨╡╨╜╨╕╤В╤М post_content ╨┐╨╛ ╨║╨╛╨╜╤Д╨╕╨│╤Г.
+-- **╨Ш╨╜╨║╤А╨╡╨╝╨╡╨╜╤В╨░╨╗╤М╨╜╨░╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╤П:** ╤Д╨╕╨╗╤М╤В╤А ╨┐╨╛ modified_after (╨╡╤Б╨╗╨╕ API ╨┐╨╛╨┤╨┤╨╡╤А╨╢╨╕╨▓╨░╨╡╤В) ╨╕╨╗╨╕ ╨║╤Н╤И ╨┐╨╛╤Б╨╗╨╡╨┤╨╜╨╡╨│╨╛ run ╨╕ ╨╖╨░╨┐╤А╨╛╤Б ╤В╨╛╨╗╤М╨║╨╛ ╨╕╨╖╨╝╨╡╨╜╤С╨╜╨╜╤Л╤Е id тАФ ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛╨╡ ╨в╨Ч.
+-- **Gutenberg raw comments:** ╨┐╨░╤А╤Б╨╕╨╜╨│ ╨▒╨╗╨╛╨║╨╛╨▓ ╨╕╨╖ post_content ╨╕╨╗╨╕ ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛╨╡ ╨┐╨╛╨╗╨╡; ╤А╨░╤Б╤И╨╕╤А╨╡╨╜╨╕╨╡ ╨╝╨░╨┐╨┐╨╕╨╜╨│╨░ ╨╕ ╨С╨Ф.
+-- **╨Я╤А╨╛╨╕╨╖╨▓╨╛╨┤╨╕╤В╨╡╨╗╤М╨╜╨╛╤Б╤В╤М:** ╨▒╨░╤В╤З╨╕╨╜╨│ ╨▓╤Б╤В╨░╨▓╨╛╨║, ╨┐╨░╤А╨░╨╗╨╗╨╡╨╗╤М╨╜╤Л╨╡ ╨╖╨░╨┐╤А╨╛╤Б╤Л ╨║ ╤А╨░╨╖╨╜╤Л╨╝ ╤Б╨░╨╣╤В╨░╨╝ (╤Б ╤Б╨╛╤Е╤А╨░╨╜╨╡╨╜╨╕╨╡╨╝ ╨╗╨╕╨╝╨╕╤В╨░ ╨╜╨░ ╤Б╨░╨╣╤В), ╨╕╨╜╨┤╨╡╨║╤Б╤Л ╨┐╨╛ ╨╖╨░╨┐╤А╨╛╤Б╨░╨╝ ╨░╨╜╨░╨╗╨╕╤В╨╕╨║╨╕.
+-- **╨Ю╤А╨║╨╡╤Б╤В╤А╨░╤Ж╨╕╤П:** ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╤П ╤Б OpenClaw (╨║╨╛╨╝╨░╨╜╨┤╤Л/╤В╤А╨╕╨│╨│╨╡╤А╤Л) тАФ ╨║╨╛╨╜╤Д╨╕╨│ ╨╜╨░ ╤Б╤В╨╛╤А╨╛╨╜╨╡ ╨╛╤А╨║╨╡╤Б╤В╤А╨░╤В╨╛╤А╨░.
++╨а╨╡╨░╨╗╨╕╨╖╨░╤Ж╨╕╤П тАФ ╨╛╤В╨┤╨╡╨╗╤М╨╜╤Л╨╝╨╕ ╨╖╨░╨┤╨░╤З╨░╨╝╨╕ S1тАУS5 ╨┐╨╛ ╨║╨╛╨╜╤В╤А╨░╨║╤В╤Г ╨╕ ╨в╨Ч-╨┐╨░╨║╨╡╤В╨░╨╝. ╨Ъ╨╛╨╜╤В╤А╨░╨║╤В ╨│╨░╤А╨░╨╜╤В╨╕╤А╤Г╨╡╤В ╤Б╨╛╨▓╨╝╨╡╤Б╤В╨╕╨╝╨╛╤Б╤В╤М ╤Б MVP (additive ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╤П, ╤Д╨╗╨░╨│╨╕ ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О = ╨┐╨╛╨▓╨╡╨┤╨╡╨╜╨╕╨╡ MVP).
++
++- **╨Ъ╨╛╨╜╤В╤А╨░╨║╤В ╨╕ ╨в╨Ч:** [wp-source-scale-contract](wp-source-scale-contract.md), [wp-source-scale-tasks](wp-source-scale-tasks.md).
++- **content.raw (S1):** ╨╛╨┐╤Ж╨╕╤П `context=edit`, ╨┐╨╛╨╗╨╡ `post_content_raw`, ╤Д╨╗╨░╨│ `WP_CONTENT_MODE=rendered|raw|both`.
++- **Incremental sync (S2):** `WP_SYNC_MODE=incremental`, ╤В╨░╨▒╨╗╨╕╤Ж╨░ `wp_sync_state`, watermark ╨▓ summary.
++- **Gutenberg (S3):** ╨┐╨░╤А╤Б╨╕╨╜╨│ raw comments, `gutenberg_blocks_json` / `gutenberg_blocks`, ╤Д╨╗╨░╨│ `WP_GUTENBERG_PARSE=basic`.
++- **Performance (S4):** ╨▒╨░╤В╤З upsert, ╨┐╨░╤А╨░╨╗╨╗╨╡╨╗╤М╨╜╨╛╤Б╤В╤М ╨┐╨╛ ╤Б╨░╨╣╤В╨░╨╝ (╨╗╨╕╨╝╨╕╤В ╨╜╨░ ╤Б╨░╨╣╤В ╤Б╨╛╤Е╤А╨░╨╜╤П╨╡╤В╤Б╤П), ╨╕╨╜╨┤╨╡╨║╤Б╤Л.
++- **OpenClaw (S5):** ╤Д╨╛╤А╨╝╨░╨╗╤М╨╜╤Л╨╣ ╨║╨╛╨╜╤В╤А╨░╨║╤В ╨║╨╛╨╝╨░╨╜╨┤╤Л, exit codes, stdout summary, cron ╨╕ retry policy.
+ 
+ ---
+ 
+diff --git a/docs/wp-source-setup.md b/docs/wp-source-setup.md
+index 3c6e0f5..38cddd8 100644
+--- a/docs/wp-source-setup.md
++++ b/docs/wp-source-setup.md
+@@ -34,6 +34,8 @@ requests_per_second: 3.0
+ # storage_backend: sqlite   # ╤А╨░╤Б╨║╨╛╨╝╨╝╨╡╨╜╤В╨╕╤А╨╛╨▓╨░╤В╤М ╨┤╨╗╤П ╨┐╤А╨╕╨╜╤Г╨┤╨╕╤В╨╡╨╗╤М╨╜╨╛╨│╨╛ SQLite
+ ```
+ 
++**╨Я╤А╨╕╨╛╤А╨╕╤В╨╡╤В ╨║╨╛╨╜╤Д╨╕╨│╤Г╤А╨░╤Ж╨╕╨╕ backend:** ╨╡╤Б╨╗╨╕ ╨▓ YAML ╨╖╨░╨┤╨░╨╜ `storage_backend`, ╨╛╨╜ ╨┐╨╡╤А╨╡╨╛╨┐╤А╨╡╨┤╨╡╨╗╤П╨╡╤В ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Г╤О ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П `WP_STORAGE_BACKEND` ╨╜╨░ ╨▓╤А╨╡╨╝╤П ╨╖╨░╨┐╤Г╤Б╨║╨░ sync (╨║╨╛╨╜╤Д╨╕╨│ ╨╕╨╝╨╡╨╡╤В ╨┐╤А╨╕╨╛╤А╨╕╤В╨╡╤В ╨╜╨░╨┤ env).
++
+ - `site_id` тАФ ╤Г╨╜╨╕╨║╨░╨╗╤М╨╜╤Л╨╣ ╨╕╨┤╨╡╨╜╤В╨╕╤Д╨╕╨║╨░╤В╨╛╤А ╤Б╨░╨╣╤В╨░ (╨╗╨░╤В╨╕╨╜╨╕╤Ж╨░, ╤Ж╨╕╤Д╤А╤Л, ╨┤╨╡╤Д╨╕╤Б).
+ - `base_url` тАФ ╨▒╨░╨╖╨╛╨▓╤Л╨╣ URL ╨▒╨╡╨╖ ╤Б╨╗╤Н╤И╨░ ╨▓ ╨║╨╛╨╜╤Ж╨╡.
+ - ╨б╨╡╨║╤А╨╡╤В╤Л **╨╜╨╡** ╤Е╤А╨░╨╜╤П╤В╤Б╤П ╨▓ YAML: ╤В╨╛╨╗╤М╨║╨╛ ╨▓ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╤Е ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П.
+@@ -63,9 +65,10 @@ WP_SITE_RODINA_APP_PASSWORD=yyyy yyyy yyyy yyyy
+ 
+ - **SQLite (fallback ╨╕╨╗╨╕ ╤П╨▓╨╜╨╛):**  
+   - `WP_STORAGE_BACKEND=sqlite` тАФ ╨┐╤А╨╕╨╜╤Г╨┤╨╕╤В╨╡╨╗╤М╨╜╨╛ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М SQLite.  
+-  - `WP_STORAGE_PATH` тАФ ╨┐╤Г╤В╤М ╨║ ╤Д╨░╨╣╨╗╤Г ╨С╨Ф (╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О `data/wp_sync.db` ╨▓ ╨║╨╛╤А╨╜╨╡ ╨┐╤А╨╛╨╡╨║╤В╨░).
++  - `WP_STORAGE_PATH` тАФ ╨┐╤Г╤В╤М ╨║ ╤Д╨░╨╣╨╗╤Г ╨С╨Ф (╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О `data/wp_sync.db` ╨▓ ╨║╨╛╤А╨╜╨╡ ╨┐╤А╨╛╨╡╨║╤В╨░).  
++  - **╨Я╨╛╨╗╨╕╤В╨╕╨║╨░ fallback:** ╨┐╤А╨╕ ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╨╕ PostgreSQL ╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О sync **╨╖╨░╨▓╨╡╤А╤И╨░╨╡╤В╤Б╤П ╤Б ╨╛╤И╨╕╨▒╨║╨╛╨╣** (fail fast). ╨з╤В╨╛╨▒╤Л ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕ ╨┐╨╡╤А╨╡╨║╨╗╤О╤З╨░╤В╤М╤Б╤П ╨╜╨░ SQLite, ╨╖╨░╨┤╨░╨╣╤В╨╡ `WP_STORAGE_FALLBACK=auto`. ╨а╨╡╨║╨╛╨╝╨╡╨╜╨┤╤Г╨╡╤В╤Б╤П ╨▓ prod ╨╛╤Б╤В╨░╨▓╨╗╤П╤В╤М `off` (╨╕╨╗╨╕ ╨╜╨╡ ╨╖╨░╨┤╨░╨▓╨░╤В╤М), ╤З╤В╨╛╨▒╤Л ╨╜╨╡ ╨┐╨╕╤Б╨░╤В╤М ╨▓ ╨╗╨╛╨║╨░╨╗╤М╨╜╤Г╤О ╨С╨Ф ╨┐╨╛ ╨╛╤И╨╕╨▒╨║╨╡.
+ 
+-**╨Я╨╛╨▓╨╡╨┤╨╡╨╜╨╕╨╡ fallback:** ╨╡╤Б╨╗╨╕ `WP_STORAGE_BACKEND` ╨╜╨╡ ╨╖╨░╨┤╨░╨╜ ╨╕ ╨╖╨░╨┤╨░╨╜ `WP_DATABASE_URL`, ╨┐╤А╨╕ ╤Б╤В╨░╤А╤В╨╡ sync ╨┤╨╡╨╗╨░╨╡╤В╤Б╤П ╨┐╨╛╨┐╤Л╤В╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╕╤В╤М╤Б╤П ╨║ PostgreSQL. ╨Я╤А╨╕ ╨╛╤И╨╕╨▒╨║╨╡ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П (╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╣ ╤Е╨╛╤Б╤В, ╨╜╨╡╨▓╨╡╤А╨╜╤Л╨╣ ╨┐╨░╤А╨╛╨╗╤М ╨╕ ╤В.╨┐.) backend ╨░╨▓╤В╨╛╨╝╨░╤В╨╕╤З╨╡╤Б╨║╨╕ ╨┐╨╡╤А╨╡╨║╨╗╤О╤З╨░╨╡╤В╤Б╤П ╨╜╨░ SQLite ╤Б ╨┐╤А╨╡╨┤╤Г╨┐╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╡╨╝ ╨▓ ╨╗╨╛╨│╨░╤Е. ╨Х╤Б╨╗╨╕ `WP_DATABASE_URL` ╨╜╨╡ ╨╖╨░╨┤╨░╨╜, ╤Б╤А╨░╨╖╤Г ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В╤Б╤П SQLite.
++**╨Я╨╛╨▓╨╡╨┤╨╡╨╜╨╕╨╡ fallback:** ╨╡╤Б╨╗╨╕ `WP_STORAGE_BACKEND` ╨╜╨╡ ╨╖╨░╨┤╨░╨╜, **╨╛╨▒╤П╨╖╨░╤В╨╡╨╗╨╡╨╜** `WP_DATABASE_URL` тАФ ╨╕╨╜╨░╤З╨╡ sync ╨╖╨░╨▓╨╡╤А╤И╨╕╤В╤Б╤П ╤Б ╨╛╤И╨╕╨▒╨║╨╛╨╣ (fail fast). ╨Я╤А╨╕ ╨╖╨░╨┤╨░╨╜╨╜╨╛╨╝ URL ╨┤╨╡╨╗╨░╨╡╤В╤Б╤П ╨┐╨╛╨┐╤Л╤В╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╕╤В╤М╤Б╤П ╨║ PostgreSQL. ╨Я╤А╨╕ ╨╛╤И╨╕╨▒╨║╨╡: ╨╡╤Б╨╗╨╕ `WP_STORAGE_FALLBACK=auto` тАФ ╨┐╨╡╤А╨╡╤Е╨╛╨┤ ╨╜╨░ SQLite ╤Б ╨┐╤А╨╡╨┤╤Г╨┐╤А╨╡╨╢╨┤╨╡╨╜╨╕╨╡╨╝ ╨▓ ╨╗╨╛╨│╨░╤Е; ╨╕╨╜╨░╤З╨╡ тАФ ╨╕╤Б╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ ╨╕ ╨▓╤Л╤Е╨╛╨┤ ╤Б ╨╛╤И╨╕╨▒╨║╨╛╨╣. ╨з╤В╨╛╨▒╤Л ╨╕╤Б╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╤М ╤В╨╛╨╗╤М╨║╨╛ SQLite ╨▒╨╡╨╖ Postgres, ╤П╨▓╨╜╨╛ ╨╖╨░╨┤╨░╨╣╤В╨╡ `WP_STORAGE_BACKEND=sqlite` (╤В╨╛╨│╨┤╨░ `WP_DATABASE_URL` ╨╜╨╡ ╨╜╤Г╨╢╨╡╨╜).
+ 
+ ## 3. Application Password ╨▓ WordPress (╨┐╨╛╤И╨░╨│╨╛╨▓╨╛)
+ 
+diff --git a/tests/test_wp_output.py b/tests/test_wp_output.py
+index fcb8eca..fe8b95c 100644
+--- a/tests/test_wp_output.py
++++ b/tests/test_wp_output.py
+@@ -18,6 +18,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
+ from wp.mapper import ContentRow, ContentTermRow, TermRow, post_to_content, content_embedded_terms
+ from wp.output import (
+     build_content_export_list,
++    build_multisite_aggregated,
+     build_multi_site_output,
+     build_single_site_output,
+     content_row_to_export_dict,
+@@ -138,6 +139,30 @@ def test_multi_site_output_is_array() -> bool:
+     return True
+ 
+ 
++def test_multisite_aggregated_format() -> bool:
++    """╨Р╨│╤А╨╡╨│╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╣ multi-site: ╨╛╨┤╨╕╨╜ ╨╛╨▒╤К╨╡╨║╤В ╤Б run_id, status, totals, sites."""
++    one = build_single_site_output({"run_id": "r1", "site_id": "a", "status": "success", "run_at": "", "error_code": None, "posts_count": 2, "pages_count": 1, "terms_count": 3, "authors_count": 1}, [])
++    two = build_single_site_output({"run_id": "r1", "site_id": "b", "status": "failed", "run_at": "", "error_code": "AUTH", "posts_count": 0, "pages_count": 0, "terms_count": 0, "authors_count": 0}, [])
++    out = build_multisite_aggregated("r1", 2, [one, two])  # exit 2 = partial
++    assert isinstance(out, dict)
++    assert out["run_id"] == "r1"
++    assert out["status"] == "partial"
++    assert "totals" in out
++    assert out["totals"]["sites"] == 2
++    assert out["totals"]["success"] == 1
++    assert out["totals"]["failed"] == 1
++    assert out["totals"]["posts_count"] == 2
++    assert out["totals"]["pages_count"] == 1
++    assert out["totals"]["terms_count"] == 3
++    assert out["totals"]["authors_count"] == 1
++    assert out["sites"] == [one, two]
++    out_success = build_multisite_aggregated("r2", 0, [one, one])
++    assert out_success["status"] == "success"
++    out_failed = build_multisite_aggregated("r3", 1, [two, two])
++    assert out_failed["status"] == "failed"
++    return True
++
++
+ def test_required_keys_present() -> bool:
+     """╨Т ╨┤╨╛╨║╤Г╨╝╨╡╨╜╤В╨╡ ╨║╨╛╨╜╤В╨╡╨╜╤В╨░ ╨╡╤Б╤В╤М ╨╛╨▒╤П╨╖╨░╤В╨╡╨╗╤М╨╜╤Л╨╡ ╨║╨╗╤О╤З╨╕ ╨║╨╛╨╜╤В╤А╨░╨║╤В╨░."""
+     row = _row()
+@@ -216,6 +241,7 @@ def run_all() -> bool:
+         ("content export empty taxonomies", test_content_export_empty_taxonomies),
+         ("single-site output is object", test_single_site_output_is_object),
+         ("multi-site output is array", test_multi_site_output_is_array),
++        ("multisite aggregated format", test_multisite_aggregated_format),
+         ("required keys present", test_required_keys_present),
+         ("post_content only rendered", test_post_content_only_rendered),
+         ("mapping from fixed API post with yoast", test_mapping_from_fixed_api_post_with_yoast),
+diff --git a/wp/storage.py b/wp/storage.py
+index ffd3e6f..6585e01 100644
+--- a/wp/storage.py
++++ b/wp/storage.py
+@@ -15,6 +15,7 @@ from .mapper import AuthorRow, ContentRow, ContentTermRow, TermRow
+ logger = logging.getLogger("wp.storage")
+ 
+ STORAGE_BACKEND_ENV = "WP_STORAGE_BACKEND"
++STORAGE_FALLBACK_ENV = "WP_STORAGE_FALLBACK"  # auto | off (╨┐╨╛ ╤Г╨╝╨╛╨╗╤З╨░╨╜╨╕╤О off тАФ fail fast ╨┐╤А╨╕ ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╨╛╤Б╤В╨╕ Postgres)
+ DATABASE_URL_ENV = "WP_DATABASE_URL"
+ 
+ 
+@@ -34,15 +35,20 @@ def _resolve_backend() -> str:
+         return "sqlite"
+     url = (os.environ.get(DATABASE_URL_ENV) or os.environ.get("DATABASE_URL") or "").strip()
+     if not url:
+-        logger.warning("WP_DATABASE_URL ╨╜╨╡ ╨╖╨░╨┤╨░╨╜ тАФ ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╨╝ SQLite fallback")
+-        return "sqlite"
++        raise ValueError(
++            "╨Ч╨░╨┤╨░╨╣╤В╨╡ WP_DATABASE_URL ╨┤╨╗╤П PostgreSQL ╨╕╨╗╨╕ ╤П╨▓╨╜╨╛ ╤Г╨║╨░╨╢╨╕╤В╨╡ WP_STORAGE_BACKEND=sqlite."
++        )
+     try:
+         conn = _pg_connect()
+         conn.close()
+         return "postgres"
+     except Exception as e:
+-        logger.warning("PostgreSQL ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╡╨╜ (%s), ╨┐╨╡╤А╨╡╨║╨╗╤О╤З╨░╨╡╨╝╤Б╤П ╨╜╨░ SQLite", e)
+-        return "sqlite"
++        fallback = (os.environ.get(STORAGE_FALLBACK_ENV) or "off").strip().lower()
++        if fallback == "auto":
++            logger.warning("PostgreSQL ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╡╨╜ (%s), ╨┐╨╡╤А╨╡╨║╨╗╤О╤З╨░╨╡╨╝╤Б╤П ╨╜╨░ SQLite (WP_STORAGE_FALLBACK=auto)", e)
++            return "sqlite"
++        logger.error("PostgreSQL ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╡╨╜ (%s). ╨Ф╨╗╤П ╨░╨▓╤В╨╛-╨┐╨╡╤А╨╡╤Е╨╛╨┤╨░ ╨╜╨░ SQLite ╨╖╨░╨┤╨░╨╣╤В╨╡ WP_STORAGE_FALLBACK=auto", e)
++        raise
+ 
+ 
+ _backend: Optional[str] = None
+diff --git a/wp_sync_skill.py b/wp_sync_skill.py
+index c959655..3e2054c 100644
+--- a/wp_sync_skill.py
++++ b/wp_sync_skill.py
+@@ -243,8 +243,9 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
+         _print_err_utf8(f"Error: {e}")
+         return EXIT_FAILURE, []
+ 
++    # ╨Я╤А╨╕╨╛╤А╨╕╤В╨╡╤В: ╨║╨╛╨╜╤Д╨╕╨│ (YAML) ╨┐╨╡╤А╨╡╨╛╨┐╤А╨╡╨┤╨╡╨╗╤П╨╡╤В env тАФ ╨╡╤Б╨╗╨╕ ╨▓ ╨║╨╛╨╜╤Д╨╕╨│╨╡ ╨╖╨░╨┤╨░╨╜ storage_backend, ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╨╝ ╨╡╨│╨╛
+     if getattr(cfg, "storage_backend", None):
+-        os.environ.setdefault(STORAGE_BACKEND_ENV, cfg.storage_backend)
++        os.environ[STORAGE_BACKEND_ENV] = cfg.storage_backend
+ 
+     sites = [s for s in cfg.sites if args.site is None or s.site_id == args.site]
+     if not sites:

@@ -28,6 +28,7 @@ class WPSyncConfig:
     timeout_sec: int = 30
     retries: int = 3
     requests_per_second: float = 3.0  # пауза между запросами = 1/requests_per_second
+    storage_backend: Optional[str] = None  # 'sqlite' или пусто (Postgres/авто)
 
 
 def _env_key(site_id: str, suffix: str) -> str:
@@ -121,6 +122,9 @@ def load_config(
     rps = float(data.get("requests_per_second", 3.0))
     if rps <= 0:
         rps = 3.0
+    storage_backend = (data.get("storage_backend") or "").strip().lower() or None
+    if storage_backend and storage_backend not in ("sqlite", "postgres"):
+        storage_backend = None
 
     return WPSyncConfig(
         sites=site_configs,
@@ -128,4 +132,5 @@ def load_config(
         timeout_sec=timeout_sec,
         retries=retries,
         requests_per_second=rps,
+        storage_backend=storage_backend,
     )
