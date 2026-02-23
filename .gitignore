@@ -30,6 +30,8 @@ dist/
 .cursor/codex-config.json
 .cursor/codex-config.*.json
 !.cursor/codex-config.example.json
+# MCP: копировать из .cursor/mcp.json.example, подставить строку подключения к БД Pipeline
+.cursor/mcp.json
 
 # --- Telethon session files (credentials/state) ---
 telegram_session*

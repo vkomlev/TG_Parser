@@ -1,0 +1,11 @@
+# Конфигурация WordPress-сайтов. Секреты — из env: WP_SITE_<site_id>_USER, WP_SITE_<site_id>_APP_PASSWORD
+sites:
+  - site_id: komlev
+    base_url: https://victor-komlev.ru
+    name: Victor Komlev
+  - site_id: sicily
+    base_url: https://sicily-travel.ru
+    name: Sicily Travel
+  - site_id: rodina
+    base_url: https://rodina-road.ru
+    name: Rodina Road

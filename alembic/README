@@ -1,0 +1,13 @@
+# Alembic: миграции PostgreSQL (WordPress Source, БД Pipeline)
+
+- URL подключения берётся из переменных окружения `WP_DATABASE_URL` или `DATABASE_URL` (файл `.env`).
+- Ревизии в `alembic/versions/`. Первая ревизия `001` создаёт таблицы WP (`wp_sites`, `wp_sync_runs`, `wp_authors`, `wp_terms`, `wp_content`, `wp_content_terms`).
+
+Команды (из корня проекта, с активированным .venv):
+
+  alembic upgrade head   # применить все миграции
+  alembic current        # текущая ревизия
+  alembic downgrade -1   # откатить одну ревизию
+  alembic revision -m "описание"   # создать заготовку новой миграции
+
+Подробнее: docs/wp-source-setup.md, раздел «Миграции PostgreSQL (Alembic)».

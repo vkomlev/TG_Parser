@@ -1,0 +1,22 @@
+# Конфигурация WordPress-сайтов для синхронизации (WP Source).
+# Скопируйте в config/wp-sites.yml и заполните base_url и при необходимости name.
+# Секреты (логин, Application Password) в конфиг НЕ пишем — только в .env:
+#   WP_SITE_<site_id>_USER          — логин WP (например admin)
+#   WP_SITE_<site_id>_APP_PASSWORD  — Application Password (профиль пользователя WP → Application Passwords)
+# site_id в переменных окружения — в ВЕРХНЕМ регистре, дефис заменять на подчёркивание (например second-site → WP_SITE_SECOND_SITE_USER).
+
+sites:
+  - site_id: main
+    base_url: https://example.com
+    name: Main Site
+
+  # Второй сайт (раскомментируйте и заполните; добавьте в .env WP_SITE_SECOND_SITE_USER и WP_SITE_SECOND_SITE_APP_PASSWORD)
+  # - site_id: second-site
+  #   base_url: https://blog.example.com
+  #   name: Blog
+
+# Опционально: глобальные параметры (по умолчанию уже заданы в коде)
+# per_page: 100
+# timeout_sec: 30
+# retries: 3
+# requests_per_second: 3.0

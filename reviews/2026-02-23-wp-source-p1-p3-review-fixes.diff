@@ -1,0 +1,154 @@
+﻿diff --git a/.cursor/rules/smoke-testing.mdc b/.cursor/rules/smoke-testing.mdc
+index 7a94454..3711922 100644
+--- a/.cursor/rules/smoke-testing.mdc
++++ b/.cursor/rules/smoke-testing.mdc
+@@ -1,16 +1,30 @@
+----
+-description: Smoke-╤В╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ API ╤Н╨╜╨┤╨┐╨╛╨╕╨╜╤В╨╛╨▓
++я╗┐---
++description: Smoke-╤В╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ CLI, ╤Б╨║╤А╨╕╨┐╤В╨╛╨▓ ╨╕ ╤Ж╨╡╨╗╨╛╤Б╤В╨╜╨╛╤Б╤В╨╕ ╨┤╨░╨╜╨╜╤Л╤Е
+ alwaysApply: true
+ ---
+ 
+-# Smoke-╤В╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡ API
++# Smoke-╤В╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡
+ 
+ ## ╨Я╨╛╨┤╤Е╨╛╨┤
+-- ╨Т╨░╨╗╨╕╨┤╨░╤Ж╨╕╤П ╤А╨╡╨╖╤Г╨╗╤М╤В╨░╤В╨╛╨▓: ╨С╨Ф (╤З╨╡╤А╨╡╨╖ MCP), ╨╗╨╛╨│╨╕ ╨▓ `logs/app.log`
++- ╨Ф╨╗╤П ╤Н╤В╨╛╨│╨╛ ╨┐╤А╨╛╨╡╨║╤В╨░ smoke-╨┐╤А╨╛╨▓╨╡╤А╨║╨╕ ╨▓╤Л╨┐╨╛╨╗╨╜╤П╤О╤В╤Б╤П ╨▓ ╨┐╨╡╤А╨▓╤Г╤О ╨╛╤З╨╡╤А╨╡╨┤╤М ╤З╨╡╤А╨╡╨╖ CLI ╨╕ PowerShell-╤Б╨║╤А╨╕╨┐╤В╤Л, ╨░ ╨╜╨╡ ╤В╨╛╨╗╤М╨║╨╛ ╤З╨╡╤А╨╡╨╖ HTTP/CURL.
++- ╨Т╨░╨╗╨╕╨┤╨╕╤А╨╛╨▓╨░╤В╤М ╤А╨╡╨╖╤Г╨╗╤М╤В╨░╤В ╨┐╨╛ ╤В╤А╤С╨╝ ╨╕╤Б╤В╨╛╤З╨╜╨╕╨║╨░╨╝:
++  1. stdout/stderr ╨║╨╛╨╝╨░╨╜╨┤╤Л,
++  2. ╨╗╨╛╨│╨╕ (`logs/app.log` ╨╕ ╤Н╨║╤Б╨┐╨╛╤А╤В╨╜╤Л╨╡ `*/logs/run.log`, `*/logs/errors.log`),
++  3. ╨┤╨░╨╜╨╜╤Л╨╡ ╨▓ ╨С╨Ф (╤З╨╡╤А╨╡╨╖ MCP, ╨╗╨╕╨▒╨╛ `psql` fallback).
+ 
+ ## ╨ж╨╕╨║╨╗ ╨┐╤А╨╕ ╨┐╤А╨╛╨▓╨░╨╗╨╡ ╤В╨╡╤Б╤В╨╛╨▓
+-1. ╨Р╨╜╨░╨╗╨╕╨╖╨╕╤А╤Г╨╣ ╨╗╨╛╨│╨╕
+-2. ╨Ш╤Б╨┐╤А╨░╨▓╨╗╤П╨╣ ╨╛╤И╨╕╨▒╨║╨╕
+-3. ╨Я╨╛╨▓╤В╨╛╤А╤П╨╣ ╤В╨╡╤Б╤В╤Л
+-4. ╨Я╤А╨╡╤А╤Л╨▓╨░╨╣╤Б╤П ╤В╨╛╨╗╤М╨║╨╛ ╨╡╤Б╨╗╨╕ ╨╜╤Г╨╢╨╜╤Л ╨┤╨╡╨╣╤Б╤В╨▓╨╕╤П ╨╛╤В ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П (╨┐╨╛╨┤╤В╨▓╨╡╤А╨╢╨┤╨╡╨╜╨╕╨╡, ╨▓╤Л╨▒╨╛╤А ╨▓╨░╤А╨╕╨░╨╜╤В╨░, ╨╜╨╡╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л╨╡ ╨┤╨░╨╜╨╜╤Л╨╡)
++1. ╨Ч╨░╤Д╨╕╨║╤Б╨╕╤А╤Г╨╣ ╤В╨╛╤З╨╜╤Г╤О ╨║╨╛╨╝╨░╨╜╨┤╤Г, exit code ╨╕ ╨║╨╗╤О╤З╨╡╨▓╤Л╨╡ ╤Б╤В╤А╨╛╨║╨╕ ╨╛╤И╨╕╨▒╨║╨╕.
++2. ╨Я╤А╨╛╨▓╨╡╤А╤М ╨╗╨╛╨│╨╕ ╨╕ ╤Б╨╛╤Б╤В╨╛╤П╨╜╨╕╨╡ ╨С╨Ф.
++3. ╨Ш╤Б╨┐╤А╨░╨▓╤М ╨┐╤А╨╕╤З╨╕╨╜╤Г.
++4. ╨Я╨╛╨▓╤В╨╛╤А╨╕ ╤В╨╛╤В ╨╢╨╡ smoke-╨║╨╡╨╣╤Б.
++5. ╨Я╤А╨╡╤А╤Л╨▓╨░╨╣╤Б╤П ╤В╨╛╨╗╤М╨║╨╛ ╨╡╤Б╨╗╨╕ ╨╜╤Г╨╢╨╜╤Л ╨┤╨╡╨╣╤Б╤В╨▓╨╕╤П ╨┐╨╛╨╗╤М╨╖╨╛╨▓╨░╤В╨╡╨╗╤П (╤Б╨╡╨║╤А╨╡╤В╤Л, ╨┤╨╛╤Б╤В╤Г╨┐╤Л, ╨▓╨╜╨╡╤И╨╜╨╕╨╣ ╤Б╨╡╤А╨▓╨╕╤Б, ╨┐╨╛╨┤╤В╨▓╨╡╤А╨╢╨┤╨╡╨╜╨╕╨╡ ╨▓╤Л╨▒╨╛╤А╨░).
++
++## ╨Ь╨╕╨╜╨╕╨╝╨░╨╗╤М╨╜╤Л╨╣ smoke-╤З╨╡╨║╨╗╨╕╤Б╤В
++- ╨Ъ╨╛╨╝╨░╨╜╨┤╨░ ╨╖╨░╨┐╤Г╤Б╨║╨░╨╡╤В╤Б╤П ╨▒╨╡╨╖ ╤Б╨╕╨╜╤В╨░╨║╤Б╨╕╤З╨╡╤Б╨║╨╕╤Е ╨╛╤И╨╕╨▒╨╛╨║.
++- Exit code ╤Б╨╛╨╛╤В╨▓╨╡╤В╤Б╤В╨▓╤Г╨╡╤В ╨║╨╛╨╜╤В╤А╨░╨║╤В╤Г (`0/1/2/130`, ╨│╨┤╨╡ ╨┐╤А╨╕╨╝╨╡╨╜╨╕╨╝╨╛).
++- ╨Т summary/╨╗╨╛╨│╨░╤Е ╨╡╤Б╤В╤М ╨╛╨╢╨╕╨┤╨░╨╡╨╝╤Л╨╡ ╨┐╨╛╨╗╤П (`run_id`, `error_code`, ╤Б╤З╤С╤В╤З╨╕╨║╨╕).
++- ╨Т ╨С╨Ф ╨┐╨╛╤П╨▓╨╕╨╗╨╕╤Б╤М/╨╛╨▒╨╜╨╛╨▓╨╕╨╗╨╕╤Б╤М ╨╛╨╢╨╕╨┤╨░╨╡╨╝╤Л╨╡ ╨╖╨░╨┐╨╕╤Б╨╕ (╨╡╤Б╨╗╨╕ ╤Б╤Ж╨╡╨╜╨░╤А╨╕╨╣ ╨▓╨║╨╗╤О╤З╨░╨╡╤В ╨С╨Ф).
+ 
++## ╨в╨╡╤Б╤В╨╛╨▓╤Л╨╡ ╨┤╨░╨╜╨╜╤Л╨╡
++- ╨Ш╤Б╤В╨╛╤З╨╜╨╕╨║ ╤В╨╡╤Б╤В╨╛╨▓╤Л╤Е ╨┤╨░╨╜╨╜╤Л╤Е: ╤А╨╡╨░╨╗╤М╨╜╨░╤П ╨С╨Ф (read-only) ╨╕╨╗╨╕ ╨╖╨░╤А╨░╨╜╨╡╨╡ ╨┐╨╛╨┤╨│╨╛╤В╨╛╨▓╨╗╨╡╨╜╨╜╤Л╨╡ ╤В╨╡╤Б╤В╨╛╨▓╤Л╨╡ ╨░╤А╤В╨╡╤Д╨░╨║╤В╤Л ╨┐╤А╨╛╨╡╨║╤В╨░.
++- ╨Ф╨╛╨▒╨░╨▓╨╗╨╡╨╜╨╕╨╡ ╨╝╨╛╨║-╨┤╨░╨╜╨╜╤Л╤Е ╨▓ ╨С╨Ф ╨┤╨╛╨┐╤Г╤Б╤В╨╕╨╝╨╛ ╤В╨╛╨╗╤М╨║╨╛ ╨╡╤Б╨╗╨╕ ╤Н╤В╨╛ ╤П╨▓╨╜╨╛ ╤В╤А╨╡╨▒╤Г╨╡╤В╤Б╤П ╨в╨Ч ╨╕ ╨▓╤Л╨┐╨╛╨╗╨╜╤П╨╡╤В╤Б╤П ╤З╨╡╤А╨╡╨╖ ╨╝╨╕╨│╤А╨░╤Ж╨╕╨╕/╤Б╨║╤А╨╕╨┐╤В╤Л ╨┐╤А╨╛╨╡╨║╤В╨░.
+diff --git a/.env.example b/.env.example
+index 25e0835..de4f9f3 100644
+--- a/.env.example
++++ b/.env.example
+@@ -1,3 +1,4 @@
++# ========== Telegram Parser ==========
+ # Required
+ TELEGRAM_API_ID=your_api_id
+ TELEGRAM_API_HASH=your_api_hash
+@@ -7,3 +8,22 @@ TELEGRAM_PHONE=+70000000000
+ 
+ # Optional: if 2FA enabled, parser will use this password (or ask interactively)
+ TELEGRAM_2FA_PASSWORD=your_2fa_password
++
++# ========== PostgreSQL (Pipeline) ==========
++# ╨б╤В╤А╨╛╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨║ ╨С╨Ф Pipeline (╨┤╨╗╤П WP sync ╨╕ ╨┐╤А╨╕ ╨╜╨╡╨╛╨▒╤Е╨╛╨┤╨╕╨╝╨╛╤Б╤В╨╕ ╨┤╨╗╤П MCP).
++# WP sync ╨╕╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╡╤В WP_DATABASE_URL ╨╕╨╗╨╕, ╨╡╤Б╨╗╨╕ ╨╜╨╡ ╨╖╨░╨┤╨░╨╜, DATABASE_URL.
++# ╨Ф╨╗╤П MCP ╨▓ Cursor ╨╖╨░╨┤╨░╤С╤В╤Б╤П ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛ ╨▓ .cursor/mcp.json (╤Б╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨╕╨╖ .cursor/mcp.json.example).
++DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/Pipeline
++# ╨Р╨╗╤М╤В╨╡╤А╨╜╨░╤В╨╕╨▓╨╜╨╛╨╡ ╨╕╨╝╤П ╨┤╨╗╤П WP sync (╨╡╤Б╨╗╨╕ ╤Е╨╛╤В╨╕╤В╨╡ ╤А╨░╨╖╨┤╨╡╨╗╨╕╤В╤М ╨С╨Ф)
++# WP_DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/Pipeline
++
++# ========== WordPress Source (sync) ==========
++# ╨Ф╨╗╤П ╨║╨░╨╢╨┤╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░ ╨╕╨╖ config/wp-sites.yml ╨╖╨░╨┤╨░╨╣╤В╨╡ ╨┐╨░╤А╤Г ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╤Е.
++# ╨Ш╨╝╤П: WP_SITE_<site_id>_USER ╨╕ WP_SITE_<site_id>_APP_PASSWORD (site_id ╨▓ ╨▓╨╡╤А╤Е╨╜╨╡╨╝ ╤А╨╡╨│╨╕╤Б╤В╤А╨╡, ╨┤╨╡╤Д╨╕╤Б тЖТ ╨┐╨╛╨┤╤З╤С╤А╨║╨╕╨▓╨░╨╜╨╕╨╡).
++# ╨Я╤А╨╕╨╝╨╡╤А ╨┤╨╗╤П site_id: main
++WP_SITE_MAIN_USER=wp_admin_login
++WP_SITE_MAIN_APP_PASSWORD=xxxx xxxx xxxx xxxx
++
++# ╨Я╤А╨╕╨╝╨╡╤А ╨┤╨╗╤П ╨▓╤В╨╛╤А╨╛╨│╨╛ ╤Б╨░╨╣╤В╨░ (site_id: blog)
++# WP_SITE_BLOG_USER=admin
++# WP_SITE_BLOG_APP_PASSWORD=yyyy yyyy yyyy yyyy
+diff --git a/.gitignore b/.gitignore
+index c121104..9ffbe2a 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -30,6 +30,8 @@ dist/
+ .cursor/codex-config.json
+ .cursor/codex-config.*.json
+ !.cursor/codex-config.example.json
++# MCP: ╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨╕╨╖ .cursor/mcp.json.example, ╨┐╨╛╨┤╤Б╤В╨░╨▓╨╕╤В╤М ╤Б╤В╤А╨╛╨║╤Г ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨║ ╨С╨Ф Pipeline
++.cursor/mcp.json
+ 
+ # --- Telethon session files (credentials/state) ---
+ telegram_session*
+diff --git a/README.md b/README.md
+index b09cb74..473c477 100644
+--- a/README.md
++++ b/README.md
+@@ -48,6 +48,16 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
+ - ╨б╨╡╨║╤А╨╡╤В╤Л ╨╜╨╡ ╨▓╤Л╨▓╨╛╨┤╤П╤В╤Б╤П ╨▓ ╨╗╨╛╨│╨╕
+ - ╨Т╤А╨╡╨╝╤П ╨▓ JSON ╨╕ ╨╗╨╛╨│╨░╤Е тАФ UTC ╨▓ ╤Д╨╛╤А╨╝╨░╤В╨╡ ISO (`YYYY-MM-DDTHH:mm:ssZ`)
+ 
++## WordPress Source (sync ╨▓ PostgreSQL)
++
++╨Ю╤В╨┤╨╡╨╗╤М╨╜╨░╤П ╤В╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░ ╨┤╨╗╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╨╕ WordPress-╤Б╨░╨╣╤В╨╛╨▓ ╨▓ PostgreSQL (╤В╨╛╨╗╤М╨║╨╛ ╤З╤В╨╡╨╜╨╕╨╡, full sync).
++
++- **╨Ъ╨╛╨╜╤Д╨╕╨│:** `config/wp-sites.yml`; ╤Б╨╡╨║╤А╨╡╤В╤Л тАФ ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`.
++- **╨Ь╨╕╨│╤А╨░╤Ж╨╕╨╕:** ╨┐╤А╨╕╨╝╨╡╨╜╨╕╤В╤М DDL ╨╕╨╖ `migrations/wp/` ╨▓ ╨┐╨╛╤А╤П╨┤╨║╨╡ 001тАУ006 ╨║ PostgreSQL.
++- **╨Я╨╡╤А╨╡╨╝╨╡╨╜╨╜╨░╤П ╨С╨Ф:** `WP_DATABASE_URL` (╨╕╨╗╨╕ `DATABASE_URL`) тАФ ╤Б╤В╤А╨╛╨║╨░ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П ╨║ PostgreSQL.
++- **╨Ъ╨╛╨╝╨░╨╜╨┤╤Л:** `python wp_sync_skill.py list-sites`, `python wp_sync_skill.py sync [--site SITE_ID]`.
++- ╨Я╨╛╨┤╤А╨╛╨▒╨╜╨╡╨╡: [docs/wp-source-architecture.md](docs/wp-source-architecture.md), [docs/wp-source-implementation-plan.md](docs/wp-source-implementation-plan.md).
++
+ ## ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╤П
+ 
+ - **OpenClaw / ╤Б╨║╨╕╨╗╨╗╤Л**: ╨║╨╛╨╝╨░╨╜╨┤╤Л ╨╝╨╛╨╢╨╜╨╛ ╤Б╨╛╨┐╨╛╤Б╤В╨░╨▓╨╕╤В╤М ╤Б `telegram_parser_skill.py` (╤Б╨╝. [CLI](docs/cli.md))
+diff --git a/docs/README.md b/docs/README.md
+index 4ed7e8a..d5cb23c 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -11,6 +11,15 @@
+ | [logging.md](logging.md) | ╨Ы╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: ╤Д╨╛╤А╨╝╨░╤В╤Л ╨╗╨╛╨│╨╛╨▓, ╤А╨╛╤В╨░╤Ж╨╕╤П, ╤А╨░╤Б╨┐╨╛╨╗╨╛╨╢╨╡╨╜╨╕╨╡ (app.log, run.log, errors.log) |
+ | [functions.md](functions.md) | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╨╛╤Б╨╜╨╛╨▓╨╜╤Л╤Е ╤Д╤Г╨╜╨║╤Ж╨╕╨╣ ╨╕ ╨║╨╗╨░╤Б╤Б╨╛╨▓ ╨╝╨╛╨┤╤Г╨╗╨╡╨╣ ╨┐╨░╤А╤Б╨╡╤А╨░ |
+ | [contracts-adapters.md](contracts-adapters.md) | Phase 3: ╨║╨╛╨╜╤В╤А╨░╨║╤В ContentItem, SourceAdapter, DestinationAdapter |
++| **WordPress Source (╨┐╤А╨╛╨╡╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡)** | |
++| [wp-source-architecture.md](wp-source-architecture.md) | ╨Р╤А╤Е╨╕╤В╨╡╨║╤В╤Г╤А╨░ WP Source: ╨▓╤Б╤В╤А╨░╨╕╨▓╨░╨╜╨╕╨╡ ╨▓ ╨┐╤А╨╛╨╡╨║╤В, ╨┐╨╛╤В╨╛╨║ ╨┤╨░╨╜╨╜╤Л╤Е, ╨╜╨░╨▒╨╗╤О╨┤╨░╨╡╨╝╨╛╤Б╤В╤М |
++| [wp-source-data-model-postgres.md](wp-source-data-model-postgres.md) | ╨Ь╨╛╨┤╨╡╨╗╤М ╨┤╨░╨╜╨╜╤Л╤Е ╨╕ DDL PostgreSQL ╨┤╨╗╤П WP (sites, sync_runs, authors, terms, content) |
++| [wp-source-api-mapping.md](wp-source-api-mapping.md) | ╨Ь╨░╨┐╨┐╨╕╨╜╨│ WP REST API: posts, pages, terms, users, SEO |
++| [wp-source-sync-strategy.md](wp-source-sync-strategy.md) | ╨б╤В╤А╨░╤В╨╡╨│╨╕╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╨╕: full sync, retry, rate limit, ╨╕╨┤╨╡╨╝╨┐╨╛╤В╨╡╨╜╤В╨╜╨╛╤Б╤В╤М |
++| [wp-source-test-plan.md](wp-source-test-plan.md) | ╨Я╨╗╨░╨╜ ╤В╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П ╨╕ ╨║╤А╨╕╤В╨╡╤А╨╕╨╕ ╨┐╤А╨╕╤С╨╝╨║╨╕ MVP |
++| [wp-source-implementation-plan.md](wp-source-implementation-plan.md) | ╨Я╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П: MVP тЖТ hardening тЖТ scale |
++| [wp-source-risks-and-open-questions.md](wp-source-risks-and-open-questions.md) | ╨а╨╕╤Б╨║╨╕, ╨╛╨│╤А╨░╨╜╨╕╤З╨╡╨╜╨╕╤П ╨╕ ╨╛╤В╨║╤А╤Л╤В╤Л╨╡ ╨▓╨╛╨┐╤А╨╛╤Б╤Л |
++| [wp-source-setup.md](wp-source-setup.md) | ╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨░ WP sync: ╨║╨╛╨╜╤Д╨╕╨│, env, ╨╝╨╕╨│╤А╨░╤Ж╨╕╨╕, ╨╖╨░╨┐╤Г╤Б╨║ |
+ | [AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md](AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╨░╤А╤Е╨╕╤В╨╡╨║╤В╤Г╤А╤Л: ╤А╨░╤Б╤И╨╕╤А╤П╨╡╨╝╨╛╤Б╤В╤М, DRY, ╤Б╤В╤А╨░╤В╨╡╨│╨╕╤П ╨╝╨░╤Б╤И╤В╨░╨▒╨╕╤А╨╛╨▓╨░╨╜╨╕╤П |
+ | [AUDIT-IMPLEMENTATION-2026-02-21.md](AUDIT-IMPLEMENTATION-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╤А╨╡╨░╨╗╨╕╨╖╨░╤Ж╨╕╨╕ TG_Parser ╨╕ ╨┐╨╛╤И╨░╨│╨╛╨▓╤Л╨╣ ╨┐╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П (Phase 1тАУ4) |
+ 
+diff --git a/errors.py b/errors.py
+index f2f3d0b..8196798 100644
+--- a/errors.py
++++ b/errors.py
+@@ -11,3 +11,9 @@ DATA_FORMAT_ERROR = "DATA_FORMAT_ERROR"
+ EXTERNAL_API_ERROR = "EXTERNAL_API_ERROR"
+ PARTIAL_FAILURE = "PARTIAL_FAILURE"
+ SESSION_LOCKED = "SESSION_LOCKED"  # ╤Б╨╡╤Б╤Б╨╕╤П ╨╖╨░╨╜╤П╤В╨░ ╨┤╤А╤Г╨│╨╕╨╝ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨╛╨╝ ╨╕╨╗╨╕ database is locked ╨┐╨╛╤Б╨╗╨╡ ╨╕╤Б╤З╨╡╤А╨┐╨░╨╜╨╕╤П retry
++
++# WordPress Source (wp_sync_skill)
++WP_AUTH_ERROR = "WP_AUTH_ERROR"  # 401/403 ╨┐╤А╨╕ ╨╛╨▒╤А╨░╤Й╨╡╨╜╨╕╨╕ ╨║ WP REST API
++WP_RATE_LIMIT = "WP_RATE_LIMIT"  # 429 ╨╕╨╗╨╕ ╨┐╤А╨╡╨▓╤Л╤И╨╡╨╜╨╕╨╡ ╨╗╨╕╨╝╨╕╤В╨░ ╨╖╨░╨┐╤А╨╛╤Б╨╛╨▓
++WP_NETWORK_ERROR = "WP_NETWORK_ERROR"  # ╤В╨░╨╣╨╝╨░╤Г╤В, 5xx, ╤Б╨╛╨╡╨┤╨╕╨╜╨╡╨╜╨╕╨╡ ╨╛╤В╨║╨╗╨╛╨╜╨╡╨╜╨╛
++WP_DATA_FORMAT_ERROR = "WP_DATA_FORMAT_ERROR"  # ╨╜╨╡╨╛╨╢╨╕╨┤╨░╨╜╨╜╨░╤П ╤Б╤В╤А╤Г╨║╤В╤Г╤А╨░ ╨╛╤В╨▓╨╡╤В╨░ ╨╕╨╗╨╕ ╨╜╨╡╨▓╨░╨╗╨╕╨┤╨╜╤Л╨╣ JSON
+diff --git a/requirements.txt b/requirements.txt
+index bdbadd6..59184ca 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,2 +1,6 @@
+ telethon>=1.36.0
+ python-dotenv>=1.0.1
++PyYAML>=6.0
++requests>=2.28.0
++psycopg2-binary>=2.9.0
++alembic>=1.13.0

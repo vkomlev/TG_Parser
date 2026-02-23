@@ -1,0 +1,19 @@
+﻿diff --git a/docs/README.md b/docs/README.md
+index 4ed7e8a..8d22054 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -11,6 +11,14 @@
+ | [logging.md](logging.md) | ╨Ы╨╛╨│╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡: ╤Д╨╛╤А╨╝╨░╤В╤Л ╨╗╨╛╨│╨╛╨▓, ╤А╨╛╤В╨░╤Ж╨╕╤П, ╤А╨░╤Б╨┐╨╛╨╗╨╛╨╢╨╡╨╜╨╕╨╡ (app.log, run.log, errors.log) |
+ | [functions.md](functions.md) | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ ╨╛╤Б╨╜╨╛╨▓╨╜╤Л╤Е ╤Д╤Г╨╜╨║╤Ж╨╕╨╣ ╨╕ ╨║╨╗╨░╤Б╤Б╨╛╨▓ ╨╝╨╛╨┤╤Г╨╗╨╡╨╣ ╨┐╨░╤А╤Б╨╡╤А╨░ |
+ | [contracts-adapters.md](contracts-adapters.md) | Phase 3: ╨║╨╛╨╜╤В╤А╨░╨║╤В ContentItem, SourceAdapter, DestinationAdapter |
++| **WordPress Source (╨┐╤А╨╛╨╡╨║╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╨╡)** | |
++| [wp-source-architecture.md](wp-source-architecture.md) | ╨Р╤А╤Е╨╕╤В╨╡╨║╤В╤Г╤А╨░ WP Source: ╨▓╤Б╤В╤А╨░╨╕╨▓╨░╨╜╨╕╨╡ ╨▓ ╨┐╤А╨╛╨╡╨║╤В, ╨┐╨╛╤В╨╛╨║ ╨┤╨░╨╜╨╜╤Л╤Е, ╨╜╨░╨▒╨╗╤О╨┤╨░╨╡╨╝╨╛╤Б╤В╤М |
++| [wp-source-data-model-postgres.md](wp-source-data-model-postgres.md) | ╨Ь╨╛╨┤╨╡╨╗╤М ╨┤╨░╨╜╨╜╤Л╤Е ╨╕ DDL PostgreSQL ╨┤╨╗╤П WP (sites, sync_runs, authors, terms, content) |
++| [wp-source-api-mapping.md](wp-source-api-mapping.md) | ╨Ь╨░╨┐╨┐╨╕╨╜╨│ WP REST API: posts, pages, terms, users, SEO |
++| [wp-source-sync-strategy.md](wp-source-sync-strategy.md) | ╨б╤В╤А╨░╤В╨╡╨│╨╕╤П ╤Б╨╕╨╜╤Е╤А╨╛╨╜╨╕╨╖╨░╤Ж╨╕╨╕: full sync, retry, rate limit, ╨╕╨┤╨╡╨╝╨┐╨╛╤В╨╡╨╜╤В╨╜╨╛╤Б╤В╤М |
++| [wp-source-test-plan.md](wp-source-test-plan.md) | ╨Я╨╗╨░╨╜ ╤В╨╡╤Б╤В╨╕╤А╨╛╨▓╨░╨╜╨╕╤П ╨╕ ╨║╤А╨╕╤В╨╡╤А╨╕╨╕ ╨┐╤А╨╕╤С╨╝╨║╨╕ MVP |
++| [wp-source-implementation-plan.md](wp-source-implementation-plan.md) | ╨Я╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П: MVP тЖТ hardening тЖТ scale |
++| [wp-source-risks-and-open-questions.md](wp-source-risks-and-open-questions.md) | ╨а╨╕╤Б╨║╨╕, ╨╛╨│╤А╨░╨╜╨╕╤З╨╡╨╜╨╕╤П ╨╕ ╨╛╤В╨║╤А╤Л╤В╤Л╨╡ ╨▓╨╛╨┐╤А╨╛╤Б╤Л |
+ | [AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md](AUDIT-ARCHITECTURE-SCALABILITY-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╨░╤А╤Е╨╕╤В╨╡╨║╤В╤Г╤А╤Л: ╤А╨░╤Б╤И╨╕╤А╤П╨╡╨╝╨╛╤Б╤В╤М, DRY, ╤Б╤В╤А╨░╤В╨╡╨│╨╕╤П ╨╝╨░╤Б╤И╤В╨░╨▒╨╕╤А╨╛╨▓╨░╨╜╨╕╤П |
+ | [AUDIT-IMPLEMENTATION-2026-02-21.md](AUDIT-IMPLEMENTATION-2026-02-21.md) | ╨Р╤Г╨┤╨╕╤В ╤А╨╡╨░╨╗╨╕╨╖╨░╤Ж╨╕╨╕ TG_Parser ╨╕ ╨┐╨╛╤И╨░╨│╨╛╨▓╤Л╨╣ ╨┐╨╗╨░╨╜ ╨▓╨╜╨╡╨┤╤А╨╡╨╜╨╕╤П (Phase 1тАУ4) |
+ 

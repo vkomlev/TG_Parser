@@ -1,0 +1,107 @@
+# WordPress Source — план внедрения
+
+**Дата:** 2026-02-23  
+**Связанные документы:** [wp-source-architecture](wp-source-architecture.md), [wp-source-test-plan](wp-source-test-plan.md), [wp-source-risks-and-open-questions](wp-source-risks-and-open-questions.md)
+
+---
+
+## 1. Обзор этапов
+
+| Этап | Цель | Трудоёмкость (оценка) |
+|------|------|------------------------|
+| **MVP** | Рабочий full sync в PostgreSQL, один сайт, конфиг, логирование, базовые тесты | 5–8 дн. |
+| **Hardening** | Мультисайт, SQLite fallback, улучшение тестов и документации | 2–3 дн. |
+| **Scale** | Оптимизация, инкремент (опционально), расширение SEO/Gutenberg | по необходимости |
+
+---
+
+## 2. Этап MVP (пошагово)
+
+### Шаг 1. Инфраструктура и конфиг (0.5–1 дн.)
+- Добавить в `errors.py` коды WP_AUTH_ERROR, WP_RATE_LIMIT, WP_NETWORK_ERROR, WP_DATA_FORMAT_ERROR (или зафиксировать использование общих кодов).
+- **Конфиг (зафиксировано):** YAML `config/wp-sites.yml` — список сайтов (site_id, base_url, name); секреты (логин, Application Password) — только из переменных окружения (например по site_id: `WP_SITE_<ID>_USER`, `WP_SITE_<ID>_APP_PASSWORD` или единый набор для одного сайта в MVP).
+- Создать модуль чтения конфига (например `wp/config.py`) без логики запросов.
+
+**Критерий:** конфиг читается; при отсутствии обязательных полей — понятная ошибка и EXIT_FAILURE.
+
+### Шаг 2. HTTP-клиент и rate limit (1–1.5 дн.)
+- Реализовать клиент с таймаутом 30 с, паузой 1/3 с между запросами к одному site_id, Basic Auth.
+- Обёртка запроса с retry 3 и exponential backoff; обработка 429 (Retry-After или backoff).
+- Логирование каждого запроса/ошибки с run_id и error_code.
+
+**Критерий:** unit-тесты на backoff и на решение retry/not retry; ручная проверка с реальным или мок-сервером.
+
+### Шаг 3. Fetcher: users, terms, posts, pages (1.5–2 дн.)
+- Последовательные запросы к эндпоинтам с пагинацией (per_page=100, page); фильтр status=publish для posts/pages.
+- По возможности использовать _embed для постов/страниц, чтобы уменьшить число запросов.
+- **post_content в MVP:** сохранять только `content.rendered`; опция `context=edit` и `content.raw` — phase 2.
+- Маппинг ответов в внутренние структуры (dataclass или dict) согласно [api-mapping](wp-source-api-mapping.md).
+
+**Критерий:** для заданного тестового сайта получаем полный список постов и страниц; маппинг полей (slug, author, date, content) корректен.
+
+### Шаг 4. Модель и единый JSON output (0.5 дн.)
+- Финализировать структуру данных (в т.ч. SEO: yoast_head_json) и контракт единого JSON output по [data-model](wp-source-data-model-postgres.md).
+- Функции преобразования: WP API response → внутренняя модель → JSON output. **Интеграция с ContentItem (contracts.py) в MVP не входит** — только экспорт в БД и JSON.
+
+**Критерий:** unit-тесты на маппинг из фиксированных примеров API.
+
+### Шаг 5. PostgreSQL и сохранение (1.5–2 дн.)
+- Применить DDL из [data-model-postgres](wp-source-data-model-postgres.md). **Миграции:** папка `migrations/wp/` с нумерованными SQL-файлами.
+- Реализовать слой сохранения: upsert в wp_sites, wp_authors, wp_terms, wp_content, wp_content_terms; запись в wp_sync_runs в начале и в конце run. В каждой записи и в логах — `site_id`; один `run_id` на весь запуск.
+- Идемпотентность: повторный sync не создаёт дубликатов.
+
+**Критерий:** интеграционный тест: два подряд full sync → одинаковое количество строк и обновлённый synced_at.
+
+### Шаг 6. Точка входа и summary (1 дн.)
+- Точка входа: отдельный скрипт `wp_sync_skill.py` (или аналог) с командой sync (и при необходимости list-sites). Генерация run_id, вызов logging_setup, передача run_id в sync.
+- По завершении — формирование summary (run_at, run_id, site_id, счётчики, partial_failure, error_code) и запись в лог; обновление wp_sync_runs.
+- Коды выхода: 0 / 1 / 2 по правилам проекта.
+
+**Критерий:** запуск из CLI с конфигом; в логах и в БД (wp_sync_runs) виден результат.
+
+### Шаг 7. Тесты и регрессия (1 дн.)
+- Unit-тесты: маппинг, retry/backoff, валидация конфига.
+- Один интеграционный тест с тестовым WP или мок-сервером.
+- Запуск существующих smoke-тестов TG — убедиться в отсутствии регрессии.
+
+**Критерий:** чек-лист из [test-plan](wp-source-test-plan.md) выполнен; TG smoke проходят.
+
+---
+
+## 3. Этап Hardening (после MVP)
+
+- **Мультисайт:** итерация по списку сайтов из конфига; один run_id на весь запуск, site_id в каждой записи/логе (зафиксировано); агрегированный summary.
+- **SQLite fallback:** переключение на SQLite при недоступности PostgreSQL (или по флагу конфига); адаптация DDL (типы, автоинкремент).
+- **Документация:** обновить README/docs — как создать Application Password, пример конфига, переменные окружения.
+- **Тесты:** расширить интеграционные сценарии (401, 429, таймаут); добавить smoke_wp в CI при наличии.
+
+---
+
+## 4. Этап Scale (по необходимости)
+
+- **content.raw (phase 2):** опция запроса с `context=edit` для получения сырого редакторского контента; сохранять в отдельное поле или заменить post_content по конфигу.
+- **Инкрементальная синхронизация:** фильтр по modified_after (если API поддерживает) или кэш последнего run и запрос только изменённых id — отдельное ТЗ.
+- **Gutenberg raw comments:** парсинг блоков из post_content или отдельное поле; расширение маппинга и БД.
+- **Производительность:** батчинг вставок, параллельные запросы к разным сайтам (с сохранением лимита на сайт), индексы по запросам аналитики.
+- **Оркестрация:** интеграция с OpenClaw (команды/триггеры) — конфиг на стороне оркестратора.
+
+---
+
+## 5. Риски и зависимости
+
+- **Риски:** см. [wp-source-risks-and-open-questions](wp-source-risks-and-open-questions.md).
+- **Зависимости:** доступ к тестовому WordPress с включённым REST API и Application Passwords; PostgreSQL для разработки и CI (или SQLite для unit/integration при fallback).
+
+---
+
+## 6. Порядок выполнения (сводка)
+
+1. Конфиг и коды ошибок  
+2. HTTP-клиент + retry + rate limit  
+3. Fetcher и маппинг API → модель  
+4. Контракт JSON output  
+5. DDL и слой сохранения в PostgreSQL  
+6. CLI и summary  
+7. Unit/integration/smoke и регрессия TG  
+
+После шага 7 — приёмка MVP по чек-листу из [test-plan](wp-source-test-plan.md).

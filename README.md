@@ -48,6 +48,16 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
 - Секреты не выводятся в логи
 - Время в JSON и логах — UTC в формате ISO (`YYYY-MM-DDTHH:mm:ssZ`)
 
+## WordPress Source (sync в PostgreSQL)
+
+Отдельная точка входа для синхронизации WordPress-сайтов в PostgreSQL (только чтение, full sync).
+
+- **Конфиг:** `config/wp-sites.yml`; секреты — переменные окружения `WP_SITE_<site_id>_USER`, `WP_SITE_<site_id>_APP_PASSWORD`.
+- **Миграции:** применить DDL из `migrations/wp/` в порядке 001–006 к PostgreSQL.
+- **Переменная БД:** `WP_DATABASE_URL` (или `DATABASE_URL`) — строка подключения к PostgreSQL.
+- **Команды:** `python wp_sync_skill.py list-sites`, `python wp_sync_skill.py sync [--site SITE_ID]`.
+- Подробнее: [docs/wp-source-architecture.md](docs/wp-source-architecture.md), [docs/wp-source-implementation-plan.md](docs/wp-source-implementation-plan.md).
+
 ## Интеграция
 
 - **OpenClaw / скиллы**: команды можно сопоставить с `telegram_parser_skill.py` (см. [CLI](docs/cli.md))
