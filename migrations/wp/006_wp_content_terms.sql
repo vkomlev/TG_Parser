@@ -14,3 +14,5 @@ CREATE TABLE IF NOT EXISTS wp_content_terms (
 );
 
 CREATE INDEX IF NOT EXISTS idx_wp_content_terms_term ON wp_content_terms(site_id, taxonomy, wp_term_id);
+
+COMMENT ON TABLE wp_content_terms IS 'Связь контент–термины (many-to-many)';

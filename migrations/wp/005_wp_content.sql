@@ -22,3 +22,5 @@ CREATE TABLE IF NOT EXISTS wp_content (
 CREATE INDEX IF NOT EXISTS idx_wp_content_site_type ON wp_content(site_id, content_type);
 CREATE INDEX IF NOT EXISTS idx_wp_content_published ON wp_content(site_id, published_at DESC);
 CREATE INDEX IF NOT EXISTS idx_wp_content_slug ON wp_content(site_id, content_type, slug);
+
+COMMENT ON TABLE wp_content IS 'Посты и страницы WordPress по сайтам';

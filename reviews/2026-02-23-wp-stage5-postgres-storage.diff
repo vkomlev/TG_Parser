@@ -1,0 +1,36 @@
+--- Шаг 5 PostgreSQL и сохранение: сводка изменений ---
+
+=== migrations/wp/003_wp_authors.sql ===
++ COMMENT ON TABLE wp_authors IS 'Авторы (users) WordPress по сайтам';
+
+=== migrations/wp/004_wp_terms.sql ===
++ COMMENT ON TABLE wp_terms IS 'Термины (categories, tags) WordPress по сайтам';
+
+=== migrations/wp/005_wp_content.sql ===
++ COMMENT ON TABLE wp_content IS 'Посты и страницы WordPress по сайтам';
+
+=== migrations/wp/006_wp_content_terms.sql ===
++ COMMENT ON TABLE wp_content_terms IS 'Связь контент–термины (many-to-many)';
+
+=== wp/storage.py ===
++ logger.debug("upsert_site site_id=...", extra={"site_id": site_id}) в upsert_site
++ logger.debug("upsert_authors site_id=... count=...", extra={"site_id": ...}) в upsert_authors
++ logger.debug("upsert_terms ...") в upsert_terms
++ logger.debug("upsert_content ...") в upsert_content
++ logger.debug("upsert_content_terms ...") в upsert_content_terms
+
+=== wp_sync_skill.py ===
++ LOG.info("DB: starting run site_id=... run_id=...", extra={"site_id", "run_id"}) перед первой транзакцией
++ LOG.info("DB: run completed site_id=... run_id=...") после _update_run("success")
++ В except Exception: LOG.error("Sync failed: ...", extra={"site_id", "run_id", "error_code": err_code}); error_code в summary "SYNC_ERROR" вместо "CONFIG_ERROR"
+
+=== tests/test_wp_storage.py (новый) ===
++ try/except ImportError при импорте wp.storage (psycopg2 опционально)
++ _skip_no_db(): skip если нет _storage_available или нет WP_DATABASE_URL/DATABASE_URL
++ test_upsert_site_idempotent, test_upsert_authors_idempotent, test_upsert_terms_idempotent
++ test_upsert_content_idempotent, test_upsert_content_terms_idempotent
++ test_update_sync_run_returns_zero_when_no_row, test_insert_sync_run_then_update
++ test_integration_two_syncs_same_counts (два прогона одних данных — одинаковые counts)
+
+=== docs/wp-source-implementation-plan.md ===
++ В Шаг 5 добавлен абзац "Реализовано (2026-02-23): ..."

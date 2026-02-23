@@ -47,12 +47,16 @@
 - Финализировать структуру данных (в т.ч. SEO: yoast_head_json) и контракт единого JSON output по [data-model](wp-source-data-model-postgres.md).
 - Функции преобразования: WP API response → внутренняя модель → JSON output. **Интеграция с ContentItem (contracts.py) в MVP не входит** — только экспорт в БД и JSON.
 
+**Реализовано (2026-02-23):** Модуль `wp/output.py`: контракт документа контента (source, site_id, content_type, wp_id, slug, title, post_content, excerpt, status, author_id, published_at, modified_at, taxonomies, seo); контракт summary (run_id, site_id, status, run_at, error_code, *_count); `content_row_to_export_dict`, `build_content_export_list`, `summary_to_export_dict`, `build_single_site_output`, `build_multi_site_output`. Интеграция в `wp_sync_skill.py`: sync возвращает данные для JSON, stdout — один объект (один сайт) или массив объектов (несколько сайтов). Тесты: `tests/test_wp_output.py`. Ревью: `reviews/2026-02-23-wp-stage4-model-json.md`.
+
 **Критерий:** unit-тесты на маппинг из фиксированных примеров API.
 
 ### Шаг 5. PostgreSQL и сохранение (1.5–2 дн.)
 - Применить DDL из [data-model-postgres](wp-source-data-model-postgres.md). **Миграции:** папка `migrations/wp/` с нумерованными SQL-файлами.
 - Реализовать слой сохранения: upsert в wp_sites, wp_authors, wp_terms, wp_content, wp_content_terms; запись в wp_sync_runs в начале и в конце run. В каждой записи и в логах — `site_id`; один `run_id` на весь запуск.
 - Идемпотентность: повторный sync не создаёт дубликатов.
+
+**Реализовано (2026-02-23):** Миграции `migrations/wp/001_..sql`–`006_..sql` с `IF NOT EXISTS`/`CREATE INDEX IF NOT EXISTS` и `COMMENT ON TABLE`. Слой `wp/storage.py`: upsert по заявленным ключам, `insert_sync_run`/`update_sync_run` с rowcount; логирование операций (debug) с `site_id`; короткие транзакции. В `wp_sync_skill.py`: лог "DB: starting run" / "DB: run completed" с run_id, site_id; при исключении в цикле sync — LOG.error с run_id, site_id, error_code. Тесты: `tests/test_wp_storage.py` (unit: idempotent upsert по таблицам, update_sync_run rowcount 0; интеграция: два прогона одних данных — одинаковые counts). Ревью: `reviews/2026-02-23-wp-stage5-postgres-storage.md`.
 
 **Критерий:** интеграционный тест: два подряд full sync → одинаковое количество строк и обновлённый synced_at.
 

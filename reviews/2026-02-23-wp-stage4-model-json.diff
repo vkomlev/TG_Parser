@@ -1,0 +1,35 @@
+--- Шаг 4 Model & JSON output: сводка изменений ---
+
+=== wp/output.py (новый) ===
++ Модуль единого JSON-контракта выгрузки WP Source.
++ _terms_lookup(terms) -> (site_id, taxonomy, wp_term_id) -> TermRow
++ _taxonomies_for_content(...) -> { category: [{wp_term_id, slug, name}], post_tag: [...] }
++ _datetime_iso(d) -> ISO str или None
++ content_row_to_export_dict(row, content_terms, terms_lookup) -> dict с source, site_id, content_type, wp_id, slug, title, post_content, excerpt, status, author_id, published_at, modified_at, taxonomies, seo
++ build_content_export_list(contents, content_terms, terms) -> list of export dicts
++ summary_to_export_dict(summary) -> run_id, site_id, status, run_at, error_code, *_count (без credential)
++ build_single_site_output(summary, content_export) -> один объект с summary-полями и "content": [...]
++ build_multi_site_output(sites) -> list таких объектов
+
+=== wp_sync_skill.py ===
++ import wp.output: build_content_export_list, build_single_site_output, build_multi_site_output
++ run_sync_site возвращает dict: { "summary": summary, "contents": posts+pages, "content_terms": post_terms+page_terms, "terms": all_terms }; при WPClientError возвращает то же с пустыми списками
++ В run_sync: при исключении append { "summary": {...}, "contents": [], "content_terms": [], "terms": [] }
++ После цикла по сайтам: site_outputs = [ build_single_site_output(...) for d in summaries ]; out = site_outputs[0] если один сайт иначе build_multi_site_output(site_outputs); print(json.dumps(out, ...))
++ Убрана печать summaries в main; JSON выводится в run_sync по контракту
+
+=== tests/test_wp_output.py (новый) ===
++ test_content_export_full, test_content_export_without_seo, test_content_export_with_seo
++ test_content_export_without_excerpt_content, test_content_export_empty_taxonomies
++ test_single_site_output_is_object, test_multi_site_output_is_array
++ test_required_keys_present, test_post_content_only_rendered
++ test_mapping_from_fixed_api_post_with_yoast, test_summary_no_credentials
+
+=== docs/wp-source-implementation-plan.md ===
++ В Шаг 4 добавлен абзац "Реализовано (2026-02-23): ..."
+
+=== docs/wp-source-data-model-postgres.md ===
++ После примера JSON поста добавлен абзац "Реализация контракта (MVP, Шаг 4): ..."
+
+=== wp/mapper.py ===
+  Без изменений

@@ -55,6 +55,7 @@ def upsert_site(
     base_url: str,
     name: Optional[str],
 ) -> None:
+    logger.debug("upsert_site site_id=%s", site_id, extra={"site_id": site_id})
     now = datetime.now(timezone.utc)
     with conn.cursor() as cur:
         cur.execute(
@@ -77,6 +78,8 @@ def upsert_authors(
 ) -> None:
     if not rows:
         return
+    site_id = rows[0].site_id if rows else ""
+    logger.debug("upsert_authors site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
     with conn.cursor() as cur:
         for r in rows:
             cur.execute(
@@ -109,6 +112,8 @@ def upsert_terms(
 ) -> None:
     if not rows:
         return
+    site_id = rows[0].site_id if rows else ""
+    logger.debug("upsert_terms site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
     with conn.cursor() as cur:
         for r in rows:
             cur.execute(
@@ -142,6 +147,8 @@ def upsert_content(
 ) -> None:
     if not rows:
         return
+    site_id = rows[0].site_id if rows else ""
+    logger.debug("upsert_content site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
     with conn.cursor() as cur:
         for r in rows:
             cur.execute(
@@ -195,6 +202,8 @@ def upsert_content_terms(
 ) -> None:
     if not rows:
         return
+    site_id = rows[0].site_id if rows else ""
+    logger.debug("upsert_content_terms site_id=%s count=%s", site_id, len(rows), extra={"site_id": site_id})
     with conn.cursor() as cur:
         for r in rows:
             cur.execute(

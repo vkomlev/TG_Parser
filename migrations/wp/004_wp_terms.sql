@@ -12,3 +12,5 @@ CREATE TABLE IF NOT EXISTS wp_terms (
 );
 
 CREATE INDEX IF NOT EXISTS idx_wp_terms_site_tax ON wp_terms(site_id, taxonomy);
+
+COMMENT ON TABLE wp_terms IS 'Термины (categories, tags) WordPress по сайтам';

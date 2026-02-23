@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS wp_authors (
 );
 
 CREATE INDEX IF NOT EXISTS idx_wp_authors_site ON wp_authors(site_id);
+
+COMMENT ON TABLE wp_authors IS 'Авторы (users) WordPress по сайтам';

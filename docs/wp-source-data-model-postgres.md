@@ -208,7 +208,9 @@ CREATE INDEX idx_wp_content_terms_term ON wp_content_terms(site_id, taxonomy, wp
 }
 ```
 
-Маппинг в `ContentItem` (contracts.py): source_id = `wp:{site_id}`, external_id = `{content_type}:{wp_id}`, text = конкатенация title + excerpt + post_content (или только post_content), metadata = { slug, author, seo_*, taxonomies }. Медиа для WP в MVP можно не заполнять или оставить пустой список.
+**Реализация контракта (MVP, Шаг 4):** модуль `wp/output.py` формирует документ контента с полями `source`, `site_id`, `content_type`, `wp_id`, `slug`, `title`, `post_content`, `excerpt`, `status`, `author_id`, `published_at`, `modified_at`, `taxonomies` (category/post_tag), `seo` (seo_title, seo_description, yoast_head_json). Итог sync в stdout: один JSON-объект (один сайт) или массив объектов (несколько сайтов), каждый с полями summary и массивом `content`.
+
+Маппинг в `ContentItem` (contracts.py) — **вне MVP (Phase 2):** source_id = `wp:{site_id}`, external_id = `{content_type}:{wp_id}`, text = конкатенация title + excerpt + post_content (или только post_content), metadata = { slug, author, seo_*, taxonomies }. Медиа для WP в MVP можно не заполнять или оставить пустой список.
 
 ---
 

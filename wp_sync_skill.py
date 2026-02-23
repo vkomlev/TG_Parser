@@ -30,6 +30,11 @@ from wp.fetcher import (  # noqa: E402
     fetch_tags,
     fetch_users,
 )
+from wp.output import (  # noqa: E402
+    build_content_export_list,
+    build_multi_site_output,
+    build_single_site_output,
+)
 from wp.storage import (  # noqa: E402
     get_connection,
     insert_sync_run,
@@ -113,7 +118,8 @@ def run_sync_site(
     retries: int,
     requests_per_second: float,
 ) -> dict:
-    """Выполнить full sync одного сайта. Возвращает summary-словарь.
+    """Выполнить full sync одного сайта. Возвращает словарь с ключами:
+    summary, contents, content_terms, terms — для формирования JSON output.
     Запись в wp_sync_runs создаётся в отдельной транзакции до сетевых вызовов,
     чтобы при ошибке sync run всегда был зафиксирован и обновлён.
     """
@@ -142,6 +148,7 @@ def run_sync_site(
     )
 
     # Отдельная короткая транзакция: запись о старте run (commit сразу)
+    LOG.info("DB: starting run site_id=%s run_id=%s", site_id, run_id, extra={"site_id": site_id, "run_id": run_id})
     with get_connection() as conn:
         upsert_site(conn, site_id, base_url, name)
         insert_sync_run(conn, run_id, site_id, started_at)
@@ -197,7 +204,13 @@ def run_sync_site(
             upsert_content_terms(conn, page_terms, synced_at)
 
         _update_run("success", None)
-        return summary
+        LOG.info("DB: run completed site_id=%s run_id=%s", site_id, run_id, extra={"site_id": site_id, "run_id": run_id})
+        return {
+            "summary": summary,
+            "contents": posts + pages,
+            "content_terms": post_terms + page_terms,
+            "terms": all_terms,
+        }
 
     except WPClientError as e:
         summary["status"] = "failed" if summary["authors_count"] == 0 and summary["terms_count"] == 0 else "partial"
@@ -209,7 +222,12 @@ def run_sync_site(
             extra={"site_id": site_id, "run_id": run_id, "error_code": summary["error_code"]},
         )
         _update_run(summary["status"], summary["error_code"])
-        return summary
+        return {
+            "summary": summary,
+            "contents": [],
+            "content_terms": [],
+            "terms": [],
+        }
 
 
 def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
@@ -233,7 +251,7 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
     has_failure = False
     for site in sites:
         try:
-            s = run_sync_site(
+            data = run_sync_site(
                 site_id=site.site_id,
                 base_url=site.base_url,
                 name=site.name,
@@ -245,33 +263,57 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
                 retries=cfg.retries,
                 requests_per_second=cfg.requests_per_second,
             )
-            summaries.append(s)
-            if s.get("partial_failure"):
+            summaries.append(data)
+            if data["summary"].get("partial_failure"):
                 has_partial = True
-            if s.get("status") == "failed":
+            if data["summary"].get("status") == "failed":
                 has_failure = True
         except Exception as e:
             has_failure = True
-            if summaries and any(x.get("status") == "success" for x in summaries):
+            err_code = getattr(e, "error_code", None) or "SYNC_ERROR"
+            LOG.error(
+                "Sync failed: %s",
+                e,
+                extra={"site_id": site.site_id, "run_id": run_id, "error_code": err_code},
+            )
+            if summaries and any(x["summary"].get("status") == "success" for x in summaries):
                 has_partial = True
             summaries.append({
-                "run_id": run_id,
-                "site_id": site.site_id,
-                "run_at": datetime.now(timezone.utc).isoformat(),
-                "status": "failed",
-                "error_code": getattr(e, "error_code", None) or "CONFIG_ERROR",
-                "partial_failure": False,
-                "posts_count": 0,
-                "pages_count": 0,
-                "terms_count": 0,
-                "authors_count": 0,
+                "summary": {
+                    "run_id": run_id,
+                    "site_id": site.site_id,
+                    "run_at": datetime.now(timezone.utc).isoformat(),
+                    "status": "failed",
+                    "error_code": getattr(e, "error_code", None) or "SYNC_ERROR",
+                    "partial_failure": False,
+                    "posts_count": 0,
+                    "pages_count": 0,
+                    "terms_count": 0,
+                    "authors_count": 0,
+                },
+                "contents": [],
+                "content_terms": [],
+                "terms": [],
             })
 
     if has_failure and not has_partial:
-        return EXIT_FAILURE, summaries
-    if has_partial:
-        return EXIT_PARTIAL, summaries
-    return EXIT_SUCCESS, summaries
+        exit_code = EXIT_FAILURE
+    elif has_partial:
+        exit_code = EXIT_PARTIAL
+    else:
+        exit_code = EXIT_SUCCESS
+
+    if summaries:
+        site_outputs = [
+            build_single_site_output(
+                d["summary"],
+                build_content_export_list(d["contents"], d["content_terms"], d["terms"]),
+            )
+            for d in summaries
+        ]
+        out = site_outputs[0] if len(site_outputs) == 1 else build_multi_site_output(site_outputs)
+        print(json.dumps(out, ensure_ascii=False, indent=2))
+    return exit_code, summaries
 
 
 def main() -> int:
@@ -290,8 +332,8 @@ def main() -> int:
     if args.command == "sync":
         exit_code, summaries = run_sync(args, run_id)
         if summaries:
-            out = summaries[0] if len(summaries) == 1 else summaries
-            print(json.dumps(out, ensure_ascii=False, indent=2))
+            # JSON уже выведен в run_sync по контракту (single object или array)
+            pass
         return exit_code
 
     return EXIT_SUCCESS
