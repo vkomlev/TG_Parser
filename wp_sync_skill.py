@@ -264,6 +264,12 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
                 requests_per_second=cfg.requests_per_second,
             )
             summaries.append(data)
+            s = data["summary"]
+            LOG.info(
+                "Site sync summary run_id=%s site_id=%s status=%s posts=%s pages=%s terms=%s authors=%s",
+                run_id, s["site_id"], s["status"], s["posts_count"], s["pages_count"], s["terms_count"], s["authors_count"],
+                extra={"run_id": run_id, "site_id": s["site_id"], "error_code": s.get("error_code")},
+            )
             if data["summary"].get("partial_failure"):
                 has_partial = True
             if data["summary"].get("status") == "failed":
@@ -295,6 +301,11 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
                 "content_terms": [],
                 "terms": [],
             })
+            LOG.info(
+                "Site sync summary run_id=%s site_id=%s status=failed error_code=%s",
+                run_id, site.site_id, err_code,
+                extra={"run_id": run_id, "site_id": site.site_id, "error_code": err_code},
+            )
 
     if has_failure and not has_partial:
         exit_code = EXIT_FAILURE
@@ -303,6 +314,11 @@ def run_sync(args: argparse.Namespace, run_id: str) -> tuple[int, list]:
     else:
         exit_code = EXIT_SUCCESS
 
+    LOG.info(
+        "Run finished run_id=%s exit_code=%s sites=%s",
+        run_id, exit_code, [(d["summary"]["site_id"], d["summary"]["status"], d["summary"].get("error_code")) for d in summaries],
+        extra={"run_id": run_id},
+    )
     if summaries:
         site_outputs = [
             build_single_site_output(

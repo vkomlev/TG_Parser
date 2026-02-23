@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """
-Smoke/unit-тесты WordPress Source (Этап 1 MVP).
+Smoke/unit-тесты WordPress Source (Этап 1 MVP, Шаг 7 — тестовый контур).
 
 - Unit: маппинг API → модель, валидация конфига, расчёт паузы/retry.
-- Integration: полный sync (пропуск при отсутствии WP_DATABASE_URL и кредов).
+- Integration: полный sync — через tests/test_wp_storage.py --integration (БД) или ручной прогон wp_sync_skill.py sync --site <id>.
 
-Запуск из корня проекта:
-  python tests/smoke_wp.py --unit-only
-  python tests/smoke_wp.py
+Полный контур: test_wp_client, test_wp_fetcher, test_wp_output, test_wp_storage, test_wp_cli, smoke_wp --unit-only.
 """
 
 from __future__ import annotations

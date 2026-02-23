@@ -65,6 +65,8 @@
 - По завершении — формирование summary (run_at, run_id, site_id, счётчики, partial_failure, error_code) и запись в лог; обновление wp_sync_runs.
 - Коды выхода: 0 / 1 / 2 по правилам проекта.
 
+**Реализовано (2026-02-23):** CLI `wp_sync_skill.py`: команды `list-sites`, `sync [--site SITE_ID] [--config PATH]`; один run_id на запуск, логирование через logging_setup, run_id во все операции sync. Summary по каждому сайту и общий итог в логах (LOG.info "Site sync summary", "Run finished"); wp_sync_runs обновляется в начале и в конце run. Коды выхода: 0 — все success, 2 — partial, 1 — fatal (все failed или ошибка конфигурации). Stdout: sync — JSON по контракту (один объект/массив), list-sites — список сайтов без секретов. Тесты: `tests/test_wp_cli.py` (list-sites valid/broken YAML/config not found, sync --site missing, stdout summary fields, exit codes). Ревью: `reviews/2026-02-23-wp-stage6-entrypoint-summary.md`.
+
 **Критерий:** запуск из CLI с конфигом; в логах и в БД (wp_sync_runs) виден результат.
 
 ### Шаг 7. Тесты и регрессия (1 дн.)
@@ -72,7 +74,9 @@
 - Один интеграционный тест с тестовым WP или мок-сервером.
 - Запуск существующих smoke-тестов TG — убедиться в отсутствии регрессии.
 
-**Критерий:** чек-лист из [test-plan](wp-source-test-plan.md) выполнен; TG smoke проходят.
+**Реализовано (2026-02-23):** Тестовый контур: test_wp_client (backoff, Retry-After, cap 60, should_retry 429/5xx/401/403/400/404, rate limit), test_wp_fetcher (пагинация, маппинг, non-list), test_wp_output (контракт JSON, single/multi), test_wp_storage (idempotent upsert, update_sync_run rowcount, уникальный run_id, интеграция два прогона — одинаковые counts при --integration), test_wp_cli (list-sites/sync exit codes, stdout summary), smoke_wp --unit-only (маппинг, конфиг, backoff/retry). Интеграция: test_wp_storage.py --integration при WP_DATABASE_URL; ручной sync --site <id> для real WP. TG smoke (phase1/phase3/session_stability) требуют полного окружения (dotenv, telethon); WP-код не меняет TG entrypoints — регрессий по коду нет. Сверка с docs/wp-source-test-plan.md: отчёт reviews/2026-02-23-wp-stage7-tests-regression.md.
+
+**Критерий:** чек-лист из [test-plan](wp-source-test-plan.md) выполнен; TG smoke проходят в полном окружении.
 
 ---
 

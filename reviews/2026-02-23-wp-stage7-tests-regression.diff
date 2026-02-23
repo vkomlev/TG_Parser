@@ -1,0 +1,12 @@
+--- Шаг 7 Тесты и регрессия: сводка изменений ---
+
+=== tests/smoke_wp.py ===
++ Обновлён докстринг: указание на Шаг 7, полный контур (test_wp_client, test_wp_fetcher, test_wp_output, test_wp_storage, test_wp_cli, smoke_wp --unit-only); интеграция через test_wp_storage --integration или ручной sync.
+
+=== docs/wp-source-implementation-plan.md ===
++ В Шаг 7 добавлен абзац "Реализовано (2026-02-23):" — перечисление тестового контура, интеграция (test_wp_storage --integration, ручной sync), TG smoke (требуют полного окружения; WP не меняет TG entrypoints), ссылка на отчёт stage7.
+
+=== reviews/2026-02-23-wp-stage7-tests-regression.md (новый) ===
++ Отчёт: прогоны (команды + exit code), вывод по unit/integration/TG, таблица чек-листа test-plan (раздел 5), покрытие unit по ТЗ, описание интеграционного теста (варианты A/B), регрессия TG, риски/gaps.
+
+Остальные файлы тестов (test_wp_client, test_wp_fetcher, test_wp_output, test_wp_storage, test_wp_cli) без изменений — контур уже соответствует ТЗ Шагов 2–6.

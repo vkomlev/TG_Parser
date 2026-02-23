@@ -1,0 +1,19 @@
+--- Шаг 6 Точка входа и summary: сводка изменений ---
+
+=== wp_sync_skill.py ===
++ После summaries.append(data) в успешной ветке: LOG.info("Site sync summary run_id=... site_id=... status=... posts=... pages=... terms=... authors=...", extra={"run_id", "site_id", "error_code"})
++ После summaries.append({...}) в except Exception: LOG.info("Site sync summary run_id=... site_id=... status=failed error_code=...", extra={"run_id", "site_id", "error_code"})
++ Перед "if summaries:": LOG.info("Run finished run_id=... exit_code=... sites=[(site_id, status, error_code), ...]", extra={"run_id"})
+
+=== tests/test_wp_cli.py (новый) ===
++ _script_available(): проверка запуска скрипта (list-sites --config /nonexistent); при ModuleNotFoundError/ImportError возврат False для SKIP
++ _run(*args, env): subprocess.run wp_sync_skill.py из PROJECT_ROOT, capture_output, text, timeout=60
++ test_list_sites_valid_config_exit_0: temp YAML с одним сайтом -> exit 0, в stdout site_id/fixture
++ test_list_sites_broken_yaml_exit_1: temp YAML с битым синтаксисом -> exit 1, в stderr Error/YAML/разбора
++ test_list_sites_config_not_found_exit_1: --config /nonexistent -> exit 1
++ test_sync_site_missing_exit_1: конфиг с one_site, sync --site nonexistent_site -> exit 1, stderr not found/nonexistent_site
++ test_sync_stdout_has_summary_fields: sync --site stub (конфиг с stub) -> stdout содержит run_id, site_id, status, content
++ test_exit_codes_documentation: EXIT_SUCCESS==0, EXIT_FAILURE==1, EXIT_PARTIAL==2
+
+=== docs/wp-source-implementation-plan.md ===
++ В Шаг 6 добавлен абзац "Реализовано (2026-02-23): ..."
