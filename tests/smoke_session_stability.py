@@ -6,9 +6,8 @@
 - Интеграционный: два процесса с одним session_file — второй завершается с SESSION_LOCKED.
 
 Запуск из корня проекта:
-  python smoke_session_stability.py              # все тесты
-  python smoke_session_stability.py --hold-lock NAME   # режим для интеграции: занять lock и спать
-  python smoke_session_stability.py --try-lock NAME    # попытка занять lock, exit 0/1
+  python tests/smoke_session_stability.py
+  python tests/smoke_session_stability.py --no-integration
 """
 
 from __future__ import annotations
@@ -20,7 +19,8 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(__file__))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 # Режимы для интеграционного теста (subprocess)
 if len(sys.argv) >= 3 and sys.argv[1] == "--hold-lock":
@@ -70,7 +70,7 @@ def test_session_lock_stale_pid() -> bool:
     name = "smoke_test_lock_stale"
     lock_path = _lock_path(name)
     lock_path.parent.mkdir(parents=True, exist_ok=True)
-    lock_path.write_text("99999999", encoding="utf-8")  # несуществующий PID
+    lock_path.write_text("99999999", encoding="utf-8")
     try:
         with session_lock(name) as a:
             return a is True
@@ -79,7 +79,7 @@ def test_session_lock_stale_pid() -> bool:
 
 
 def test_session_lock_busy_same_pid() -> bool:
-    """Lock-файл с текущим PID (имитация «другой процесс») — считаем занятым, yield False."""
+    """Lock-файл с текущим PID — считаем занятым, yield False."""
     name = "smoke_test_lock_busy"
     lock_path = _lock_path(name)
     lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -125,23 +125,22 @@ async def test_connect_retry_database_locked() -> bool:
 
 def test_integration_two_processes_same_session() -> bool:
     """Два процесса с одним session_file: первый держит lock, второй выходит с кодом 1."""
-    root = Path(__file__).parent
     session_name = "smoke_test_concurrent_session"
     lock_path = _lock_path(session_name)
     lock_path.unlink(missing_ok=True)
 
     try:
         proc_hold = subprocess.Popen(
-            [sys.executable, str(root / "smoke_session_stability.py"), "--hold-lock", session_name],
-            cwd=str(root),
+            [sys.executable, str(PROJECT_ROOT / "tests" / "smoke_session_stability.py"), "--hold-lock", session_name],
+            cwd=str(PROJECT_ROOT),
             env=os.environ.copy(),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         time.sleep(0.8)
         proc_try = subprocess.run(
-            [sys.executable, str(root / "telegram_parser_skill.py"), "parse", "--channel", "dummy", "--session-file", session_name],
-            cwd=str(root),
+            [sys.executable, str(PROJECT_ROOT / "telegram_parser_skill.py"), "parse", "--channel", "dummy", "--session-file", session_name],
+            cwd=str(PROJECT_ROOT),
             env=os.environ.copy(),
             capture_output=True,
             text=True,

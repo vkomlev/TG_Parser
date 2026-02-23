@@ -1,0 +1,1275 @@
+﻿diff --git a/README.md b/README.md
+index 197fee1..b09cb74 100644
+--- a/README.md
++++ b/README.md
+@@ -26,6 +26,8 @@ python .\telegram_parser_skill.py channels
+ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonStruct/36"
+ ```
+ 
++╨б╨╝. ╤В╨░╨║╨╢╨╡ ╨╖╨░╨┐╤Г╤Б╨║ ╤З╨╡╤А╨╡╨╖ [╤Б╨║╤А╨╕╨┐╤В╤Л ╨▓ `scripts/`](docs/setup.md#6-╨░╨╗╨╕╨░╤Б╤Л-powershell-╨╛╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛) ╨╕ [╤Б╨╝╨╛╤Г╨║-╤В╨╡╤Б╤В╤Л](docs/tests.md).
++
+ ## ╨Ф╨╛╨║╤Г╨╝╨╡╨╜╤В╨░╤Ж╨╕╤П
+ 
+ | ╨а╨░╨╖╨┤╨╡╨╗ | ╨Ю╨┐╨╕╤Б╨░╨╜╨╕╨╡ |
+@@ -49,4 +51,4 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
+ ## ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╤П
+ 
+ - **OpenClaw / ╤Б╨║╨╕╨╗╨╗╤Л**: ╨║╨╛╨╝╨░╨╜╨┤╤Л ╨╝╨╛╨╢╨╜╨╛ ╤Б╨╛╨┐╨╛╤Б╤В╨░╨▓╨╕╤В╤М ╤Б `telegram_parser_skill.py` (╤Б╨╝. [CLI](docs/cli.md))
+-- **PowerShell-╨░╨╗╨╕╨░╤Б╤Л**: `.\setup_aliases.ps1` ╨╕ ╨┐╨╡╤А╨╡╨╖╨░╨│╤А╤Г╨╖╨║╨░ ╨┐╤А╨╛╤Д╨╕╨╗╤П тАФ ╤Б╨╝. [╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨░](docs/setup.md)
++- **PowerShell-╤Б╨║╤А╨╕╨┐╤В╤Л ╨╕ ╨░╨╗╨╕╨░╤Б╤Л**: `scripts/telegram_parse.ps1`, `scripts/telegram_channels.ps1`, `scripts/setup_aliases.ps1` тАФ ╤Б╨╝. [╨Э╨░╤Б╤В╤А╨╛╨╣╨║╨░](docs/setup.md)
+diff --git a/SKILL.md b/SKILL.md
+index 53b9713..f287978 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -7,12 +7,14 @@ description: ╨Я╨░╤А╤Б╨╕╨╜╨│ Telegram-╨║╨░╨╜╨░╨╗╨╛╨▓ ╨▓ JSON ╤Б ╨╖╨░╨│╤А╤Г╨╖╨║╨╛
+ 
+ ## ╨С╤Л╤Б╤В╤А╤Л╨╡ ╨║╨╛╨╝╨░╨╜╨┤╤Л
+ 
+-╨в╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░: `telegram_parser_skill.py`
++╨в╨╛╤З╨║╨░ ╨▓╤Е╨╛╨┤╨░: `telegram_parser_skill.py` (╨▓ ╨║╨╛╤А╨╜╨╡ ╨┐╤А╨╛╨╡╨║╤В╨░). ╨Ч╨░╨┐╤Г╤Б╨║ ╤З╨╡╤А╨╡╨╖ ╤Б╨║╤А╨╕╨┐╤В╤Л: `scripts/telegram_parse.ps1`, `scripts/telegram_channels.ps1`.
+ 
+ ```powershell
+ python .\telegram_parser_skill.py channels
+ python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPythonStruct/36"
+ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonStruct/36"
++# ╨╕╨╗╨╕ ╨╕╨╖ ╨╗╤О╨▒╨╛╨│╨╛ ╨║╨░╤В╨░╨╗╨╛╨│╨░:
++powershell -ExecutionPolicy Bypass -File D:\Work\TG_Parser\scripts\telegram_parse.ps1 --channel @channel
+ ```
+ 
+ ## ╨з╤В╨╛ ╨┐╨╛╨┤╨┤╨╡╤А╨╢╨╕╨▓╨░╨╡╤В╤Б╤П
+@@ -62,13 +64,15 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
+ 
+ ╨Ь╨░╨┐╨┐╨╕╨╜╨│ ╨║╨╛╨╝╨░╨╜╨┤:
+ 
+-- `/telegram_channels` тЖТ `python D:\work\TG_Parser\telegram_parser_skill.py channels`
+-- `/telegram_parse ...` тЖТ `python D:\work\TG_Parser\telegram_parser_skill.py parse ...`
++- `/telegram_channels` тЖТ `python <╨║╨╛╤А╨╡╨╜╤М_╨┐╤А╨╛╨╡╨║╤В╨░>\telegram_parser_skill.py channels` ╨╕╨╗╨╕ `scripts\telegram_channels.ps1`
++- `/telegram_parse ...` тЖТ `python <╨║╨╛╤А╨╡╨╜╤М_╨┐╤А╨╛╨╡╨║╤В╨░>\telegram_parser_skill.py parse ...` ╨╕╨╗╨╕ `scripts\telegram_parse.ps1`
+ 
+ ╨Х╤Б╨╗╨╕ ╨╜╤Г╨╢╨╡╨╜ ╤П╨▓╨╜╤Л╨╣ ╤А╨╡╨╖╨╛╨╗╨▓ ╤Б╤Б╤Л╨╗╨║╨╕ ╨▓ ╤З╨░╤В╨╡, ╨┤╨╛╨▒╨░╨▓╤М ╨░╨╗╨╕╨░╤Б `/telegram_resolve ...` ╨╜╨░ ╨║╨╛╨╝╨░╨╜╨┤╤Г:
+ 
+ ```powershell
+-python D:\work\TG_Parser\telegram_parser_skill.py resolve --channel ...
++python <╨║╨╛╤А╨╡╨╜╤М_╨┐╤А╨╛╨╡╨║╤В╨░>\telegram_parser_skill.py resolve --channel ...
++# ╨╕╨╗╨╕
++powershell -ExecutionPolicy Bypass -File <╨║╨╛╤А╨╡╨╜╤М_╨┐╤А╨╛╨╡╨║╤В╨░>\scripts\telegram_parse.ps1  # ╨┤╨╗╤П parse
+ ```
+ 
+ ## ╨У╨┤╨╡ ╤Б╨╝╨╛╤В╤А╨╡╤В╤М ╨┤╨╡╤В╨░╨╗╨╕
+diff --git a/docs/auth-2fa-env-setup.md b/docs/auth-2fa-env-setup.md
+index 8b75e31..b92f6f9 100644
+--- a/docs/auth-2fa-env-setup.md
++++ b/docs/auth-2fa-env-setup.md
+@@ -58,7 +58,7 @@ python .\telegram_parser_skill.py channels
+ 
+ ## 7) ╨Р╨╗╨╕╨░╤Б╤Л (PowerShell)
+ 1. ╨Т╤Л╨┐╨╛╨╗╨╜╨╕╤В╨╡:
+-   - `.\setup_aliases.ps1`
++   - `.\scripts\setup_aliases.ps1`
+ 2. ╨Я╨╡╤А╨╡╨╖╨░╨│╤А╤Г╨╖╨╕╤В╨╡ ╨┐╤А╨╛╤Д╨╕╨╗╤М:
+    - `. $PROFILE`
+ 3. ╨Ш╤Б╨┐╨╛╨╗╤М╨╖╤Г╨╣╤В╨╡:
+diff --git a/docs/cli.md b/docs/cli.md
+index 6a9b2a9..f7bb548 100644
+--- a/docs/cli.md
++++ b/docs/cli.md
+@@ -117,13 +117,19 @@ python .\telegram_parser_skill.py parse --channel @my_channel --max-media-size 5
+    .\.venv\Scripts\python .\telegram_parser_skill.py parse --channel @channel
+    ```
+ 
+-3. **╨б ╨░╨╗╨╕╨░╤Б╨░╨╝╨╕** (╨┐╨╛╤Б╨╗╨╡ `.\setup_aliases.ps1` ╨╕ ╨┐╨╡╤А╨╡╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨┐╤А╨╛╤Д╨╕╨╗╤П):
++3. **╨з╨╡╤А╨╡╨╖ ╤Б╨║╤А╨╕╨┐╤В╤Л ╨▓ `scripts/`** (╤А╨░╨▒╨╛╤В╨░╤О╤В ╨╕╨╖ ╨╗╤О╨▒╨╛╨│╨╛ CWD):
++   ```powershell
++   powershell -ExecutionPolicy Bypass -File .\scripts\telegram_channels.ps1
++   powershell -ExecutionPolicy Bypass -File .\scripts\telegram_parse.ps1 --channel @channel --dry-run
++   ```
++
++4. **╨б ╨░╨╗╨╕╨░╤Б╨░╨╝╨╕** (╨┐╨╛╤Б╨╗╨╡ `.\scripts\setup_aliases.ps1` ╨╕ ╨┐╨╡╤А╨╡╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨┐╤А╨╛╤Д╨╕╨╗╤П):
+    ```powershell
+    telegram_parse --channel @channel --mode safe
+    tgparse --channel "https://t.me/channel/1"
+    ```
+ 
+-4. **╨Я╨░╨║╨╡╤В╨╜╤Л╨╣/╤Д╨╛╨╜╨╛╨▓╤Л╨╣ ╨╖╨░╨┐╤Г╤Б╨║** тАФ ╤З╨╡╤А╨╡╨╖ ╨┐╨╗╨░╨╜╨╕╤А╨╛╨▓╤Й╨╕╨║ ╨╖╨░╨┤╨░╤З ╨╕╨╗╨╕ ╤Б╨║╤А╨╕╨┐╤В ╤Б ╨╜╤Г╨╢╨╜╤Л╨╝╨╕ `--output-dir` ╨╕ `--channel`.
++5. **╨Я╨░╨║╨╡╤В╨╜╤Л╨╣/╤Д╨╛╨╜╨╛╨▓╤Л╨╣ ╨╖╨░╨┐╤Г╤Б╨║** тАФ ╤З╨╡╤А╨╡╨╖ ╨┐╨╗╨░╨╜╨╕╤А╨╛╨▓╤Й╨╕╨║ ╨╖╨░╨┤╨░╤З ╨╕╨╗╨╕ ╤Б╨║╤А╨╕╨┐╤В ╤Б ╨╜╤Г╨╢╨╜╤Л╨╝╨╕ `--output-dir` ╨╕ `--channel`.
+ 
+ ## ╨Ъ╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░
+ 
+diff --git a/docs/setup.md b/docs/setup.md
+index 3fe37c8..0dc09f1 100644
+--- a/docs/setup.md
++++ b/docs/setup.md
+@@ -104,14 +104,14 @@ python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPytho
+ 
+ ## 6. ╨Р╨╗╨╕╨░╤Б╤Л PowerShell (╨╛╨┐╤Ж╨╕╨╛╨╜╨░╨╗╤М╨╜╨╛)
+ 
+-╨Ф╨╗╤П ╨▓╤Л╨╖╨╛╨▓╨░ ╨║╨╛╨╝╨░╨╜╨┤ ╨▒╨╡╨╖ ╤Г╨║╨░╨╖╨░╨╜╨╕╤П ╨┐╤Г╤В╨╕ ╨║ ╤Б╨║╤А╨╕╨┐╤В╤Г:
++╨б╨║╤А╨╕╨┐╤В╤Л ╨┐╨░╤А╤Б╨╡╤А╨░ ╨╗╨╡╨╢╨░╤В ╨▓ `scripts/`. ╨Ф╨╗╤П ╨▓╤Л╨╖╨╛╨▓╨░ ╨▒╨╡╨╖ ╤Г╨║╨░╨╖╨░╨╜╨╕╤П ╨┐╨╛╨╗╨╜╨╛╨│╨╛ ╨┐╤Г╤В╨╕:
+ 
+ ```powershell
+-.\setup_aliases.ps1
++.\scripts\setup_aliases.ps1
+ . $PROFILE
+ ```
+ 
+-╨Я╨╛╤Б╨╗╨╡ ╤Н╤В╨╛╨│╨╛ ╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л ╨║╨╛╨╝╨░╨╜╨┤╤Л `telegram_channels`, `telegram_parse`, ╨║╨╛╤А╨╛╤В╨║╨╕╨╡ ╨░╨╗╨╕╨░╤Б╤Л `tgch`, `tgparse` (╤Б╨╝. [CLI](cli.md)).
++╨Я╨╛╤Б╨╗╨╡ ╤Н╤В╨╛╨│╨╛ ╨┤╨╛╤Б╤В╤Г╨┐╨╜╤Л ╨║╨╛╨╝╨░╨╜╨┤╤Л `telegram_channels`, `telegram_parse`, ╨║╨╛╤А╨╛╤В╨║╨╕╨╡ ╨░╨╗╨╕╨░╤Б╤Л `tgch`, `tgparse` (╤Б╨╝. [CLI](cli.md)). ╨Р╨╗╨╕╨░╤Б╤Л ╨▓╤Л╨╖╤Л╨▓╨░╤О╤В `scripts/telegram_parse.ps1` ╨╕ `scripts/telegram_channels.ps1`; ╨║╨╛╤А╨╡╨╜╤М ╨┐╤А╨╛╨╡╨║╤В╨░ ╨╛╨┐╤А╨╡╨┤╨╡╨╗╤П╨╡╤В╤Б╤П ╨╛╤В╨╜╨╛╤Б╨╕╤В╨╡╨╗╤М╨╜╨╛ ╤А╨░╤Б╨┐╨╛╨╗╨╛╨╢╨╡╨╜╨╕╤П ╤Б╨║╤А╨╕╨┐╤В╨╛╨▓, ╨┐╨╛╤Н╤В╨╛╨╝╤Г ╨╖╨░╨┐╤Г╤Б╨║ ╨▓╨╛╨╖╨╝╨╛╨╢╨╡╨╜ ╨╕╨╖ ╨╗╤О╨▒╨╛╨│╨╛ ╨║╨░╤В╨░╨╗╨╛╨│╨░.
+ 
+ ## ╨б╨╝. ╤В╨░╨║╨╢╨╡
+ 
+diff --git a/setup_aliases.ps1 b/setup_aliases.ps1
+deleted file mode 100644
+index ec929b0..0000000
+--- a/setup_aliases.ps1
++++ /dev/null
+@@ -1,28 +0,0 @@
+-$ErrorActionPreference = 'Stop'
+-$project = 'D:\work\TG_Parser'
+-$profilePath = $PROFILE.CurrentUserCurrentHost
+-
+-if (-not (Test-Path (Split-Path -Parent $profilePath))) {
+-  New-Item -ItemType Directory -Path (Split-Path -Parent $profilePath) -Force | Out-Null
+-}
+-if (-not (Test-Path $profilePath)) {
+-  New-Item -ItemType File -Path $profilePath -Force | Out-Null
+-}
+-
+-$block = @"
+-# TG_Parser aliases
+-function telegram_parse { & '$project\telegram_parse.ps1' @args }
+-function telegram_channels { & '$project\telegram_channels.ps1' @args }
+-Set-Alias tgparse telegram_parse
+-Set-Alias tgch telegram_channels
+-"@
+-
+-$content = Get-Content $profilePath -Raw
+-if ($content -notmatch 'TG_Parser aliases') {
+-  Add-Content -Path $profilePath -Value "`n$block`n"
+-  Write-Host "Aliases added to $profilePath"
+-} else {
+-  Write-Host "Aliases already present in $profilePath"
+-}
+-
+-Write-Host 'Run: . $PROFILE to reload aliases in current shell.'
+diff --git a/smoke_phase1.py b/smoke_phase1.py
+deleted file mode 100644
+index 856bce6..0000000
+--- a/smoke_phase1.py
++++ /dev/null
+@@ -1,283 +0,0 @@
+-#!/usr/bin/env python3
+-"""
+-╨б╨╝╨╛╤Г╨║-╤В╨╡╤Б╤В╤Л Phase 1: ╨║╨╛╨┤╤Л ╨▓╤Л╤Е╨╛╨┤╨░ ╨╕ partial_failure.
+-
+-1. ╨Ю╨▒╤П╨╖╨░╤В╨╡╨╗╤М╨╜╤Л╨╡ ╨▓ CI: --unit-only (exit-╨║╨╛╨┤╤Л/partial ╨▒╨╡╨╖ Telegram).
+-2. ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ 2тАУ4: ╨╖╨░╨┐╤Г╤Б╨║ ╨╛╤В╨┤╨╡╨╗╤М╨╜╨╛, ╤Б ╤Б╨╡╤Б╤Б╨╕╨╡╨╣ telegram_session_smoke,
+-   ╨▒╨╡╨╖ ╨┤╨▓╨╛╨╣╨╜╨╛╨│╨╛ connect (connect() ╨▓╤Л╨╖╤Л╨▓╨░╨╡╤В╤Б╤П ╤В╨╛╨╗╤М╨║╨╛ ╨▓╨╜╤Г╤В╤А╨╕ parse_channel()).
+-
+-╨Ч╨░╨┐╤Г╤Б╨║ ╨╕╨╖ ╨║╨╛╤А╨╜╤П ╨┐╤А╨╛╨╡╨║╤В╨░ (.venv ╨░╨║╤В╨╕╨▓╨╕╤А╨╛╨▓╨░╨╜):
+-  python smoke_phase1.py --unit-only   # ╤В╨╛╨╗╤М╨║╨╛ ╤О╨╜╨╕╤В, ╨┤╨╗╤П CI
+-  python smoke_phase1.py               # ╤О╨╜╨╕╤В + ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ 2тАУ4 (.env + telegram_session_smoke; ╨┐╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ ╨╖╨░╨┐╤Г╤Б╨║╨╡ ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╣ ╨╝╨╛╨╢╨╡╤В ╨┐╨╛╤В╤А╨╡╨▒╨╛╨▓╨░╤В╤М╤Б╤П ╨░╨▓╤В╨╛╤А╨╕╨╖╨░╤Ж╨╕╤П ╨┤╨╗╤П ╤Б╨╡╤Б╤Б╨╕╨╕ smoke)
+-"""
+-
+-from __future__ import annotations
+-
+-import argparse
+-import asyncio
+-import json
+-import os
+-import shutil
+-import sys
+-from pathlib import Path
+-
+-sys.path.insert(0, os.path.dirname(__file__))
+-from unittest.mock import AsyncMock, patch
+-
+-from dotenv import load_dotenv
+-
+-from telegram_parser import (
+-    MODE_PRESETS,
+-    TelegramParser,
+-    ModeConfig,
+-)
+-from telethon.errors.rpcerrorlist import FileReferenceExpiredError
+-
+-from exit_codes import EXIT_PARTIAL
+-from telegram_parser_skill import run as cli_run
+-from telegram_parser_skill import build_parser
+-
+-# ╨║╨░╨╜╨░╨╗ ╤Б ╨╝╨╡╨┤╨╕╨░ ╨┤╨╗╤П ╤В╨╡╤Б╤В╨╛╨▓ 2тАУ4
+-TEST_CHANNEL = "https://t.me/AlgorithmPythonStruct"
+-OUT_DIR = Path(__file__).parent / "out_smoke_phase1"
+-
+-
+-def _reset_case_output(case_dir: Path) -> None:
+-    """╨г╨┤╨░╨╗╨╕╤В╤М ╨░╤А╤В╨╡╤Д╨░╨║╤В╤Л ╨┐╤А╨╡╨┤╤Л╨┤╤Г╤Й╨╕╤Е ╨┐╤А╨╛╨│╨╛╨╜╨╛╨▓ ╤В╨╡╤Б╤В-╨║╨╡╨╣╤Б╨░."""
+-    shutil.rmtree(case_dir, ignore_errors=True)
+-
+-
+-async def test_cli_exit_partial_with_mock() -> bool:
+-    """╨С╨╡╨╖ Telegram: ╨┐╤А╨╕ result.partial_failure=True CLI ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В EXIT_PARTIAL (2)."""
+-    fake_result = {
+-        "summary": {"partial_failure": True, "media_errors_count": 1},
+-        "partial_failure": True,
+-        "export_dir": "",
+-        "export_json": "",
+-        "state_json": "",
+-        "media_index_json": "",
+-        "summary_json": "",
+-        "archive": None,
+-    }
+-    args = build_parser().parse_args(["parse", "--channel", "https://t.me/dummy", "--output-dir", str(OUT_DIR)])
+-    with patch.object(TelegramParser, "connect", new_callable=AsyncMock), patch.object(
+-        TelegramParser, "disconnect", new_callable=AsyncMock
+-    ), patch.object(TelegramParser, "parse_channel", new_callable=AsyncMock, return_value=fake_result):
+-        code = await cli_run(args)
+-    return code == EXIT_PARTIAL
+-
+-
+-def _get_media_errors_from_export(export_dir: str) -> list[str]:
+-    """╨б╨╛╨▒╤А╨░╤В╤М ╨▓╤Б╨╡ media_files[].error ╨╕╨╖ export.json ╨▓ export_dir."""
+-    export_path = Path(export_dir) / "export.json"
+-    if not export_path.exists():
+-        return []
+-    data = json.loads(export_path.read_text(encoding="utf-8"))
+-    errors = []
+-    for msg in data.get("messages", []):
+-        for m in msg.get("media_files", []):
+-            if m.get("error"):
+-                errors.append(m["error"])
+-    return errors
+-
+-
+-async def test2_file_reference_expired(parser: TelegramParser) -> bool:
+-    """parse ╤Б file_reference_expired тЖТ partial_failure, media_errors_count>0, error=file_reference_expired."""
+-    # ╨Ф╨╡╨╗╨░╨╡╨╝ ╨┐╨╛╨▓╨╡╨┤╨╡╨╜╨╕╨╡ ╤В╨╡╤Б╤В╨░ ╨▒╤Л╤Б╤В╤А╤Л╨╝ ╨╕ ╨┤╨╡╤В╨╡╤А╨╝╨╕╨╜╨╕╤А╨╛╨▓╨░╨╜╨╜╤Л╨╝:
+-    # ╨┐╤А╨╕ ╨╗╤О╨▒╨╛╨╣ ╨╛╤И╨╕╨▒╨║╨╡ ╨╝╨╛╨║╨░ ╨╜╨╡ ╤Г╤Е╨╛╨┤╨╕╨╝ ╨▓ ╨┤╨╛╨╗╨│╨╕╨╣ backoff retry.
+-    case_dir = OUT_DIR / "t2"
+-    _reset_case_output(case_dir)
+-
+-    safe_orig = MODE_PRESETS["safe"]
+-    MODE_PRESETS["safe"] = ModeConfig(
+-        safe_orig.batch_delay_min,
+-        safe_orig.batch_delay_max,
+-        safe_orig.flood_extra_delay,
+-        0,  # max_retries
+-        safe_orig.media_concurrency,
+-        safe_orig.media_download_timeout_sec,
+-    )
+-    try:
+-        async def _mock_download(*args, **kwargs):
+-            raise FileReferenceExpiredError(request=None)
+-
+-        with patch.object(parser, "connect", new_callable=AsyncMock), patch.object(
+-            parser.client, "download_media", side_effect=_mock_download
+-        ):
+-            result = await parser.parse_channel(
+-                channel_identifier=TEST_CHANNEL,
+-                output_dir=str(case_dir),
+-                mode="safe",
+-                dry_run=False,
+-            )
+-        ok = (
+-            result.get("partial_failure") is True
+-            and result["summary"]["media_errors_count"] >= 1
+-        )
+-        errors = _get_media_errors_from_export(result["export_dir"])
+-        ok = ok and "file_reference_expired" in errors
+-        return ok
+-    finally:
+-        MODE_PRESETS["safe"] = safe_orig
+-
+-
+-async def test3_download_timeout(parser: TelegramParser) -> bool:
+-    """parse ╤Б ╤В╨░╨╣╨╝╨░╤Г╤В╨╛╨╝ ╨╖╨░╨│╤А╤Г╨╖╨║╨╕ ╨╝╨╡╨┤╨╕╨░ тЖТ partial_failure, error=download_timeout."""
+-    # ╨з╤В╨╛╨▒╤Л ╨╜╨╡ ╨╢╨┤╨░╤В╤М 5 retry ╤Б backoff, ╨┐╨╛╨┤╨╝╨╡╨╜╤П╨╡╨╝ ╨┐╤А╨╡╤Б╨╡╤В ╨╜╨░ max_retries=0.
+-    case_dir = OUT_DIR / "t3"
+-    _reset_case_output(case_dir)
+-
+-    safe_orig = MODE_PRESETS["safe"]
+-    MODE_PRESETS["safe"] = ModeConfig(
+-        safe_orig.batch_delay_min,
+-        safe_orig.batch_delay_max,
+-        safe_orig.flood_extra_delay,
+-        0,  # max_retries
+-        safe_orig.media_concurrency,
+-        safe_orig.media_download_timeout_sec,
+-    )
+-    try:
+-        async def _mock_download(*args, **kwargs):
+-            raise asyncio.TimeoutError()
+-
+-        with patch.object(parser, "connect", new_callable=AsyncMock), patch.object(
+-            parser.client, "download_media", side_effect=_mock_download
+-        ):
+-            result = await parser.parse_channel(
+-                channel_identifier=TEST_CHANNEL,
+-                output_dir=str(case_dir),
+-                mode="safe",
+-                dry_run=False,
+-            )
+-        ok = (
+-            result.get("partial_failure") is True
+-            and result["summary"]["media_errors_count"] >= 1
+-        )
+-        errors = _get_media_errors_from_export(result["export_dir"])
+-        ok = ok and "download_timeout" in errors
+-        return ok
+-    finally:
+-        MODE_PRESETS["safe"] = safe_orig
+-
+-
+-async def test4_retry_exhausted(parser: TelegramParser) -> bool:
+-    """parse ╤Б ╨╕╤Б╤З╨╡╤А╨┐╨░╨╜╨╕╨╡╨╝ retry ╨┐╨╛ ╨┤╤А╤Г╨│╨╛╨╣ ╨╛╤И╨╕╨▒╨║╨╡ тЖТ partial_failure, error=retry_exhausted."""
+-    case_dir = OUT_DIR / "t4"
+-    _reset_case_output(case_dir)
+-
+-    safe_orig = MODE_PRESETS["safe"]
+-    MODE_PRESETS["safe"] = ModeConfig(
+-        safe_orig.batch_delay_min,
+-        safe_orig.batch_delay_max,
+-        safe_orig.flood_extra_delay,
+-        0,
+-        safe_orig.media_concurrency,
+-        safe_orig.media_download_timeout_sec,
+-    )
+-    try:
+-        async def _mock_download(*args, **kwargs):
+-            raise ConnectionError("mock connection error")
+-
+-        with patch.object(parser, "connect", new_callable=AsyncMock), patch.object(
+-            parser.client, "download_media", side_effect=_mock_download
+-        ):
+-            result = await parser.parse_channel(
+-                channel_identifier=TEST_CHANNEL,
+-                output_dir=str(case_dir),
+-                mode="safe",
+-                dry_run=False,
+-            )
+-        ok = (
+-            result.get("partial_failure") is True
+-            and result["summary"]["media_errors_count"] >= 1
+-        )
+-        errors = _get_media_errors_from_export(result["export_dir"])
+-        ok = ok and "retry_exhausted" in errors
+-        return ok
+-    finally:
+-        MODE_PRESETS["safe"] = safe_orig
+-
+-
+-async def main() -> int:
+-    load_dotenv(Path(__file__).parent / ".env")
+-    if "--unit-only" in sys.argv:
+-        sys.argv.remove("--unit-only")
+-        os.environ.setdefault("TELEGRAM_API_ID", "1")
+-        os.environ.setdefault("TELEGRAM_API_HASH", "x")
+-        ok = await test_cli_exit_partial_with_mock()
+-        print("  PASS: CLI exit 2 on partial_failure (mocked)" if ok else "  FAIL: CLI exit 2 on partial_failure (mocked)")
+-        return 0 if ok else 1
+-
+-    api_id = os.getenv("TELEGRAM_API_ID")
+-    api_hash = os.getenv("TELEGRAM_API_HASH")
+-    if not api_id or not api_hash:
+-        print("SKIP: TELEGRAM_API_ID/TELEGRAM_API_HASH required for tests 2тАУ4")
+-        return 0
+-
+-    # ╨о╨╜╨╕╤В-╤В╨╡╤Б╤В ╨▓╤Л╤Е╨╛╨┤╨░ 2 ╨▒╨╡╨╖ Telegram
+-    unit_ok = await test_cli_exit_partial_with_mock()
+-    print("  " + ("PASS" if unit_ok else "FAIL") + ": CLI exit 2 on partial_failure (mocked)")
+-
+-    # ╨Ю╤В╨┤╨╡╨╗╤М╨╜╨░╤П ╤Б╨╡╤Б╤Б╨╕╤П ╨┤╨╗╤П ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╤Е ╤В╨╡╤Б╤В╨╛╨▓ (╨╜╨╡ ╨▒╨╛╨╡╨▓╨░╤П telegram_session).
+-    parser = TelegramParser(
+-        api_id=api_id,
+-        api_hash=api_hash,
+-        session_file="telegram_session_smoke",
+-        auth_state_dir=Path(__file__).parent / "logs",
+-    )
+-    try:
+-        await asyncio.wait_for(parser.connect(), timeout=30.0)
+-    except asyncio.TimeoutError:
+-        print("SKIP: ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╨╡ ╨║ Telegram ╨┐╤А╨╡╨▓╤Л╤Б╨╕╨╗╨╛ 30 ╤Б. ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ ╤В╨╡╤Б╤В╤Л 2тАУ4 ╨┐╤А╨╛╨┐╤Г╤Й╨╡╨╜╤Л.")
+-        print("╨Ф╨╗╤П ╨▒╤Л╤Б╤В╤А╨╛╨╣ ╨┐╤А╨╛╨▓╨╡╤А╨║╨╕ ╨▒╨╡╨╖ ╤Б╨╡╤В╨╕: python smoke_phase1.py --unit-only")
+-        return 0
+-    except RuntimeError as e:
+-        msg = str(e)
+-        if "TELEGRAM_CODE" in msg or "TELEGRAM_PHONE" in msg or "╨Ъ╨╛╨┤ ╨╛╤В╨┐╤А╨░╨▓╨╗╨╡╨╜" in msg or "authorization" in msg.lower():
+-            print("SKIP: ╤Б╨╡╤Б╤Б╨╕╤П telegram_session_smoke ╨╜╨╡ ╨░╨▓╤В╨╛╤А╨╕╨╖╨╛╨▓╨░╨╜╨░. ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ ╤В╨╡╤Б╤В╤Л 2тАУ4 ╨┐╤А╨╛╨┐╤Г╤Й╨╡╨╜╤Л.")
+-            print("╨Т╨░╤А╨╕╨░╨╜╤В 1 тАФ ╤Б╨║╨╛╨┐╨╕╤А╨╛╨▓╨░╤В╤М ╨▒╨╛╨╡╨▓╤Г╤О ╤Б╨╡╤Б╤Б╨╕╤О (╨╜╨╡ ╨╜╤Г╨╢╨╡╨╜ ╨║╨╛╨┤):")
+-            print("  copy telegram_session.session telegram_session_smoke.session")
+-            print("╨Т╨░╤А╨╕╨░╨╜╤В 2 тАФ ╨░╨▓╤В╨╛╤А╨╕╨╖╨╛╨▓╨░╤В╤М smoke ╨▓╤А╤Г╤З╨╜╤Г╤О: ╨╖╨░╨┐╤Г╤Б╨║ ╤Б --session-file telegram_session_smoke ╨╕ ╨▓╨▓╨╛╨┤ ╨║╨╛╨┤╨░ ╨┐╤А╨╕ ╨╖╨░╨┐╤А╨╛╤Б╨╡.")
+-            return 0
+-        raise
+-
+-    results = []
+-    # Test 2
+-    try:
+-        ok = await test2_file_reference_expired(parser)
+-        results.append(("2 file_reference_expired", ok))
+-    except Exception as e:
+-        results.append(("2 file_reference_expired", False))
+-        print(f"Test 2 error: {e}")
+-    # Test 3
+-    try:
+-        ok = await test3_download_timeout(parser)
+-        results.append(("3 download_timeout", ok))
+-    except Exception as e:
+-        results.append(("3 download_timeout", False))
+-        print(f"Test 3 error: {e}")
+-    # Test 4
+-    try:
+-        ok = await test4_retry_exhausted(parser)
+-        results.append(("4 retry_exhausted", ok))
+-    except Exception as e:
+-        results.append(("4 retry_exhausted", False))
+-        print(f"Test 4 error: {e}")
+-
+-    try:
+-        await parser.disconnect()
+-    except Exception as e:
+-        print(f"Disconnect warning: {e}")
+-
+-    failed = [name for name, ok in results if not ok]
+-    for name, ok in results:
+-        print(f"  {'PASS' if ok else 'FAIL'}: {name}")
+-    if failed:
+-        print("FAILED:", failed)
+-        return 1
+-    print("All Phase 1 smoke tests (2тАУ4) passed.")
+-    return 0
+-
+-
+-if __name__ == "__main__":
+-    sys.exit(asyncio.run(main()))
+diff --git a/smoke_phase2.py b/smoke_phase2.py
+deleted file mode 100644
+index 9a045d8..0000000
+--- a/smoke_phase2.py
++++ /dev/null
+@@ -1,356 +0,0 @@
+-#!/usr/bin/env python3
+-"""
+-╨б╨╝╨╛╤Г╨║-╤В╨╡╤Б╤В╤Л Phase 2: run_id, error_code (CONFIG_ERROR, AUTH_ERROR, EXTERNAL_API_ERROR, PARTIAL_FAILURE, RATE_LIMIT).
+-
+-╨а╨░╨╖╨┤╨╡╨╗╨╡╨╜╨╕╨╡:
+-- --unit-only (╨╝╨╛╨║╨╕, ╨┤╨╗╤П CI): ╤В╨╡╤Б╤В╤Л 3, 5, 6, 7.
+-- ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ (╤Б Telegram): ╤В╨╡╤Б╤В╤Л 1, 2, 4.
+-
+-╨Ч╨░╨┐╤Г╤Б╨║ ╨╕╨╖ ╨║╨╛╤А╨╜╤П ╨┐╤А╨╛╨╡╨║╤В╨░ (.venv):
+-  python smoke_phase2.py --unit-only   # ╤В╨╛╨╗╤М╨║╨╛ unit (3, 5, 6, 7; 5тАУ7 ╤В╤А╨╡╨▒╤Г╤О╤В .env + telegram_session_smoke)
+-  python smoke_phase2.py               # unit + ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╡ 1, 2, 4
+-
+-╨Я╤А╨╕╨╝╨╡╤З╨░╨╜╨╕╨╡: ╤В╨╡╤Б╤В 3 (CONFIG_ERROR) ╨┐╤А╨╛╨▓╨╡╤А╤П╨╡╤В app/errors.log ╨┐╨╛╤Б╨╗╨╡ ╨╖╨░╨┐╤Г╤Б╨║╨░ ╨▒╨╡╨╖ API;
+-  ╨╡╤Б╨╗╨╕ .env ╨┐╨╡╤А╨╡╨╖╨░╨┐╨╕╤Б╤Л╨▓╨░╨╡╤В ╨┐╨╡╤А╨╡╨╝╨╡╨╜╨╜╤Л╨╡ ╨╛╨║╤А╤Г╨╢╨╡╨╜╨╕╤П, ╤В╨╡╤Б╤В ╨╝╨╛╨╢╨╡╤В ╨┐╨░╨┤╨░╤В╤М тАФ ╤В╨╛╨│╨┤╨░ ╨┐╤А╨╛╨▓╨╡╤А╨╕╤В╤М ╨▓╤А╤Г╤З╨╜╤Г╤О.
+-╨в╨╡╤Б╤В 7 (RATE_LIMIT) ╨╝╨╛╨║╨░╨╡╤В FloodWaitError ╨┐╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ GetHistory; ╨┐╤А╨╕ ╨╕╨╖╨╝╨╡╨╜╨╡╨╜╨╕╨╕ ╨║╨╛╨┤╨░ ╨┐╨░╤А╤Б╨╡╤А╨░ ╨╝╨╛╨╢╨╡╤В ╨┐╨╛╤В╤А╨╡╨▒╨╛╨▓╨░╤В╤М ╨┐╤А╨░╨▓╨║╨╕.
+-"""
+-
+-from __future__ import annotations
+-
+-import asyncio
+-import json
+-import os
+-import re
+-import shutil
+-import subprocess
+-import sys
+-from pathlib import Path
+-
+-sys.path.insert(0, os.path.dirname(__file__))
+-from unittest.mock import AsyncMock, patch
+-
+-from dotenv import load_dotenv
+-
+-from telegram_parser import (
+-    MODE_PRESETS,
+-    TelegramParser,
+-    ModeConfig,
+-)
+-from telegram_parser import TelegramParser as _Parser
+-from telethon.errors import FloodWaitError
+-from telethon.errors.rpcerrorlist import FileReferenceExpiredError
+-from telethon.tl.functions.messages import GetHistoryRequest
+-
+-from exit_codes import EXIT_PARTIAL
+-
+-TEST_CHANNEL = "https://t.me/AlgorithmPythonStruct"
+-OUT_DIR = Path(__file__).parent / "out_smoke_phase2"
+-PROJECT_ROOT = Path(__file__).parent
+-APP_LOGS = PROJECT_ROOT / "logs"
+-APP_ERRORS_LOG = APP_LOGS / "errors.log"
+-APP_APP_LOG = APP_LOGS / "app.log"
+-
+-
+-def _reset_case_output(case_dir: Path) -> None:
+-    shutil.rmtree(case_dir, ignore_errors=True)
+-
+-
+-# --- Unit: 3. CONFIG_ERROR ╨╕╨╖ CLI ---
+-def test3_config_error_in_errors_log() -> bool:
+-    """╨Ч╨░╨┐╤Г╤Б╨║ resolve ╨▒╨╡╨╖ --channel тЖТ exit 1, ╨▓ ╨╜╨╛╨▓╤Л╤Е ╤Б╤В╤А╨╛╨║╨░╤Е ╨╗╨╛╨│╨╛╨▓ ╨╡╤Б╤В╤М error_code=CONFIG_ERROR."""
+-    app_len_before = APP_APP_LOG.stat().st_size if APP_APP_LOG.exists() else 0
+-    err_len_before = APP_ERRORS_LOG.stat().st_size if APP_ERRORS_LOG.exists() else 0
+-
+-    proc = subprocess.run(
+-        [sys.executable, str(PROJECT_ROOT / "telegram_parser_skill.py"), "resolve"],
+-        cwd=str(PROJECT_ROOT),
+-        env=os.environ.copy(),
+-        capture_output=True,
+-        text=True,
+-        timeout=15,
+-    )
+-    if proc.returncode != 1:
+-        return False
+-
+-    def _new_tail(path: Path, start: int) -> str:
+-        if not path.exists():
+-            return ""
+-        with path.open("r", encoding="utf-8", errors="replace") as f:
+-            f.seek(start)
+-            return f.read()
+-
+-    new_err = _new_tail(APP_ERRORS_LOG, err_len_before)
+-    new_app = _new_tail(APP_APP_LOG, app_len_before)
+-    if "CONFIG_ERROR" in new_err or "CONFIG_ERROR" in new_app:
+-        return True
+-    return False
+-
+-
+-# --- Unit: 5. EXTERNAL_API_ERROR ╨▓ export logs ---
+-async def test5_external_api_error_in_export_logs(parser: TelegramParser) -> bool:
+-    """╨Ь╨╛╨║ download_media ╨╜╨░ timeout тЖТ ╨▓ export logs/errors.log ╨╡╤Б╤В╤М data.error_code=EXTERNAL_API_ERROR."""
+-    case_dir = OUT_DIR / "t5"
+-    _reset_case_output(case_dir)
+-    safe_orig = MODE_PRESETS["safe"]
+-    MODE_PRESETS["safe"] = ModeConfig(safe_orig.batch_delay_min, safe_orig.batch_delay_max, safe_orig.flood_extra_delay, 0, safe_orig.media_concurrency, safe_orig.media_download_timeout_sec)
+-    try:
+-        async def _mock_download(*args, **kwargs):
+-            raise asyncio.TimeoutError()
+-
+-        with patch.object(parser, "connect", new_callable=AsyncMock), patch.object(parser.client, "download_media", side_effect=_mock_download):
+-            result = await parser.parse_channel(channel_identifier=TEST_CHANNEL, output_dir=str(case_dir), mode="safe", dry_run=False)
+-        errors_log = Path(result["export_dir"]) / "logs" / "errors.log"
+-        if not errors_log.exists():
+-            return False
+-        for line in errors_log.read_text(encoding="utf-8").strip().splitlines():
+-            if not line.strip():
+-                continue
+-            try:
+-                obj = json.loads(line)
+-                if obj.get("data", {}).get("error_code") == "EXTERNAL_API_ERROR":
+-                    return True
+-            except json.JSONDecodeError:
+-                continue
+-        return False
+-    finally:
+-        MODE_PRESETS["safe"] = safe_orig
+-
+-
+-# --- Unit: 6. PARTIAL_FAILURE ╨┐╤А╨╕ ╤З╨░╤Б╤В╨╕╤З╨╜╨╛╨╝ ╤Г╤Б╨┐╨╡╤Е╨╡ ---
+-async def test6_partial_failure_in_run_log(parser: TelegramParser) -> bool:
+-    """Partial run (╨╝╨╛╨║ ╨╝╨╡╨┤╨╕╨░-╨╛╤И╨╕╨▒╨╛╨║) тЖТ exit 2, summary.partial_failure=true, run_finished ╨▓ run.log ╤Б error_code=PARTIAL_FAILURE."""
+-    case_dir = OUT_DIR / "t6"
+-    _reset_case_output(case_dir)
+-    safe_orig = MODE_PRESETS["safe"]
+-    MODE_PRESETS["safe"] = ModeConfig(safe_orig.batch_delay_min, safe_orig.batch_delay_max, safe_orig.flood_extra_delay, 0, safe_orig.media_concurrency, safe_orig.media_download_timeout_sec)
+-    try:
+-        async def _mock_download(*args, **kwargs):
+-            raise FileReferenceExpiredError(request=None)
+-
+-        with patch.object(parser, "connect", new_callable=AsyncMock), patch.object(parser.client, "download_media", side_effect=_mock_download):
+-            result = await parser.parse_channel(channel_identifier=TEST_CHANNEL, output_dir=str(case_dir), mode="safe", dry_run=False)
+-        if not result.get("partial_failure") or not result.get("summary", {}).get("partial_failure"):
+-            return False
+-        run_log = Path(result["export_dir"]) / "logs" / "run.log"
+-        if not run_log.exists():
+-            return False
+-        for line in run_log.read_text(encoding="utf-8").strip().splitlines():
+-            if not line.strip():
+-                continue
+-            try:
+-                obj = json.loads(line)
+-                if obj.get("event") == "run_finished" and obj.get("data", {}).get("error_code") == "PARTIAL_FAILURE":
+-                    return True
+-            except json.JSONDecodeError:
+-                continue
+-        return False
+-    finally:
+-        MODE_PRESETS["safe"] = safe_orig
+-
+-
+-# --- Unit: 7. RATE_LIMIT (╨╝╨╛╨║ FloodWaitError) ---
+-async def test7_rate_limit_in_export_logs(parser: TelegramParser) -> bool:
+-    """╨Ь╨╛╨║ FloodWaitError ╨┐╤А╨╕ ╨┐╨╡╤А╨▓╨╛╨╝ ╨╖╨░╨┐╤А╨╛╤Б╨╡ ╨╕╤Б╤В╨╛╤А╨╕╨╕ тЖТ ╨╖╨░╨┐╨╕╤Б╤М flood_wait ╤Б error_code=RATE_LIMIT ╨▓ export errors.log."""
+-    case_dir = OUT_DIR / "t7"
+-    _reset_case_output(case_dir)
+-    call_count = [0]
+-    raised_on_history = [False]
+-    client_cls = type(parser.client)
+-    original_call = client_cls.__call__
+-
+-    class FloodWaitWithSeconds(FloodWaitError):
+-        def __init__(self):
+-            super().__init__(None)
+-            self.seconds = 1
+-
+-    async def patched_call(this, request, *args, **kwargs):
+-        if this is parser.client:
+-            call_count[0] += 1
+-            if (not raised_on_history[0]) and isinstance(request, GetHistoryRequest):
+-                raised_on_history[0] = True
+-                raise FloodWaitWithSeconds()
+-        return await original_call(this, request, *args, **kwargs)
+-
+-    with patch.object(parser, "connect", new_callable=AsyncMock), patch.object(client_cls, "__call__", new=patched_call):
+-        result = await parser.parse_channel(channel_identifier=TEST_CHANNEL, output_dir=str(case_dir), mode="safe", dry_run=True)
+-    export_dir = result.get("export_dir") or str(case_dir)
+-    errors_log = Path(export_dir) / "logs" / "errors.log"
+-    if not errors_log.exists():
+-        return False
+-    for line in errors_log.read_text(encoding="utf-8").strip().splitlines():
+-        if not line.strip():
+-            continue
+-        try:
+-            obj = json.loads(line)
+-            if obj.get("event") == "flood_wait" and obj.get("data", {}).get("error_code") == "RATE_LIMIT":
+-                return True
+-        except json.JSONDecodeError:
+-            continue
+-    return False
+-
+-
+-# --- Integration: 1. run_id ╨▓ app-╨╗╨╛╨│╨░╤Е ---
+-def test1_run_id_in_app_log() -> bool:
+-    """parse --dry-run тЖТ ╨▓ logs/app.log ╤Г ╨╖╨░╨┐╨╕╤Б╨╡╨╣ ╨╛╨┤╨╕╨╜ ╨╕ ╤В╨╛╤В ╨╢╨╡ [run_id] ╨▓ ╤А╨░╨╝╨║╨░╤Е ╨╖╨░╨┐╤Г╤Б╨║╨░."""
+-    proc = subprocess.run(
+-        [sys.executable, str(PROJECT_ROOT / "telegram_parser_skill.py"), "parse", "--channel", TEST_CHANNEL, "--dry-run", "--output-dir", str(OUT_DIR)],
+-        cwd=str(PROJECT_ROOT),
+-        env=os.environ.copy(),
+-        capture_output=True,
+-        text=True,
+-        timeout=60,
+-    )
+-    if proc.returncode != 0:
+-        return False
+-    if not APP_APP_LOG.exists():
+-        return False
+-    content = APP_APP_LOG.read_text(encoding="utf-8", errors="replace")
+-    last_part = content[-5000:] if len(content) > 5000 else content
+-    matches = re.findall(r"\[([a-f0-9]{8})\]", last_part)
+-    return len(matches) >= 1 and len(set(matches)) == 1
+-
+-
+-# --- Integration: 2. run_id ╨▓ export JSONL ╨╕ summary ---
+-def test2_run_id_in_export_and_summary() -> bool:
+-    """╨в╨╛╤В ╨╢╨╡ dry-run тЖТ ╨▓ out/.../logs/run.log ╨╕ summary run_id ╤Б╨╛╨▓╨┐╨░╨┤╨░╤О╤В."""
+-    export_dirs = list(OUT_DIR.glob("*__*"))
+-    if not export_dirs:
+-        return False
+-    export_dir = max(export_dirs, key=lambda p: p.stat().st_mtime)
+-    summary_path = export_dir / "summary.json"
+-    run_log_path = export_dir / "logs" / "run.log"
+-    if not summary_path.exists() or not run_log_path.exists():
+-        return False
+-    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+-    run_id_summary = summary.get("run_id")
+-    if run_id_summary is None:
+-        return False
+-    for line in run_log_path.read_text(encoding="utf-8").strip().splitlines():
+-        if not line.strip():
+-            continue
+-        try:
+-            obj = json.loads(line)
+-            if obj.get("data", {}).get("run_id") == run_id_summary:
+-                return True
+-        except json.JSONDecodeError:
+-            continue
+-    return False
+-
+-
+-# --- Integration: 4. AUTH_ERROR ╨╕╨╖ CLI ---
+-def test4_auth_error_in_errors_log() -> bool:
+-    """╨Э╨╡╨░╨▓╤В╨╛╤А╨╕╨╖╨╛╨▓╨░╨╜╨╜╨░╤П ╤Б╨╡╤Б╤Б╨╕╤П (╤Д╨░╨╣╨╗ ╤Б╨╡╤Б╤Б╨╕╨╕ ╨╛╤В╤Б╤Г╤В╤Б╤В╨▓╤Г╨╡╤В) тЖТ exit 1, ╨▓ logs/errors.log ╨╡╤Б╤В╤М error_code=AUTH_ERROR."""
+-    env = os.environ.copy()
+-    proc = subprocess.run(
+-        [sys.executable, str(PROJECT_ROOT / "telegram_parser_skill.py"), "parse", "--channel", TEST_CHANNEL, "--session-file", "telegram_session_nonexistent_auth_test"],
+-        cwd=str(PROJECT_ROOT),
+-        env=env,
+-        capture_output=True,
+-        text=True,
+-        timeout=30,
+-    )
+-    if proc.returncode != 1:
+-        return False
+-    if not APP_ERRORS_LOG.exists():
+-        return False
+-    content = APP_ERRORS_LOG.read_text(encoding="utf-8", errors="replace")
+-    return "AUTH_ERROR" in content
+-
+-
+-async def run_unit_tests() -> list[tuple[str, bool]]:
+-    """╨в╨╡╤Б╤В╤Л 3, 5, 6, 7. 3 тАФ ╨▒╨╡╨╖ Telegram; 5тАУ7 тАФ ╤Б ╨┐╨░╤А╤Б╨╡╤А╨╛╨╝ ╨╕ ╤Б╨╡╤Б╤Б╨╕╨╡╨╣."""
+-    results = []
+-    # 3 тАФ ╨▒╨╡╨╖ ╨┐╨╛╨┤╨║╨╗╤О╤З╨╡╨╜╨╕╤П
+-    try:
+-        ok = test3_config_error_in_errors_log()
+-        results.append(("3 CONFIG_ERROR ╨▓ errors.log", ok))
+-    except Exception as e:
+-        results.append(("3 CONFIG_ERROR ╨▓ errors.log", False))
+-        print(f"Test 3 error: {e}")
+-
+-    api_id = os.getenv("TELEGRAM_API_ID")
+-    api_hash = os.getenv("TELEGRAM_API_HASH")
+-    if not api_id or not api_hash:
+-        results.append(("5 EXTERNAL_API_ERROR ╨▓ export logs", False))
+-        results.append(("6 PARTIAL_FAILURE ╨▓ run_finished", False))
+-        results.append(("7 RATE_LIMIT flood_wait", False))
+-        return results
+-
+-    parser = _Parser(api_id=api_id, api_hash=api_hash, session_file="telegram_session_smoke", auth_state_dir=PROJECT_ROOT / "logs")
+-    try:
+-        await asyncio.wait_for(parser.connect(), timeout=30.0)
+-    except (asyncio.TimeoutError, RuntimeError) as e:
+-        print(f"SKIP 5тАУ7: {e}")
+-        results.append(("5 EXTERNAL_API_ERROR ╨▓ export logs", False))
+-        results.append(("6 PARTIAL_FAILURE ╨▓ run_finished", False))
+-        results.append(("7 RATE_LIMIT flood_wait", False))
+-        return results
+-
+-    for name, coro in [
+-        ("5 EXTERNAL_API_ERROR ╨▓ export logs", test5_external_api_error_in_export_logs(parser)),
+-        ("6 PARTIAL_FAILURE ╨▓ run_finished", test6_partial_failure_in_run_log(parser)),
+-        ("7 RATE_LIMIT flood_wait", test7_rate_limit_in_export_logs(parser)),
+-    ]:
+-        try:
+-            ok = await coro
+-            results.append((name, ok))
+-        except Exception as e:
+-            results.append((name, False))
+-            print(f"  {name} error: {e}")
+-
+-    try:
+-        await parser.disconnect()
+-    except Exception:
+-        pass
+-    return results
+-
+-
+-def run_integration_tests() -> list[tuple[str, bool]]:
+-    """╨в╨╡╤Б╤В╤Л 1, 2, 4 (╤Б ╤А╨╡╨░╨╗╤М╨╜╤Л╨╝ Telegram / ╤Б╨╡╤Б╤Б╨╕╨╡╨╣)."""
+-    results = []
+-    try:
+-        ok = test1_run_id_in_app_log()
+-        results.append(("1 run_id ╨▓ app.log", ok))
+-    except Exception as e:
+-        results.append(("1 run_id ╨▓ app.log", False))
+-        print(f"Test 1 error: {e}")
+-    try:
+-        ok = test2_run_id_in_export_and_summary()
+-        results.append(("2 run_id ╨▓ export/summary", ok))
+-    except Exception as e:
+-        results.append(("2 run_id ╨▓ export/summary", False))
+-        print(f"Test 2 error: {e}")
+-    try:
+-        ok = test4_auth_error_in_errors_log()
+-        results.append(("4 AUTH_ERROR ╨▓ errors.log", ok))
+-    except Exception as e:
+-        results.append(("4 AUTH_ERROR ╨▓ errors.log", False))
+-        print(f"Test 4 error: {e}")
+-    return results
+-
+-
+-async def main() -> int:
+-    load_dotenv(PROJECT_ROOT / ".env")
+-    unit_only = "--unit-only" in sys.argv
+-    if unit_only:
+-        sys.argv.remove("--unit-only")
+-    unit_results = await run_unit_tests()
+-    for name, ok in unit_results:
+-        print(f"  {'PASS' if ok else 'FAIL'}: {name}")
+-    if unit_only:
+-        failed = [n for n, ok in unit_results if not ok]
+-        return 1 if failed else 0
+-    int_results = run_integration_tests()
+-    for name, ok in int_results:
+-        print(f"  {'PASS' if ok else 'FAIL'}: {name}")
+-    all_results = unit_results + int_results
+-    failed = [n for n, ok in all_results if not ok]
+-    if failed:
+-        print("FAILED:", failed)
+-        return 1
+-    print("All Phase 2 smoke tests passed.")
+-    return 0
+-
+-
+-if __name__ == "__main__":
+-    sys.exit(asyncio.run(main()))
+diff --git a/smoke_phase3.py b/smoke_phase3.py
+deleted file mode 100644
+index 8db4f74..0000000
+--- a/smoke_phase3.py
++++ /dev/null
+@@ -1,234 +0,0 @@
+-#!/usr/bin/env python3
+-"""
+-╨б╨╝╨╛╤Г╨║-╤В╨╡╤Б╤В╤Л Phase 3: ╨║╨╛╨╜╤В╤А╨░╨║╤В╤Л (ContentItem), ╨╝╨░╨┐╨┐╨╕╨╜╨│ TG тЖФ ╨║╨╛╨╜╤В╤А╨░╨║╤В, ╨░╨┤╨░╨┐╤В╨╡╤А╤Л.
+-
+-╨Т╤Б╨╡ ╤В╨╡╤Б╤В╤Л ╨▒╨╡╨╖ Telegram (╨╝╨╛╨║╨╕). ╨Ч╨░╨┐╤Г╤Б╨║ ╨╕╨╖ ╨║╨╛╤А╨╜╤П ╨┐╤А╨╛╨╡╨║╤В╨░ (.venv):
+-  python smoke_phase3.py
+-"""
+-
+-from __future__ import annotations
+-
+-import json
+-import sys
+-import tempfile
+-from pathlib import Path
+-
+-sys.path.insert(0, str(Path(__file__).resolve().parent))
+-from unittest.mock import AsyncMock, patch
+-
+-from contracts import (
+-    ContentItem,
+-    MediaItem,
+-    content_item_to_tg_message,
+-    tg_message_to_content_item,
+-)
+-from adapters import LocalExportDestinationAdapter, TelegramSourceAdapter
+-from telegram_parser import TelegramParser
+-
+-
+-OUT = Path(__file__).parent / "out_smoke_phase3"
+-
+-
+-def test1_round_trip_tg_content_tg() -> bool:
+-    """╨Ъ╨╛╨╜╤В╤А╨░╨║╤В: TG -> ContentItem -> TG ╤Б╨╛╤Е╤А╨░╨╜╤П╨╡╤В ╨║╨╗╤О╤З╨╡╨▓╤Л╨╡ ╨┐╨╛╨╗╤П (╨▓ ╤В.╤З. media.error)."""
+-    messages = [
+-        {
+-            "id": 101,
+-            "date": "2026-02-17T12:00:00Z",
+-            "text": "Hello",
+-            "media_files": [
+-                {"type": "photo", "path": "media/photos/1.jpg", "filename": "1.jpg", "size": 1000},
+-                {"type": "document", "path": None, "filename": None, "error": "file_reference_expired"},
+-            ],
+-            "forwarded": {"from_name": "X", "date": "2026-02-16T10:00:00Z"},
+-            "reply_to_msg_id": 99,
+-            "views": 100,
+-            "forwards": 2,
+-        },
+-        {"id": 102, "date": "2026-02-17T13:00:00Z", "text": "No media", "media_files": []},
+-    ]
+-    source_id = "telegram:test"
+-    for msg in messages:
+-        item = tg_message_to_content_item(msg, source_id)
+-        back = content_item_to_tg_message(item)
+-        if back.get("id") != msg.get("id"):
+-            return False
+-        if back.get("date") != msg.get("date"):
+-            return False
+-        if back.get("text") != msg.get("text"):
+-            return False
+-        mf = back.get("media_files") or []
+-        orig_mf = msg.get("media_files") or []
+-        if len(mf) != len(orig_mf):
+-            return False
+-        for a, b in zip(mf, orig_mf):
+-            if a.get("type") != b.get("type") or a.get("error") != b.get("error"):
+-                return False
+-        for key in ("forwarded", "reply_to_msg_id", "views", "forwards"):
+-            if msg.get(key) != back.get(key):
+-                return False
+-    return True
+-
+-
+-def test2_local_dest_mixed_external_id() -> bool:
+-    """LocalExportDestinationAdapter: mixed external_id (123, abc-42, '', 001) тАФ ╨╜╨╡ ╨┐╨░╨┤╨░╨╡╤В, total_messages ╨║╨╛╤А╤А╨╡╨║╤В╨╡╨╜."""
+-    items = [
+-        ContentItem("src", "123", "2026-02-17T10:00:00Z", "A", []),
+-        ContentItem("src", "abc-42", "2026-02-17T11:00:00Z", "B", []),
+-        ContentItem("src", "", "2026-02-17T12:00:00Z", "C", []),
+-        ContentItem("src", "001", "2026-02-17T13:00:00Z", "D", []),
+-    ]
+-    export_dir = OUT / "t2"
+-    export_dir.mkdir(parents=True, exist_ok=True)
+-    dest = LocalExportDestinationAdapter()
+-    dest.publish_batch(items, export_dir, append=False, channel_info={"id": 1, "username": "t"})
+-    path = export_dir / "export.json"
+-    if not path.exists():
+-        return False
+-    data = json.loads(path.read_text(encoding="utf-8"))
+-    if data.get("total_messages") != 4:
+-        return False
+-    if len(data.get("messages") or []) != 4:
+-        return False
+-    return True
+-
+-
+-async def test3_source_only_new_messages() -> bool:
+-    """TelegramSourceAdapter: ╨┐╤А╨╕ new_messages=[...] ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В ╤В╨╛╨╗╤М╨║╨╛ ╨╕╤Е, ╨╜╨╡ ╨▓╨╡╤Б╤М export.json."""
+-    new_only = [
+-        {"id": 1, "date": "2026-02-17T10:00:00Z", "text": "New one", "media_files": []},
+-        {"id": 2, "date": "2026-02-17T11:00:00Z", "text": "New two", "media_files": []},
+-    ]
+-    with tempfile.TemporaryDirectory() as tmp:
+-        export_dir = Path(tmp)
+-        (export_dir / "export.json").write_text(
+-            json.dumps({"messages": [{"id": i, "date": "", "text": f"Old {i}", "media_files": []} for i in range(50)]}, ensure_ascii=False),
+-            encoding="utf-8",
+-        )
+-        result = {
+-            "summary": {"channel_id": 123, "channel_username": "ch"},
+-            "export_dir": str(export_dir),
+-            "new_messages": new_only,
+-        }
+-        parser = TelegramParser(api_id="1", api_hash="x", session_file="x")
+-        with patch.object(parser, "parse_channel", new_callable=AsyncMock, return_value=result):
+-            adapter = TelegramSourceAdapter(parser)
+-            got = await adapter.fetch_messages("dummy", tmp)
+-    if len(got) != 2:
+-        return False
+-    if got[0].text != "New one" or got[1].text != "New two":
+-        return False
+-    return True
+-
+-
+-async def test4_source_empty_new_messages() -> bool:
+-    """TelegramSourceAdapter: ╨┐╤А╨╕ new_messages=[] ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В [], ╨╜╨╡ ╤З╨╕╤В╨░╨╡╤В export.json."""
+-    with tempfile.TemporaryDirectory() as tmp:
+-        export_dir = Path(tmp)
+-        (export_dir / "export.json").write_text(
+-            json.dumps({"messages": [{"id": 1, "date": "", "text": "Old", "media_files": []}]}, ensure_ascii=False),
+-            encoding="utf-8",
+-        )
+-        result = {
+-            "summary": {"channel_id": 456, "channel_username": "ch2"},
+-            "export_dir": str(export_dir),
+-            "new_messages": [],
+-        }
+-        parser = TelegramParser(api_id="1", api_hash="x", session_file="x")
+-        with patch.object(parser, "parse_channel", new_callable=AsyncMock, return_value=result):
+-            adapter = TelegramSourceAdapter(parser)
+-            got = await adapter.fetch_messages("dummy", tmp)
+-    return got == []
+-
+-
+-async def test5_source_backward_compat() -> bool:
+-    """TelegramSourceAdapter: ╨▒╨╡╨╖ ╨║╨╗╤О╤З╨░ new_messages ╤З╨╕╤В╨░╨╡╤В export.json ╨╕ ╨▓╨╛╨╖╨▓╤А╨░╤Й╨░╨╡╤В ╤Б╨╛╨╛╨▒╤Й╨╡╨╜╨╕╤П ╨╛╤В╤В╤Г╨┤╨░."""
+-    with tempfile.TemporaryDirectory() as tmp:
+-        export_dir = Path(tmp)
+-        messages = [
+-            {"id": 10, "date": "2026-02-17T10:00:00Z", "text": "A", "media_files": []},
+-            {"id": 11, "date": "2026-02-17T11:00:00Z", "text": "B", "media_files": []},
+-            {"id": 12, "date": "2026-02-17T12:00:00Z", "text": "C", "media_files": []},
+-        ]
+-        (export_dir / "export.json").write_text(
+-            json.dumps({"messages": messages}, ensure_ascii=False),
+-            encoding="utf-8",
+-        )
+-        result = {
+-            "summary": {"channel_id": 789, "channel_username": "ch3"},
+-            "export_dir": str(export_dir),
+-        }
+-        parser = TelegramParser(api_id="1", api_hash="x", session_file="x")
+-        with patch.object(parser, "parse_channel", new_callable=AsyncMock, return_value=result):
+-            adapter = TelegramSourceAdapter(parser)
+-            got = await adapter.fetch_messages("dummy", tmp)
+-    if len(got) != 3:
+-        return False
+-    if [g.text for g in got] != ["A", "B", "C"]:
+-        return False
+-    return True
+-
+-
+-def test6_local_dest_append() -> bool:
+-    """LocalExportDestinationAdapter: append=False ╨┐╨╕╤И╨╡╤В ╨╜╨╛╨▓╤Л╨╣ export; append=True ╨┤╨╛╨┐╨╕╤Б╤Л╨▓╨░╨╡╤В; channel_info ╨╜╨╡ ╤В╨╡╤А╤П╨╡╤В╤Б╤П."""
+-    import shutil
+-    export_dir = OUT / "t6"
+-    if export_dir.exists():
+-        shutil.rmtree(export_dir)
+-    export_dir.mkdir(parents=True, exist_ok=True)
+-    channel_info = {"id": 100, "username": "channel", "title": "Test"}
+-    dest = LocalExportDestinationAdapter()
+-
+-    dest.publish_batch(
+-        [ContentItem("s", "1", "2026-02-17T10:00:00Z", "First", [])],
+-        export_dir,
+-        append=False,
+-        channel_info=channel_info,
+-    )
+-    path = export_dir / "export.json"
+-    data1 = json.loads(path.read_text(encoding="utf-8"))
+-    if data1.get("total_messages") != 1:
+-        return False
+-    if data1.get("channel_info") != channel_info:
+-        return False
+-    date1 = data1.get("export_date")
+-    import time
+-    time.sleep(1.1)  # ╤З╤В╨╛╨▒╤Л export_date ╨│╨░╤А╨░╨╜╤В╨╕╤А╨╛╨▓╨░╨╜╨╜╨╛ ╨╛╨▒╨╜╨╛╨▓╨╕╨╗╤Б╤П ╨┐╤А╨╕ append
+-
+-    dest.publish_batch(
+-        [ContentItem("s", "2", "2026-02-17T11:00:00Z", "Second", [])],
+-        export_dir,
+-        append=True,
+-    )
+-    data2 = json.loads(path.read_text(encoding="utf-8"))
+-    if data2.get("total_messages") != 2:
+-        return False
+-    if data2.get("channel_info") != channel_info:
+-        return False
+-    if data2.get("export_date") == date1:
+-        return False
+-    return True
+-
+-
+-def main() -> int:
+-    import asyncio
+-    results = []
+-    results.append(("1 round-trip TG->ContentItem->TG", test1_round_trip_tg_content_tg()))
+-    results.append(("2 LocalExport mixed external_id", test2_local_dest_mixed_external_id()))
+-    results.append(("3 Source only new_messages", asyncio.run(test3_source_only_new_messages())))
+-    results.append(("4 Source new_messages=[]", asyncio.run(test4_source_empty_new_messages())))
+-    results.append(("5 Source backward compat", asyncio.run(test5_source_backward_compat())))
+-    results.append(("6 LocalExport append", test6_local_dest_append()))
+-
+-    for name, ok in results:
+-        print(f"  {'PASS' if ok else 'FAIL'}: {name}")
+-    failed = [n for n, ok in results if not ok]
+-    if failed:
+-        print("FAILED:", failed)
+-        return 1
+-    print("All Phase 3 smoke tests passed.")
+-    return 0
+-
+-
+-if __name__ == "__main__":
+-    sys.exit(main())
+diff --git a/smoke_session_stability.py b/smoke_session_stability.py
+deleted file mode 100644
+index fe7e849..0000000
+--- a/smoke_session_stability.py
++++ /dev/null
+@@ -1,189 +0,0 @@
+-#!/usr/bin/env python3
+-"""
+-╨б╨╝╨╛╤Г╨║-╤В╨╡╤Б╤В╤Л ╤Б╤В╨░╨▒╨╕╨╗╨╕╨╖╨░╤Ж╨╕╨╕ ╨┐╨░╤А╤Б╨╡╤А╨░ (╨в╨Ч: lock, retry connect, ╨╜╨░╨▒╨╗╤О╨┤╨░╨╡╨╝╨╛╤Б╤В╤М).
+-- Unit: session_lock (acquire/release, stale lock, ╨╖╨░╨╜╤П╤В╨░╤П ╤Б╨╡╤Б╤Б╨╕╤П).
+-- Unit: connect retry ╨╜╨░ database is locked.
+-- ╨Ш╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╣: ╨┤╨▓╨░ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨░ ╤Б ╨╛╨┤╨╜╨╕╨╝ session_file тАФ ╨▓╤В╨╛╤А╨╛╨╣ ╨╖╨░╨▓╨╡╤А╤И╨░╨╡╤В╤Б╤П ╤Б SESSION_LOCKED.
+-
+-╨Ч╨░╨┐╤Г╤Б╨║ ╨╕╨╖ ╨║╨╛╤А╨╜╤П ╨┐╤А╨╛╨╡╨║╤В╨░:
+-  python smoke_session_stability.py              # ╨▓╤Б╨╡ ╤В╨╡╤Б╤В╤Л
+-  python smoke_session_stability.py --hold-lock NAME   # ╤А╨╡╨╢╨╕╨╝ ╨┤╨╗╤П ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╕: ╨╖╨░╨╜╤П╤В╤М lock ╨╕ ╤Б╨┐╨░╤В╤М
+-  python smoke_session_stability.py --try-lock NAME    # ╨┐╨╛╨┐╤Л╤В╨║╨░ ╨╖╨░╨╜╤П╤В╤М lock, exit 0/1
+-"""
+-
+-from __future__ import annotations
+-
+-import asyncio
+-import os
+-import subprocess
+-import sys
+-import time
+-from pathlib import Path
+-
+-sys.path.insert(0, os.path.dirname(__file__))
+-
+-# ╨а╨╡╨╢╨╕╨╝╤Л ╨┤╨╗╤П ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╨╛╨│╨╛ ╤В╨╡╤Б╤В╨░ (subprocess)
+-if len(sys.argv) >= 3 and sys.argv[1] == "--hold-lock":
+-    from session_lock import session_lock
+-    name = sys.argv[2]
+-    with session_lock(name) as acquired:
+-        if not acquired:
+-            sys.exit(1)
+-        time.sleep(5)
+-    sys.exit(0)
+-
+-if len(sys.argv) >= 3 and sys.argv[1] == "--try-lock":
+-    from session_lock import session_lock
+-    name = sys.argv[2]
+-    with session_lock(name) as acquired:
+-        sys.exit(0 if acquired else 1)
+-    sys.exit(0)
+-
+-# ╨Ю╨▒╤Л╤З╨╜╤Л╨╣ ╨╖╨░╨┐╤Г╤Б╨║ ╤В╨╡╤Б╤В╨╛╨▓
+-import sqlite3
+-from unittest.mock import AsyncMock
+-
+-import telegram_parser as _telegram_parser_mod
+-from session_lock import _lock_path, session_lock
+-from telegram_parser import TelegramParser
+-
+-
+-def test_session_lock_acquire_release() -> bool:
+-    """╨Ю╨┤╨╕╨╜ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б: acquire тЖТ release тЖТ ╤Б╨╜╨╛╨▓╨░ acquire тАФ ╨╛╨▒╨░ ╤А╨░╨╖╨░ True."""
+-    name = "smoke_test_lock_1"
+-    lock_path = _lock_path(name)
+-    lock_path.unlink(missing_ok=True)
+-    try:
+-        with session_lock(name) as a:
+-            if not a:
+-                return False
+-        with session_lock(name) as b:
+-            if not b:
+-                return False
+-        return True
+-    finally:
+-        lock_path.unlink(missing_ok=True)
+-
+-
+-def test_session_lock_stale_pid() -> bool:
+-    """Lock-╤Д╨░╨╣╨╗ ╤Б ╨╜╨╡╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╤О╤Й╨╕╨╝ PID тАФ ╤Б╤З╨╕╤В╨░╨╡╨╝ stale, ╨╖╨░╨╜╨╕╨╝╨░╨╡╨╝ lock."""
+-    name = "smoke_test_lock_stale"
+-    lock_path = _lock_path(name)
+-    lock_path.parent.mkdir(parents=True, exist_ok=True)
+-    lock_path.write_text("99999999", encoding="utf-8")  # ╨╜╨╡╤Б╤Г╤Й╨╡╤Б╤В╨▓╤Г╤О╤Й╨╕╨╣ PID
+-    try:
+-        with session_lock(name) as a:
+-            return a is True
+-    finally:
+-        lock_path.unlink(missing_ok=True)
+-
+-
+-def test_session_lock_busy_same_pid() -> bool:
+-    """Lock-╤Д╨░╨╣╨╗ ╤Б ╤В╨╡╨║╤Г╤Й╨╕╨╝ PID (╨╕╨╝╨╕╤В╨░╤Ж╨╕╤П ┬л╨┤╤А╤Г╨│╨╛╨╣ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б┬╗) тАФ ╤Б╤З╨╕╤В╨░╨╡╨╝ ╨╖╨░╨╜╤П╤В╤Л╨╝, yield False."""
+-    name = "smoke_test_lock_busy"
+-    lock_path = _lock_path(name)
+-    lock_path.parent.mkdir(parents=True, exist_ok=True)
+-    lock_path.write_text(str(os.getpid()), encoding="utf-8")
+-    try:
+-        with session_lock(name) as a:
+-            return a is False
+-    finally:
+-        lock_path.unlink(missing_ok=True)
+-
+-
+-async def test_connect_retry_database_locked() -> bool:
+-    """connect() ╨┐╤А╨╕ database is locked тАФ retry ╤Б backoff, ╨╖╨░╤В╨╡╨╝ ╤Г╤Б╨┐╨╡╤Е."""
+-    parser = TelegramParser(api_id="1", api_hash="x", session_file="nonexistent_session_file")
+-    call_count = 0
+-
+-    async def mock_connect():
+-        nonlocal call_count
+-        call_count += 1
+-        if call_count < 3:
+-            raise sqlite3.OperationalError("database is locked")
+-        return None
+-
+-    async def noop_sleep(_sec: float) -> None:
+-        return
+-
+-    mock_client = AsyncMock()
+-    mock_client.connect = AsyncMock(side_effect=mock_connect)
+-    mock_client.is_user_authorized = AsyncMock(return_value=True)
+-    parser.client = mock_client
+-
+-    old_sleep = _telegram_parser_mod.asyncio.sleep
+-    _telegram_parser_mod.asyncio.sleep = noop_sleep
+-    try:
+-        try:
+-            await parser.connect()
+-        except Exception:
+-            return False
+-        return call_count == 3
+-    finally:
+-        _telegram_parser_mod.asyncio.sleep = old_sleep
+-
+-
+-def test_integration_two_processes_same_session() -> bool:
+-    """╨Ф╨▓╨░ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨░ ╤Б ╨╛╨┤╨╜╨╕╨╝ session_file: ╨┐╨╡╤А╨▓╤Л╨╣ ╨┤╨╡╤А╨╢╨╕╤В lock, ╨▓╤В╨╛╤А╨╛╨╣ ╨▓╤Л╤Е╨╛╨┤╨╕╤В ╤Б ╨║╨╛╨┤╨╛╨╝ 1."""
+-    root = Path(__file__).parent
+-    session_name = "smoke_test_concurrent_session"
+-    lock_path = _lock_path(session_name)
+-    lock_path.unlink(missing_ok=True)
+-
+-    try:
+-        proc_hold = subprocess.Popen(
+-            [sys.executable, str(root / "smoke_session_stability.py"), "--hold-lock", session_name],
+-            cwd=str(root),
+-            env=os.environ.copy(),
+-            stdout=subprocess.DEVNULL,
+-            stderr=subprocess.DEVNULL,
+-        )
+-        time.sleep(0.8)
+-        proc_try = subprocess.run(
+-            [sys.executable, str(root / "telegram_parser_skill.py"), "parse", "--channel", "dummy", "--session-file", session_name],
+-            cwd=str(root),
+-            env=os.environ.copy(),
+-            capture_output=True,
+-            text=True,
+-            timeout=5,
+-        )
+-        proc_hold.terminate()
+-        proc_hold.wait(timeout=3)
+-
+-        if proc_try.returncode != 1:
+-            return False
+-        err = (proc_try.stderr or "") + (proc_try.stdout or "")
+-        if "session" in err.lower() and ("lock" in err.lower() or "SESSION_LOCKED" in err or "Error:" in err):
+-            return True
+-        return "session is locked" in err or "SESSION_LOCKED" in err
+-    finally:
+-        lock_path.unlink(missing_ok=True)
+-
+-
+-def main() -> int:
+-    import argparse
+-    ap = argparse.ArgumentParser()
+-    ap.add_argument("--no-integration", action="store_true", help="╨Я╤А╨╛╨┐╤Г╤Б╤В╨╕╤В╤М ╨╕╨╜╤В╨╡╨│╤А╨░╤Ж╨╕╨╛╨╜╨╜╤Л╨╣ ╤В╨╡╤Б╤В (╨┤╨▓╨░ ╨┐╤А╨╛╤Ж╨╡╤Б╤Б╨░)")
+-    args, _ = ap.parse_known_args()
+-
+-    results = []
+-
+-    results.append(("session_lock acquire/release", test_session_lock_acquire_release()))
+-    results.append(("session_lock stale PID", test_session_lock_stale_pid()))
+-    results.append(("session_lock busy same PID", test_session_lock_busy_same_pid()))
+-    results.append(("connect retry database_locked", asyncio.run(test_connect_retry_database_locked())))
+-    if not args.no_integration:
+-        results.append(("integration two processes same session", test_integration_two_processes_same_session()))
+-
+-    for name, ok in results:
+-        print(f"  {'PASS' if ok else 'FAIL'}: {name}")
+-    failed = [n for n, ok in results if not ok]
+-    if failed:
+-        print("FAILED:", failed)
+-        return 1
+-    print("All session stability smoke tests passed.")
+-    return 0
+-
+-
+-if __name__ == "__main__":
+-    raise SystemExit(main())
+diff --git a/telegram_channels.ps1 b/telegram_channels.ps1
+deleted file mode 100644
+index 9caa72d..0000000
+--- a/telegram_channels.ps1
++++ /dev/null
+@@ -1,12 +0,0 @@
+-param(
+-  [Parameter(ValueFromRemainingArguments = $true)]
+-  [string[]]$ArgsList
+-)
+-
+-$ErrorActionPreference = 'Stop'
+-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+-$python = Join-Path $root '.venv\Scripts\python.exe'
+-if (-not (Test-Path $python)) { $python = 'python' }
+-
+-& $python (Join-Path $root 'telegram_parser_skill.py') channels @ArgsList
+-exit $LASTEXITCODE
+diff --git a/telegram_parse.ps1 b/telegram_parse.ps1
+deleted file mode 100644
+index f512014..0000000
+--- a/telegram_parse.ps1
++++ /dev/null
+@@ -1,12 +0,0 @@
+-param(
+-  [Parameter(ValueFromRemainingArguments = $true)]
+-  [string[]]$ArgsList
+-)
+-
+-$ErrorActionPreference = 'Stop'
+-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+-$python = Join-Path $root '.venv\Scripts\python.exe'
+-if (-not (Test-Path $python)) { $python = 'python' }
+-
+-& $python (Join-Path $root 'telegram_parser_skill.py') parse @ArgsList
+-exit $LASTEXITCODE

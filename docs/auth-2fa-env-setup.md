@@ -58,7 +58,7 @@ python .\telegram_parser_skill.py channels
 
 ## 7) Алиасы (PowerShell)
 1. Выполните:
-   - `.\setup_aliases.ps1`
+   - `.\scripts\setup_aliases.ps1`
 2. Перезагрузите профиль:
    - `. $PROFILE`
 3. Используйте:

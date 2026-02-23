@@ -117,13 +117,19 @@ python .\telegram_parser_skill.py parse --channel @my_channel --max-media-size 5
    .\.venv\Scripts\python .\telegram_parser_skill.py parse --channel @channel
    ```
 
-3. **С алиасами** (после `.\setup_aliases.ps1` и перезагрузки профиля):
+3. **Через скрипты в `scripts/`** (работают из любого CWD):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\scripts\telegram_channels.ps1
+   powershell -ExecutionPolicy Bypass -File .\scripts\telegram_parse.ps1 --channel @channel --dry-run
+   ```
+
+4. **С алиасами** (после `.\scripts\setup_aliases.ps1` и перезагрузки профиля):
    ```powershell
    telegram_parse --channel @channel --mode safe
    tgparse --channel "https://t.me/channel/1"
    ```
 
-4. **Пакетный/фоновый запуск** — через планировщик задач или скрипт с нужными `--output-dir` и `--channel`.
+5. **Пакетный/фоновый запуск** — через планировщик задач или скрипт с нужными `--output-dir` и `--channel`.
 
 ## Коды выхода
 

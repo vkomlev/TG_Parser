@@ -7,12 +7,8 @@
 - Интеграционные (с Telegram): тесты 1, 2, 4.
 
 Запуск из корня проекта (.venv):
-  python smoke_phase2.py --unit-only   # только unit (3, 5, 6, 7; 5–7 требуют .env + telegram_session_smoke)
-  python smoke_phase2.py               # unit + интеграционные 1, 2, 4
-
-Примечание: тест 3 (CONFIG_ERROR) проверяет app/errors.log после запуска без API;
-  если .env перезаписывает переменные окружения, тест может падать — тогда проверить вручную.
-Тест 7 (RATE_LIMIT) мокает FloodWaitError при первом GetHistory; при изменении кода парсера может потребовать правки.
+  python tests/smoke_phase2.py --unit-only
+  python tests/smoke_phase2.py
 """
 
 from __future__ import annotations
@@ -26,7 +22,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(__file__))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 from unittest.mock import AsyncMock, patch
 
 from dotenv import load_dotenv
@@ -44,8 +41,7 @@ from telethon.tl.functions.messages import GetHistoryRequest
 from exit_codes import EXIT_PARTIAL
 
 TEST_CHANNEL = "https://t.me/AlgorithmPythonStruct"
-OUT_DIR = Path(__file__).parent / "out_smoke_phase2"
-PROJECT_ROOT = Path(__file__).parent
+OUT_DIR = PROJECT_ROOT / "tests" / "out" / "smoke_phase2"
 APP_LOGS = PROJECT_ROOT / "logs"
 APP_ERRORS_LOG = APP_LOGS / "errors.log"
 APP_APP_LOG = APP_LOGS / "app.log"
@@ -55,7 +51,6 @@ def _reset_case_output(case_dir: Path) -> None:
     shutil.rmtree(case_dir, ignore_errors=True)
 
 
-# --- Unit: 3. CONFIG_ERROR из CLI ---
 def test3_config_error_in_errors_log() -> bool:
     """Запуск resolve без --channel → exit 1, в новых строках логов есть error_code=CONFIG_ERROR."""
     app_len_before = APP_APP_LOG.stat().st_size if APP_APP_LOG.exists() else 0
@@ -86,7 +81,6 @@ def test3_config_error_in_errors_log() -> bool:
     return False
 
 
-# --- Unit: 5. EXTERNAL_API_ERROR в export logs ---
 async def test5_external_api_error_in_export_logs(parser: TelegramParser) -> bool:
     """Мок download_media на timeout → в export logs/errors.log есть data.error_code=EXTERNAL_API_ERROR."""
     case_dir = OUT_DIR / "t5"
@@ -116,7 +110,6 @@ async def test5_external_api_error_in_export_logs(parser: TelegramParser) -> boo
         MODE_PRESETS["safe"] = safe_orig
 
 
-# --- Unit: 6. PARTIAL_FAILURE при частичном успехе ---
 async def test6_partial_failure_in_run_log(parser: TelegramParser) -> bool:
     """Partial run (мок медиа-ошибок) → exit 2, summary.partial_failure=true, run_finished в run.log с error_code=PARTIAL_FAILURE."""
     case_dir = OUT_DIR / "t6"
@@ -148,7 +141,6 @@ async def test6_partial_failure_in_run_log(parser: TelegramParser) -> bool:
         MODE_PRESETS["safe"] = safe_orig
 
 
-# --- Unit: 7. RATE_LIMIT (мок FloodWaitError) ---
 async def test7_rate_limit_in_export_logs(parser: TelegramParser) -> bool:
     """Мок FloodWaitError при первом запросе истории → запись flood_wait с error_code=RATE_LIMIT в export errors.log."""
     case_dir = OUT_DIR / "t7"
@@ -189,7 +181,6 @@ async def test7_rate_limit_in_export_logs(parser: TelegramParser) -> bool:
     return False
 
 
-# --- Integration: 1. run_id в app-логах ---
 def test1_run_id_in_app_log() -> bool:
     """parse --dry-run → в logs/app.log у записей один и тот же [run_id] в рамках запуска."""
     proc = subprocess.run(
@@ -210,7 +201,6 @@ def test1_run_id_in_app_log() -> bool:
     return len(matches) >= 1 and len(set(matches)) == 1
 
 
-# --- Integration: 2. run_id в export JSONL и summary ---
 def test2_run_id_in_export_and_summary() -> bool:
     """Тот же dry-run → в out/.../logs/run.log и summary run_id совпадают."""
     export_dirs = list(OUT_DIR.glob("*__*"))
@@ -237,9 +227,8 @@ def test2_run_id_in_export_and_summary() -> bool:
     return False
 
 
-# --- Integration: 4. AUTH_ERROR из CLI ---
 def test4_auth_error_in_errors_log() -> bool:
-    """Неавторизованная сессия (файл сессии отсутствует) → exit 1, в logs/errors.log есть error_code=AUTH_ERROR."""
+    """Неавторизованная сессия → exit 1, в logs/errors.log есть error_code=AUTH_ERROR."""
     env = os.environ.copy()
     proc = subprocess.run(
         [sys.executable, str(PROJECT_ROOT / "telegram_parser_skill.py"), "parse", "--channel", TEST_CHANNEL, "--session-file", "telegram_session_nonexistent_auth_test"],
@@ -258,9 +247,7 @@ def test4_auth_error_in_errors_log() -> bool:
 
 
 async def run_unit_tests() -> list[tuple[str, bool]]:
-    """Тесты 3, 5, 6, 7. 3 — без Telegram; 5–7 — с парсером и сессией."""
     results = []
-    # 3 — без подключения
     try:
         ok = test3_config_error_in_errors_log()
         results.append(("3 CONFIG_ERROR в errors.log", ok))
@@ -306,7 +293,6 @@ async def run_unit_tests() -> list[tuple[str, bool]]:
 
 
 def run_integration_tests() -> list[tuple[str, bool]]:
-    """Тесты 1, 2, 4 (с реальным Telegram / сессией)."""
     results = []
     try:
         ok = test1_run_id_in_app_log()

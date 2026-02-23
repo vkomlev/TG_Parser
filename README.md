@@ -26,6 +26,8 @@ python .\telegram_parser_skill.py channels
 python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonStruct/36"
 ```
 
+См. также запуск через [скрипты в `scripts/`](docs/setup.md#6-алиасы-powershell-опционально) и [смоук-тесты](docs/tests.md).
+
 ## Документация
 
 | Раздел | Описание |
@@ -49,4 +51,4 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
 ## Интеграция
 
 - **OpenClaw / скиллы**: команды можно сопоставить с `telegram_parser_skill.py` (см. [CLI](docs/cli.md))
-- **PowerShell-алиасы**: `.\setup_aliases.ps1` и перезагрузка профиля — см. [Настройка](docs/setup.md)
+- **PowerShell-скрипты и алиасы**: `scripts/telegram_parse.ps1`, `scripts/telegram_channels.ps1`, `scripts/setup_aliases.ps1` — см. [Настройка](docs/setup.md)

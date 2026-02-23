@@ -7,8 +7,8 @@
    без двойного connect (connect() вызывается только внутри parse_channel()).
 
 Запуск из корня проекта (.venv активирован):
-  python smoke_phase1.py --unit-only   # только юнит, для CI
-  python smoke_phase1.py               # юнит + интеграционные 2–4 (.env + telegram_session_smoke; при первом запуске интеграций может потребоваться авторизация для сессии smoke)
+  python tests/smoke_phase1.py --unit-only   # только юнит, для CI
+  python tests/smoke_phase1.py               # юнит + интеграционные 2–4
 """
 
 from __future__ import annotations
@@ -21,7 +21,8 @@ import shutil
 import sys
 from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(__file__))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 from unittest.mock import AsyncMock, patch
 
 from dotenv import load_dotenv
@@ -39,7 +40,7 @@ from telegram_parser_skill import build_parser
 
 # канал с медиа для тестов 2–4
 TEST_CHANNEL = "https://t.me/AlgorithmPythonStruct"
-OUT_DIR = Path(__file__).parent / "out_smoke_phase1"
+OUT_DIR = PROJECT_ROOT / "tests" / "out" / "smoke_phase1"
 
 
 def _reset_case_output(case_dir: Path) -> None:
@@ -83,8 +84,6 @@ def _get_media_errors_from_export(export_dir: str) -> list[str]:
 
 async def test2_file_reference_expired(parser: TelegramParser) -> bool:
     """parse с file_reference_expired → partial_failure, media_errors_count>0, error=file_reference_expired."""
-    # Делаем поведение теста быстрым и детерминированным:
-    # при любой ошибке мока не уходим в долгий backoff retry.
     case_dir = OUT_DIR / "t2"
     _reset_case_output(case_dir)
 
@@ -93,7 +92,7 @@ async def test2_file_reference_expired(parser: TelegramParser) -> bool:
         safe_orig.batch_delay_min,
         safe_orig.batch_delay_max,
         safe_orig.flood_extra_delay,
-        0,  # max_retries
+        0,
         safe_orig.media_concurrency,
         safe_orig.media_download_timeout_sec,
     )
@@ -123,7 +122,6 @@ async def test2_file_reference_expired(parser: TelegramParser) -> bool:
 
 async def test3_download_timeout(parser: TelegramParser) -> bool:
     """parse с таймаутом загрузки медиа → partial_failure, error=download_timeout."""
-    # Чтобы не ждать 5 retry с backoff, подменяем пресет на max_retries=0.
     case_dir = OUT_DIR / "t3"
     _reset_case_output(case_dir)
 
@@ -132,7 +130,7 @@ async def test3_download_timeout(parser: TelegramParser) -> bool:
         safe_orig.batch_delay_min,
         safe_orig.batch_delay_max,
         safe_orig.flood_extra_delay,
-        0,  # max_retries
+        0,
         safe_orig.media_concurrency,
         safe_orig.media_download_timeout_sec,
     )
@@ -199,7 +197,7 @@ async def test4_retry_exhausted(parser: TelegramParser) -> bool:
 
 
 async def main() -> int:
-    load_dotenv(Path(__file__).parent / ".env")
+    load_dotenv(PROJECT_ROOT / ".env")
     if "--unit-only" in sys.argv:
         sys.argv.remove("--unit-only")
         os.environ.setdefault("TELEGRAM_API_ID", "1")
@@ -214,22 +212,20 @@ async def main() -> int:
         print("SKIP: TELEGRAM_API_ID/TELEGRAM_API_HASH required for tests 2–4")
         return 0
 
-    # Юнит-тест выхода 2 без Telegram
     unit_ok = await test_cli_exit_partial_with_mock()
     print("  " + ("PASS" if unit_ok else "FAIL") + ": CLI exit 2 on partial_failure (mocked)")
 
-    # Отдельная сессия для интеграционных тестов (не боевая telegram_session).
     parser = TelegramParser(
         api_id=api_id,
         api_hash=api_hash,
         session_file="telegram_session_smoke",
-        auth_state_dir=Path(__file__).parent / "logs",
+        auth_state_dir=PROJECT_ROOT / "logs",
     )
     try:
         await asyncio.wait_for(parser.connect(), timeout=30.0)
     except asyncio.TimeoutError:
         print("SKIP: подключение к Telegram превысило 30 с. Интеграционные тесты 2–4 пропущены.")
-        print("Для быстрой проверки без сети: python smoke_phase1.py --unit-only")
+        print("Для быстрой проверки без сети: python tests/smoke_phase1.py --unit-only")
         return 0
     except RuntimeError as e:
         msg = str(e)
@@ -242,21 +238,18 @@ async def main() -> int:
         raise
 
     results = []
-    # Test 2
     try:
         ok = await test2_file_reference_expired(parser)
         results.append(("2 file_reference_expired", ok))
     except Exception as e:
         results.append(("2 file_reference_expired", False))
         print(f"Test 2 error: {e}")
-    # Test 3
     try:
         ok = await test3_download_timeout(parser)
         results.append(("3 download_timeout", ok))
     except Exception as e:
         results.append(("3 download_timeout", False))
         print(f"Test 3 error: {e}")
-    # Test 4
     try:
         ok = await test4_retry_exhausted(parser)
         results.append(("4 retry_exhausted", ok))

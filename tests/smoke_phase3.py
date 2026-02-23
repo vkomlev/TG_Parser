@@ -3,7 +3,7 @@
 Смоук-тесты Phase 3: контракты (ContentItem), маппинг TG ↔ контракт, адаптеры.
 
 Все тесты без Telegram (моки). Запуск из корня проекта (.venv):
-  python smoke_phase3.py
+  python tests/smoke_phase3.py
 """
 
 from __future__ import annotations
@@ -11,9 +11,11 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
+import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 from unittest.mock import AsyncMock, patch
 
 from contracts import (
@@ -26,7 +28,7 @@ from adapters import LocalExportDestinationAdapter, TelegramSourceAdapter
 from telegram_parser import TelegramParser
 
 
-OUT = Path(__file__).parent / "out_smoke_phase3"
+OUT = PROJECT_ROOT / "tests" / "out" / "smoke_phase3"
 
 
 def test1_round_trip_tg_content_tg() -> bool:
@@ -192,8 +194,7 @@ def test6_local_dest_append() -> bool:
     if data1.get("channel_info") != channel_info:
         return False
     date1 = data1.get("export_date")
-    import time
-    time.sleep(1.1)  # чтобы export_date гарантированно обновился при append
+    time.sleep(1.1)
 
     dest.publish_batch(
         [ContentItem("s", "2", "2026-02-17T11:00:00Z", "Second", [])],

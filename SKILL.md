@@ -7,12 +7,14 @@ description: Парсинг Telegram-каналов в JSON с загрузко�
 
 ## Быстрые команды
 
-Точка входа: `telegram_parser_skill.py`
+Точка входа: `telegram_parser_skill.py` (в корне проекта). Запуск через скрипты: `scripts/telegram_parse.ps1`, `scripts/telegram_channels.ps1`.
 
 ```powershell
 python .\telegram_parser_skill.py channels
 python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPythonStruct/36"
 python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonStruct/36"
+# или из любого каталога:
+powershell -ExecutionPolicy Bypass -File D:\Work\TG_Parser\scripts\telegram_parse.ps1 --channel @channel
 ```
 
 ## Что поддерживается
@@ -62,13 +64,15 @@ python .\telegram_parser_skill.py parse --channel "https://t.me/AlgorithmPythonS
 
 Маппинг команд:
 
-- `/telegram_channels` → `python D:\work\TG_Parser\telegram_parser_skill.py channels`
-- `/telegram_parse ...` → `python D:\work\TG_Parser\telegram_parser_skill.py parse ...`
+- `/telegram_channels` → `python <корень_проекта>\telegram_parser_skill.py channels` или `scripts\telegram_channels.ps1`
+- `/telegram_parse ...` → `python <корень_проекта>\telegram_parser_skill.py parse ...` или `scripts\telegram_parse.ps1`
 
 Если нужен явный резолв ссылки в чате, добавь алиас `/telegram_resolve ...` на команду:
 
 ```powershell
-python D:\work\TG_Parser\telegram_parser_skill.py resolve --channel ...
+python <корень_проекта>\telegram_parser_skill.py resolve --channel ...
+# или
+powershell -ExecutionPolicy Bypass -File <корень_проекта>\scripts\telegram_parse.ps1  # для parse
 ```
 
 ## Где смотреть детали

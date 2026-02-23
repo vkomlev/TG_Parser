@@ -104,14 +104,14 @@ python .\telegram_parser_skill.py resolve --channel "https://t.me/AlgorithmPytho
 
 ## 6. Алиасы PowerShell (опционально)
 
-Для вызова команд без указания пути к скрипту:
+Скрипты парсера лежат в `scripts/`. Для вызова без указания полного пути:
 
 ```powershell
-.\setup_aliases.ps1
+.\scripts\setup_aliases.ps1
 . $PROFILE
 ```
 
-После этого доступны команды `telegram_channels`, `telegram_parse`, короткие алиасы `tgch`, `tgparse` (см. [CLI](cli.md)).
+После этого доступны команды `telegram_channels`, `telegram_parse`, короткие алиасы `tgch`, `tgparse` (см. [CLI](cli.md)). Алиасы вызывают `scripts/telegram_parse.ps1` и `scripts/telegram_channels.ps1`; корень проекта определяется относительно расположения скриптов, поэтому запуск возможен из любого каталога.
 
 ## См. также
 
